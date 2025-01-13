@@ -16,9 +16,5 @@ public class FileCabinetService
         return Array.Empty<FileCabinetRecord>();
     }
 
-    public int GetStat()
-    {
-        // TODO: добавьте реализацию метода
-        return 0;
-    }
+    public int GetStat() => this.list.Count;
 }
