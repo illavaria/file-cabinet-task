@@ -1,4 +1,6 @@
-﻿namespace FileCabinetApp
+﻿using System.Runtime.CompilerServices;
+
+namespace FileCabinetApp
 {
     public static class Program
     {
@@ -15,6 +17,7 @@
             new Tuple<string, Action<string>>("help", PrintHelp),
             new Tuple<string, Action<string>>("exit", Exit),
             new Tuple<string, Action<string>>("stat", Stat),
+            new Tuple<string, Action<string>>("create", Create),
         };
 
         private static string[][] helpMessages = new string[][]
@@ -22,6 +25,7 @@
             new string[] { "help", "prints the help screen", "The 'help' command prints the help screen." },
             new string[] { "exit", "exits the application", "The 'exit' command exits the application." },
             new string[] { "stat", "prints the statistics of records", "The 'stat' command prints the statistics of records"},
+            new string[] { "create", "creates a new record", "The 'create' command creates a new record"},
         };
 
         private static FileCabinetService fileCabinetService = new ();
@@ -104,6 +108,25 @@
         {
             var recordsCount = Program.fileCabinetService.GetStat();
             Console.WriteLine($"{recordsCount} record(s).");
+        }
+
+        private static void Create(string parameters)
+        {
+            Console.Write("First name: ");
+            var firstName = Console.ReadLine();
+            Console.Write("Last name: ");
+            var lastName = Console.ReadLine();
+            Console.Write("Date of birth: ");
+            var dateOfBirthString = Console.ReadLine();
+            if (!DateTime.TryParse(dateOfBirthString, out var dateOfBirth))
+            {
+                Console.WriteLine("Wrong argument for date of birth");
+                return;
+                //add new try
+            }
+
+            var record_id = Program.fileCabinetService.CreateRecord(firstName, lastName, dateOfBirth);
+            Console.WriteLine($"Record #{record_id} is created.");
         }
     }
 }
