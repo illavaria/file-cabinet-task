@@ -18,14 +18,16 @@ namespace FileCabinetApp
             new Tuple<string, Action<string>>("exit", Exit),
             new Tuple<string, Action<string>>("stat", Stat),
             new Tuple<string, Action<string>>("create", Create),
+            new Tuple<string, Action<string>>("list", List),
         };
 
         private static string[][] helpMessages = new string[][]
         {
             new string[] { "help", "prints the help screen", "The 'help' command prints the help screen." },
             new string[] { "exit", "exits the application", "The 'exit' command exits the application." },
-            new string[] { "stat", "prints the statistics of records", "The 'stat' command prints the statistics of records"},
-            new string[] { "create", "creates a new record", "The 'create' command creates a new record"},
+            new string[] { "stat", "prints the statistics of records", "The 'stat' command prints the statistics of records" },
+            new string[] { "create", "creates a new record", "The 'create' command creates a new record" },
+            new string[] { "list", "prints all records", "The 'list' command prints prints information about all records." },
         };
 
         private static FileCabinetService fileCabinetService = new ();
@@ -75,15 +77,10 @@ namespace FileCabinetApp
         {
             if (!string.IsNullOrEmpty(parameters))
             {
-                var index = Array.FindIndex(helpMessages, 0, helpMessages.Length, i => string.Equals(i[Program.CommandHelpIndex], parameters, StringComparison.InvariantCultureIgnoreCase));
-                if (index >= 0)
-                {
-                    Console.WriteLine(helpMessages[index][Program.ExplanationHelpIndex]);
-                }
-                else
-                {
-                    Console.WriteLine($"There is no explanation for '{parameters}' command.");
-                }
+                var index = Array.FindIndex(helpMessages, 0, helpMessages.Length, i => string.Equals(i[Program.CommandHelpIndex], parameters, StringComparison.OrdinalIgnoreCase));
+                Console.WriteLine(index >= 0
+                    ? helpMessages[index][Program.ExplanationHelpIndex]
+                    : $"There is no explanation for '{parameters}' command.");
             }
             else
             {
@@ -114,8 +111,20 @@ namespace FileCabinetApp
         {
             Console.Write("First name: ");
             var firstName = Console.ReadLine();
+            if (string.IsNullOrWhiteSpace(firstName))
+            {
+                Console.WriteLine("First name can't be empty");
+                return;
+            }
+
             Console.Write("Last name: ");
             var lastName = Console.ReadLine();
+            if (string.IsNullOrWhiteSpace(lastName))
+            {
+                Console.WriteLine("Last name can't be empty");
+                return;
+            }
+
             Console.Write("Date of birth: ");
             var dateOfBirthString = Console.ReadLine();
             if (!DateTime.TryParse(dateOfBirthString, out var dateOfBirth))
@@ -123,10 +132,21 @@ namespace FileCabinetApp
                 Console.WriteLine("Wrong argument for date of birth");
                 return;
                 //add new try
+                //maybe check names too
+                //можно сделать цикл, чтобы давать возможность ввести правильные символы или прекратить по нажатию кнопки
             }
 
             var record_id = Program.fileCabinetService.CreateRecord(firstName, lastName, dateOfBirth);
             Console.WriteLine($"Record #{record_id} is created.");
+        }
+
+        private static void List(string parameters)
+        {
+            var records = Program.fileCabinetService.GetRecords();
+            foreach (var record in records)
+            {
+                Console.WriteLine($"{record.Id}, {record.FirstName}, {record.LastName}, {record.DateOfBirth:yyyy-MMM-dd}");
+            }
         }
     }
 }

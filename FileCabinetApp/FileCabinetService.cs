@@ -21,8 +21,9 @@ public class FileCabinetService
 
     public FileCabinetRecord[] GetRecords()
     {
-        // TODO: добавьте реализацию метода
-        return Array.Empty<FileCabinetRecord>();
+        var copyList = new FileCabinetRecord[this.list.Count];
+        this.list.CopyTo(copyList);
+        return copyList;
     }
 
     public int GetStat() => this.list.Count;
