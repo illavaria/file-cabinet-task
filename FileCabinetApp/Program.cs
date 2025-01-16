@@ -19,7 +19,8 @@ namespace FileCabinetApp
             new Tuple<string, Action<string>>("exit", Exit),
             new Tuple<string, Action<string>>("stat", Stat),
             new Tuple<string, Action<string>>("create", Create),
-            new Tuple<string, Action<string>>("list", List)
+            new Tuple<string, Action<string>>("list", List),
+            new Tuple<string, Action<string>>("edit", Edit)
         ];
 
         private static string[][] helpMessages =
@@ -28,7 +29,8 @@ namespace FileCabinetApp
             ["exit", "exits the application", "The 'exit' command exits the application."],
             ["stat", "prints the statistics of records", "The 'stat' command prints the statistics of records"],
             ["create", "creates a new record", "The 'create' command creates a new record"],
-            ["list", "prints all records", "The 'list' command prints prints information about all records."]
+            ["list", "prints all records", "The 'list' command prints prints information about all records."],
+            ["edit", "edits record's data", "The 'edit' command edits record's data."]
         ];
 
         private static FileCabinetService fileCabinetService = new ();
@@ -110,62 +112,36 @@ namespace FileCabinetApp
 
         private static void Create(string parameters)
         {
-            Console.Write("First name: ");
-            var firstName = Console.ReadLine();
-            if (string.IsNullOrWhiteSpace(firstName))
+            while (true)
             {
-                Console.WriteLine("First name can't be empty");
-                return;
+                try
+                {
+                    InputParameters(out var firstName, out var lastName, out var dateOfBirth, out var numberOfChildren, out var yearIncome, out var gender);
+                    var recordId = fileCabinetService.CreateRecord(firstName, lastName, dateOfBirth, numberOfChildren, yearIncome, gender);
+                    Console.WriteLine($"Record #{recordId} is created.");
+                    return;
+                }
+                catch (ArgumentNullException e)
+                {
+                    Console.WriteLine(e.Message);
+                    Console.WriteLine("Press esc to cancel creation or any other key to try again");
+                    if (Console.ReadKey().Key == ConsoleKey.Escape)
+                    {
+                        Console.WriteLine("Creation canceled");
+                        return;
+                    }
+                }
+                catch (ArgumentException e)
+                {
+                    Console.WriteLine(e.Message);
+                    Console.WriteLine("Press esc to cancel creation or any other key to try again");
+                    if (Console.ReadKey().Key == ConsoleKey.Escape)
+                    {
+                        Console.WriteLine("Creation canceled");
+                        return;
+                    }
+                }
             }
-
-            Console.Write("Last name: ");
-            var lastName = Console.ReadLine();
-            if (string.IsNullOrWhiteSpace(lastName))
-            {
-                Console.WriteLine("Last name can't be empty");
-                return;
-            }
-
-            Console.Write("Date of birth: ");
-            var input = Console.ReadLine();
-            if (!DateTime.TryParse(input, out var dateOfBirth))
-            {
-                Console.WriteLine("Wrong argument for date of birth");
-                return;
-                //add new try
-                //maybe check names too
-                //можно сделать цикл, чтобы давать возможность ввести правильные символы или прекратить по нажатию кнопки
-            }
-
-            Console.Write("Number of children: ");
-            input = Console.ReadLine();
-            if (!short.TryParse(input, out var numberOfChildren))
-            {
-                Console.WriteLine("Wrong argument for number of children");
-                return;
-            }
-
-            Console.Write("Year income: ");
-            input = Console.ReadLine();
-            if (!decimal.TryParse(input, out var yearIncome))
-            {
-                Console.WriteLine("Wrong argument for year income");
-                return;
-            }
-
-            Console.Write("Gender (M, F, N): ");
-            input = Console.ReadLine();
-            input = input?.ToUpper(CultureInfo.InvariantCulture);
-            if (string.IsNullOrWhiteSpace(input) || input.Length > 1 || !(input[0] == 'M' || input[0] == 'F' || input[0] == 'N'))
-            {
-                Console.WriteLine("Wrong argument for gender");
-                return;
-            }
-
-            var gender = input[0];
-
-            var recordId = fileCabinetService.CreateRecord(firstName, lastName, dateOfBirth, numberOfChildren, yearIncome, gender);
-            Console.WriteLine($"Record #{recordId} is created.");
         }
 
         private static void List(string parameters)
@@ -175,6 +151,84 @@ namespace FileCabinetApp
             {
                 Console.WriteLine(record.ToString());
             }
+        }
+
+        private static void Edit(string parameters)
+        {
+            int recordId;
+            if (!int.TryParse(parameters, CultureInfo.InvariantCulture, out recordId))
+            {
+                Console.WriteLine("Pass one number as a record id");
+                return;
+            }
+
+            if (fileCabinetService.FindRecordById(recordId) is null)
+            {
+                Console.WriteLine($"Record #{recordId} is not found.");
+                return;
+            }
+
+            while (true)
+            {
+                try
+                {
+                    InputParameters(out var firstName, out var lastName, out var dateOfBirth, out var numberOfChildren, out var yearIncome, out var gender);
+
+                    fileCabinetService.EditRecord(recordId, firstName, lastName, dateOfBirth, numberOfChildren, yearIncome, gender);
+                    Console.WriteLine($"Record #{recordId} is updated.");
+                    return;
+                }
+                catch (ArgumentNullException e)
+                {
+                    Console.WriteLine(e.Message);
+                    Console.WriteLine("Press esc to cancel creation or any other key to try again");
+                    if (Console.ReadKey().Key == ConsoleKey.Escape)
+                    {
+                        Console.WriteLine("Update canceled");
+                        return;
+                    }
+                }
+                catch (ArgumentException e)
+                {
+                    Console.WriteLine(e.Message);
+                    Console.WriteLine("Press esc to cancel creation or any other key to try again");
+                    if (Console.ReadKey().Key == ConsoleKey.Escape)
+                    {
+                        Console.WriteLine("Update canceled");
+                        return;
+                    }
+                }
+            }
+        }
+
+        private static void InputParameters(out string? firstName, out string? lastName, out DateTime dateOfBirth, out short numberOfChildren, out decimal yearIncome, out char gender)
+        {
+            Console.Write("First name: ");
+            firstName = Console.ReadLine();
+            Console.Write("Last name: ");
+            lastName = Console.ReadLine();
+
+            Console.Write("Date of birth: ");
+            var input = Console.ReadLine();
+            DateTime.TryParse(input, out dateOfBirth);
+
+            Console.Write("Number of children: ");
+            input = Console.ReadLine();
+            short.TryParse(input, out numberOfChildren);
+
+            Console.Write("Year income: ");
+            input = Console.ReadLine();
+            decimal.TryParse(input, out yearIncome);
+
+            Console.Write("Gender (M, F, N): ");
+            input = Console.ReadLine();
+            input = input?.ToUpper(CultureInfo.InvariantCulture);
+            if (string.IsNullOrWhiteSpace(input) || input.Length > 1)
+            {
+                throw new ArgumentException("Gender can't have more than 1 symbol");
+            }
+
+            gender = input[0];
         }
     }
 }
