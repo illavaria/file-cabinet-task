@@ -4,7 +4,7 @@ public class FileCabinetService
 {
     private readonly List<FileCabinetRecord> list = new List<FileCabinetRecord>();
 
-    public int CreateRecord(string firstName, string lastName, DateTime dateOfBirth)
+    public int CreateRecord(string firstName, string lastName, DateTime dateOfBirth,  short numberOfChildren, decimal yearIncome, char gender)
     {
         var record = new FileCabinetRecord
         {
@@ -12,6 +12,9 @@ public class FileCabinetService
             FirstName = firstName,
             LastName = lastName,
             DateOfBirth = dateOfBirth,
+            NumberOfChildren = numberOfChildren,
+            YearIncome = yearIncome,
+            Gender = gender,
         };
 
         this.list.Add(record);
