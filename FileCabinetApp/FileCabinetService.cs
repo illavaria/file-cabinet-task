@@ -1,12 +1,14 @@
+using System.Globalization;
 using System.Security.Cryptography;
 
 namespace FileCabinetApp;
 
 public class FileCabinetService
 {
-    private readonly List<FileCabinetRecord> list = new ();
+    private readonly List<FileCabinetRecord> list = new();
 
-    public int CreateRecord(string? firstName, string? lastName, DateTime dateOfBirth, short numberOfChildren, decimal yearIncome, char gender)
+    public int CreateRecord(string? firstName, string? lastName, DateTime dateOfBirth, short numberOfChildren,
+        decimal yearIncome, char gender)
     {
         ValidateRecordParams(firstName, lastName, dateOfBirth, numberOfChildren, yearIncome, gender);
 
@@ -35,9 +37,10 @@ public class FileCabinetService
 
     public int GetStat() => this.list.Count;
 
-    public void EditRecord(int id, string? firstName, string? lastName, DateTime dateOfBirth, short numberOfChildren, decimal yearIncome, char gender)
+    public void EditRecord(int id, string? firstName, string? lastName, DateTime dateOfBirth, short numberOfChildren,
+        decimal yearIncome, char gender)
     {
-        var record = this.FindRecordById(id) ?? throw new ArgumentException($"#{id} record is not found.");
+        var record = this.FindById(id) ?? throw new ArgumentException($"#{id} record is not found.");
         ValidateRecordParams(firstName, lastName, dateOfBirth, numberOfChildren, yearIncome, gender);
         record.FirstName = firstName;
         record.LastName = lastName;
@@ -47,7 +50,19 @@ public class FileCabinetService
         record.Gender = gender;
     }
 
-    public FileCabinetRecord? FindRecordById(int id) => this.list.Find(x => x.Id == id);
+    public FileCabinetRecord? FindById(int id) => this.list.Find(x => x.Id == id);
+
+    public FileCabinetRecord[] FindByFirstName(string firstName)
+        => this.list.Where(x => string.Equals(x.FirstName, firstName, StringComparison.OrdinalIgnoreCase)).ToArray();
+
+    public FileCabinetRecord[] FindByLastName(string lastName)
+        => this.list.Where(x => string.Equals(x.LastName, lastName, StringComparison.OrdinalIgnoreCase)).ToArray();
+
+    public FileCabinetRecord[] FindByDateOfBirth(string dateOfBirth)
+        => !DateTime.TryParse(dateOfBirth, CultureInfo.InvariantCulture, out var dateBirth)
+            ? Array.Empty<FileCabinetRecord>()
+            : this.list.Where(x => x.DateOfBirth == dateBirth).ToArray();
+
 
     private static void ValidateRecordParams(string? firstName, string? lastName, DateTime dateOfBirth, short numberOfChildren, decimal yearIncome, char gender)
     {
