@@ -13,6 +13,8 @@ namespace FileCabinetApp
 
         private static bool isRunning = true;
 
+        private static FileCabinetService fileCabinetService = new ();
+
         private static Tuple<string, Action<string>>[] commands =
         [
             new Tuple<string, Action<string>>("help", PrintHelp),
@@ -20,7 +22,15 @@ namespace FileCabinetApp
             new Tuple<string, Action<string>>("stat", Stat),
             new Tuple<string, Action<string>>("create", Create),
             new Tuple<string, Action<string>>("list", List),
-            new Tuple<string, Action<string>>("edit", Edit)
+            new Tuple<string, Action<string>>("edit", Edit),
+            new Tuple<string, Action<string>>("find", Find)
+        ];
+
+        private static Tuple<string, Func<string, FileCabinetRecord[]>>[] findParams =
+        [
+            new Tuple<string, Func<string, FileCabinetRecord[]>>("firstName", fileCabinetService.FindByFirstName),
+            new Tuple<string, Func<string, FileCabinetRecord[]>>("lastName", fileCabinetService.FindByLastName),
+            new Tuple<string, Func<string, FileCabinetRecord[]>>("dateOfBirth", fileCabinetService.FindByDateOfBirth)
         ];
 
         private static string[][] helpMessages =
@@ -30,10 +40,9 @@ namespace FileCabinetApp
             ["stat", "prints the statistics of records", "The 'stat' command prints the statistics of records"],
             ["create", "creates a new record", "The 'create' command creates a new record"],
             ["list", "prints all records", "The 'list' command prints prints information about all records."],
-            ["edit", "edits record's data", "The 'edit' command edits record's data."]
+            ["edit", "edits record's data", "The 'edit' command edits record's data."],
+            ["find", "finds records", "The 'find' command prints records with the needed value"]
         ];
-
-        private static FileCabinetService fileCabinetService = new ();
 
         public static void Main(string[] args)
         {
@@ -162,7 +171,7 @@ namespace FileCabinetApp
                 return;
             }
 
-            if (fileCabinetService.FindRecordById(recordId) is null)
+            if (fileCabinetService.FindById(recordId) is null)
             {
                 Console.WriteLine($"Record #{recordId} is not found.");
                 return;
@@ -201,6 +210,36 @@ namespace FileCabinetApp
             }
         }
 
+        private static void Find(string parameters)
+        {
+            if (string.IsNullOrWhiteSpace(parameters))
+            {
+                Console.WriteLine("Pass field's name and value as the parameters to the command");
+                return;
+            }
+
+            var par = parameters.Split(' ', 2);
+            if (par.Length < 2)
+            {
+                Console.WriteLine("Command takes 2 parameters: field's name and value");
+                return;
+            }
+
+            var index = Array.FindIndex(findParams,
+                tuple => string.Equals(par[0], tuple.Item1, StringComparison.OrdinalIgnoreCase));
+            if (index == -1)
+            {
+                Console.WriteLine("Wrong field name");
+                return;
+            }
+
+            var results = findParams[index].Item2(par[1].Trim('"'));
+            foreach (var record in results)
+            {
+                Console.WriteLine(record.ToString());
+            }
+        }
+
         private static void InputParameters(out string? firstName, out string? lastName, out DateTime dateOfBirth, out short numberOfChildren, out decimal yearIncome, out char gender)
         {
             Console.Write("First name: ");
@@ -210,15 +249,15 @@ namespace FileCabinetApp
 
             Console.Write("Date of birth: ");
             var input = Console.ReadLine();
-            DateTime.TryParse(input, out dateOfBirth);
+            DateTime.TryParse(input, CultureInfo.InvariantCulture, out dateOfBirth);
 
             Console.Write("Number of children: ");
             input = Console.ReadLine();
-            short.TryParse(input, out numberOfChildren);
+            short.TryParse(input, CultureInfo.InvariantCulture, out numberOfChildren);
 
             Console.Write("Year income: ");
             input = Console.ReadLine();
-            decimal.TryParse(input, out yearIncome);
+            decimal.TryParse(input, CultureInfo.InvariantCulture, out yearIncome);
 
             Console.Write("Gender (M, F, N): ");
             input = Console.ReadLine();
