@@ -218,8 +218,8 @@ namespace FileCabinetApp
                 return;
             }
 
-            var par = parameters.Split(' ');
-            if (par.Length != 2)
+            var par = parameters.Split(' ', 2);
+            if (par.Length < 2)
             {
                 Console.WriteLine("Command takes 2 parameters: field's name and value");
                 return;

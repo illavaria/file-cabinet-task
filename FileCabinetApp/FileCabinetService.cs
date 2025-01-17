@@ -1,14 +1,17 @@
 using System.Globalization;
 using System.Security.Cryptography;
 
+// ReSharper disable NullableWarningSuppressionIsUsed
 namespace FileCabinetApp;
 
 public class FileCabinetService
 {
-    private readonly List<FileCabinetRecord> list = new();
+    private readonly List<FileCabinetRecord> list = new ();
+    private readonly Dictionary<string, List<FileCabinetRecord>> firstNameDictionary = new ();
+    private readonly Dictionary<string, List<FileCabinetRecord>> lastNameDictionary = new ();
+    private readonly Dictionary<DateTime, List<FileCabinetRecord>> dateOfBirthDictionary = new ();
 
-    public int CreateRecord(string? firstName, string? lastName, DateTime dateOfBirth, short numberOfChildren,
-        decimal yearIncome, char gender)
+    public int CreateRecord(string? firstName, string? lastName, DateTime dateOfBirth, short numberOfChildren, decimal yearIncome, char gender)
     {
         ValidateRecordParams(firstName, lastName, dateOfBirth, numberOfChildren, yearIncome, gender);
 
@@ -24,6 +27,9 @@ public class FileCabinetService
         };
 
         this.list.Add(record);
+        AddToDictionary(this.firstNameDictionary, firstName!.ToUpper(CultureInfo.InvariantCulture), record);
+        AddToDictionary(this.lastNameDictionary, lastName!.ToUpper(CultureInfo.InvariantCulture), record);
+        AddToDictionary(this.dateOfBirthDictionary, dateOfBirth, record);
 
         return record.Id;
     }
@@ -42,9 +48,28 @@ public class FileCabinetService
     {
         var record = this.FindById(id) ?? throw new ArgumentException($"#{id} record is not found.");
         ValidateRecordParams(firstName, lastName, dateOfBirth, numberOfChildren, yearIncome, gender);
+
+        if (!string.Equals(record.FirstName, firstName, StringComparison.OrdinalIgnoreCase))
+        {
+            RemoveFromDictionary(this.firstNameDictionary, record.FirstName!.ToUpper(CultureInfo.InvariantCulture), record);
+            AddToDictionary(this.firstNameDictionary, firstName!.ToUpper(CultureInfo.InvariantCulture), record);
+        }
+
+        if (!string.Equals(record.LastName, lastName, StringComparison.OrdinalIgnoreCase))
+        {
+            RemoveFromDictionary(this.lastNameDictionary, record.LastName!.ToUpper(CultureInfo.InvariantCulture), record);
+            AddToDictionary(this.lastNameDictionary, lastName!.ToUpper(CultureInfo.InvariantCulture), record);
+        }
+
+        if (record.DateOfBirth != dateOfBirth)
+        {
+            RemoveFromDictionary(this.dateOfBirthDictionary, record.DateOfBirth, record);
+            AddToDictionary(this.dateOfBirthDictionary, dateOfBirth, record);
+            record.DateOfBirth = dateOfBirth;
+        }
+
         record.FirstName = firstName;
         record.LastName = lastName;
-        record.DateOfBirth = dateOfBirth;
         record.NumberOfChildren = numberOfChildren;
         record.YearIncome = yearIncome;
         record.Gender = gender;
@@ -52,16 +77,27 @@ public class FileCabinetService
 
     public FileCabinetRecord? FindById(int id) => this.list.Find(x => x.Id == id);
 
-    public FileCabinetRecord[] FindByFirstName(string firstName)
-        => this.list.Where(x => string.Equals(x.FirstName, firstName, StringComparison.OrdinalIgnoreCase)).ToArray();
+    public FileCabinetRecord[] FindByFirstName(string? firstName)
+        => firstName != null && this.firstNameDictionary.TryGetValue(firstName.ToUpper(CultureInfo.InvariantCulture), out var results)
+            ? results.ToArray()
+            : Array.Empty<FileCabinetRecord>();
 
-    public FileCabinetRecord[] FindByLastName(string lastName)
-        => this.list.Where(x => string.Equals(x.LastName, lastName, StringComparison.OrdinalIgnoreCase)).ToArray();
+    public FileCabinetRecord[] FindByLastName(string? lastName)
+        => lastName != null && this.lastNameDictionary.TryGetValue(lastName.ToUpper(CultureInfo.InvariantCulture), out var results)
+        ? results.ToArray()
+        : Array.Empty<FileCabinetRecord>();
 
-    public FileCabinetRecord[] FindByDateOfBirth(string dateOfBirth)
-        => !DateTime.TryParse(dateOfBirth, CultureInfo.InvariantCulture, out var dateBirth)
-            ? Array.Empty<FileCabinetRecord>()
-            : this.list.Where(x => x.DateOfBirth == dateBirth).ToArray();
+    public FileCabinetRecord[] FindByDateOfBirth(string dateOfBirthString)
+    {
+        if (!DateTime.TryParse(dateOfBirthString, out var dateOfBirth))
+        {
+            return Array.Empty<FileCabinetRecord>();
+        }
+
+        return this.dateOfBirthDictionary.TryGetValue(dateOfBirth, out var records)
+            ? records.ToArray()
+            : Array.Empty<FileCabinetRecord>();
+    }
 
 
     private static void ValidateRecordParams(string? firstName, string? lastName, DateTime dateOfBirth, short numberOfChildren, decimal yearIncome, char gender)
@@ -87,5 +123,28 @@ public class FileCabinetService
             ? throw new ArgumentException(
                 "Gender has to be one of the following: M - male, F - female, N - not answered")
             : gender;
+    }
+
+    private static void AddToDictionary<T>(IDictionary<T, List<FileCabinetRecord>> dictionary, T key, FileCabinetRecord record)
+    {
+        if (!dictionary.TryGetValue(key, out var value))
+        {
+            value = new List<FileCabinetRecord>();
+            dictionary[key] = value;
+        }
+
+        value.Add(record);
+    }
+
+    private static void RemoveFromDictionary<T>(IDictionary<T, List<FileCabinetRecord>> dictionary, T key, FileCabinetRecord record)
+    {
+        if (dictionary.TryGetValue(key, out var value))
+        {
+            value.Remove(record);
+            if (value.Count == 0)
+            {
+                dictionary.Remove(key);
+            }
+        }
     }
 }
