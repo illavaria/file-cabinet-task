@@ -1,8 +1,11 @@
-﻿using System.Globalization;
-using System.Runtime.CompilerServices;
+﻿using System.Collections.ObjectModel;
+using System.Globalization;
 
 namespace FileCabinetApp
 {
+    /// <summary>
+    /// Console client program.
+    /// </summary>
     public static class Program
     {
         private const string DeveloperName = "Illaria Samal";
@@ -13,7 +16,8 @@ namespace FileCabinetApp
 
         private static bool isRunning = true;
 
-        private static FileCabinetService fileCabinetService = new ();
+        private static IFileCabinetService fileCabinetService;
+        private static IRecordValidator validator;
 
         private static Tuple<string, Action<string>>[] commands =
         [
@@ -26,12 +30,7 @@ namespace FileCabinetApp
             new Tuple<string, Action<string>>("find", Find)
         ];
 
-        private static Tuple<string, Func<string, FileCabinetRecord[]>>[] findParams =
-        [
-            new Tuple<string, Func<string, FileCabinetRecord[]>>("firstName", fileCabinetService.FindByFirstName),
-            new Tuple<string, Func<string, FileCabinetRecord[]>>("lastName", fileCabinetService.FindByLastName),
-            new Tuple<string, Func<string, FileCabinetRecord[]>>("dateOfBirth", fileCabinetService.FindByDateOfBirth)
-        ];
+        private static Tuple<string, Func<string, ReadOnlyCollection<FileCabinetRecord>>>[] findParams;
 
         private static string[][] helpMessages =
         [
@@ -44,8 +43,48 @@ namespace FileCabinetApp
             ["find", "finds records", "The 'find' command prints records with the needed value"]
         ];
 
+        private static Tuple<string, Func<IRecordValidator>>[] validationParams =
+        [
+            new Tuple<string, Func<IRecordValidator>>("custom", () => new CustomValidator()),
+            new Tuple<string, Func<IRecordValidator>>("default", () => new DefaultValidator())
+        ];
+
+        /// <summary>
+        /// Main program body.
+        /// </summary>
+        /// <param name="args">Arguments.</param>
         public static void Main(string[] args)
         {
+            var validationRule = "default";
+            if (args?.Length > 0)
+            {
+                if (args[0].StartsWith("--validation-rules=", StringComparison.OrdinalIgnoreCase))
+                {
+                    validationRule = args[0]["--validation-rules=".Length..];
+                }
+                else if (string.Equals(args[0], "-v", StringComparison.OrdinalIgnoreCase))
+                {
+                    validationRule = args[1];
+                }
+            }
+
+            var index = Array.FindIndex(validationParams, i => i.Item1.Equals(validationRule, StringComparison.OrdinalIgnoreCase));
+            if (index < 0)
+            {
+                Console.WriteLine("Unknown validation rule");
+                return;
+            }
+
+            Program.fileCabinetService = new FileCabinetService(validationParams[index].Item2.Invoke());
+            Program.validator = validationParams[index].Item2.Invoke();
+
+            findParams =
+            [
+                new Tuple<string, Func<string, ReadOnlyCollection<FileCabinetRecord>>>("firstName", fileCabinetService.FindByFirstName),
+                new Tuple<string, Func<string, ReadOnlyCollection<FileCabinetRecord>>>("lastName", fileCabinetService.FindByLastName),
+                new Tuple<string, Func<string, ReadOnlyCollection<FileCabinetRecord>>>("dateOfBirth", fileCabinetService.FindByDateOfBirth)
+            ];
+
             Console.WriteLine($"File Cabinet Application, developed by {DeveloperName}");
             Console.WriteLine(HintMessage);
             Console.WriteLine();
@@ -64,7 +103,7 @@ namespace FileCabinetApp
                     continue;
                 }
 
-                var index = Array.FindIndex(commands, 0, commands.Length, i => i.Item1.Equals(command, StringComparison.OrdinalIgnoreCase));
+                index = Array.FindIndex(commands, 0, commands.Length, i => i.Item1.Equals(command, StringComparison.OrdinalIgnoreCase));
                 if (index >= 0)
                 {
                     const int parametersIndex = 1;
@@ -126,7 +165,11 @@ namespace FileCabinetApp
                 try
                 {
                     InputParameters(out var firstName, out var lastName, out var dateOfBirth, out var numberOfChildren, out var yearIncome, out var gender);
-                    var recordId = fileCabinetService.CreateRecord(firstName, lastName, dateOfBirth, numberOfChildren, yearIncome, gender);
+                    var recordId = fileCabinetService.CreateRecord(new FileCabinetRecordsParameters
+                    {
+                        FirstName = firstName, LastName = lastName, DateOfBirth = dateOfBirth,
+                        NumberOfChildren = numberOfChildren, YearIncome = yearIncome, Gender = gender,
+                    });
                     Console.WriteLine($"Record #{recordId} is created.");
                     return;
                 }
@@ -136,7 +179,7 @@ namespace FileCabinetApp
                     Console.WriteLine("Press esc to cancel creation or any other key to try again");
                     if (Console.ReadKey().Key == ConsoleKey.Escape)
                     {
-                        Console.WriteLine("Creation canceled");
+                        Console.WriteLine(" Creation canceled");
                         return;
                     }
                 }
@@ -146,7 +189,7 @@ namespace FileCabinetApp
                     Console.WriteLine("Press esc to cancel creation or any other key to try again");
                     if (Console.ReadKey().Key == ConsoleKey.Escape)
                     {
-                        Console.WriteLine("Creation canceled");
+                        Console.WriteLine(" Creation canceled");
                         return;
                     }
                 }
@@ -164,8 +207,7 @@ namespace FileCabinetApp
 
         private static void Edit(string parameters)
         {
-            int recordId;
-            if (!int.TryParse(parameters, CultureInfo.InvariantCulture, out recordId))
+            if (!int.TryParse(parameters, CultureInfo.InvariantCulture, out var recordId))
             {
                 Console.WriteLine("Pass one number as a record id");
                 return;
@@ -183,7 +225,11 @@ namespace FileCabinetApp
                 {
                     InputParameters(out var firstName, out var lastName, out var dateOfBirth, out var numberOfChildren, out var yearIncome, out var gender);
 
-                    fileCabinetService.EditRecord(recordId, firstName, lastName, dateOfBirth, numberOfChildren, yearIncome, gender);
+                    fileCabinetService.EditRecord(recordId, new FileCabinetRecordsParameters
+                    {
+                        FirstName = firstName, LastName = lastName, DateOfBirth = dateOfBirth,
+                        NumberOfChildren = numberOfChildren, YearIncome = yearIncome, Gender = gender,
+                    });
                     Console.WriteLine($"Record #{recordId} is updated.");
                     return;
                 }
@@ -193,7 +239,7 @@ namespace FileCabinetApp
                     Console.WriteLine("Press esc to cancel creation or any other key to try again");
                     if (Console.ReadKey().Key == ConsoleKey.Escape)
                     {
-                        Console.WriteLine("Update canceled");
+                        Console.WriteLine(" Update canceled");
                         return;
                     }
                 }
@@ -203,7 +249,7 @@ namespace FileCabinetApp
                     Console.WriteLine("Press esc to cancel creation or any other key to try again");
                     if (Console.ReadKey().Key == ConsoleKey.Escape)
                     {
-                        Console.WriteLine("Update canceled");
+                        Console.WriteLine(" Update canceled");
                         return;
                     }
                 }
@@ -225,8 +271,7 @@ namespace FileCabinetApp
                 return;
             }
 
-            var index = Array.FindIndex(findParams,
-                tuple => string.Equals(par[0], tuple.Item1, StringComparison.OrdinalIgnoreCase));
+            var index = Array.FindIndex(findParams, tuple => string.Equals(par[0], tuple.Item1, StringComparison.OrdinalIgnoreCase));
             if (index == -1)
             {
                 Console.WriteLine("Wrong field name");
@@ -243,31 +288,70 @@ namespace FileCabinetApp
         private static void InputParameters(out string? firstName, out string? lastName, out DateTime dateOfBirth, out short numberOfChildren, out decimal yearIncome, out char gender)
         {
             Console.Write("First name: ");
-            firstName = Console.ReadLine();
+            firstName = ReadInput(StringConverter, validator.FirstNameValidator);
             Console.Write("Last name: ");
-            lastName = Console.ReadLine();
+            lastName = ReadInput(StringConverter, validator.LastNameValidator);
 
             Console.Write("Date of birth: ");
-            var input = Console.ReadLine();
-            DateTime.TryParse(input, CultureInfo.InvariantCulture, out dateOfBirth);
+            dateOfBirth = ReadInput(DateConverter, validator.DateOfBirthValidator);
 
             Console.Write("Number of children: ");
-            input = Console.ReadLine();
-            short.TryParse(input, CultureInfo.InvariantCulture, out numberOfChildren);
+            numberOfChildren = ReadInput(ShortConverter, validator.NumberOfChildrenValidator);
 
             Console.Write("Year income: ");
-            input = Console.ReadLine();
-            decimal.TryParse(input, CultureInfo.InvariantCulture, out yearIncome);
+            yearIncome = ReadInput(DecimalConverter, validator.YearIncomeValidator);
 
             Console.Write("Gender (M, F, N): ");
-            input = Console.ReadLine();
-            input = input?.ToUpper(CultureInfo.InvariantCulture);
-            if (string.IsNullOrWhiteSpace(input) || input.Length > 1)
-            {
-                throw new ArgumentException("Gender can't have more than 1 symbol");
-            }
+            gender = ReadInput(CharConverter, validator.GenderValidator);
+        }
 
-            gender = input[0];
+        private static Tuple<bool, string, string> StringConverter(string input) =>
+            new (true, "Correct parameter", input);
+
+        private static Tuple<bool, string, DateTime> DateConverter(string input) =>
+            DateTime.TryParse(input, CultureInfo.InvariantCulture, out var output)
+                ? new Tuple<bool, string, DateTime>(true, "Correct parameter", output)
+                : new Tuple<bool, string, DateTime>(false, "Not valid date format", output);
+
+        private static Tuple<bool, string, short> ShortConverter(string input) =>
+            short.TryParse(input, CultureInfo.InvariantCulture, out var output)
+                ? new Tuple<bool, string, short>(true, "Correct parameter", output)
+                : new Tuple<bool, string, short>(false, "Not valid number format", output);
+
+        private static Tuple<bool, string, decimal> DecimalConverter(string input) =>
+            decimal.TryParse(input, CultureInfo.InvariantCulture, out var output)
+                ? new Tuple<bool, string, decimal>(true, "Correct parameter", output)
+                : new Tuple<bool, string, decimal>(false, "Not valid decimal format", output);
+
+        private static Tuple<bool, string, char> CharConverter(string input) =>
+            string.IsNullOrWhiteSpace(input) || input.Length > 1
+                ? new Tuple<bool, string, char>(false, "Gender can't have more than 1 symbol", ' ')
+                : new Tuple<bool, string, char>(true, "Correct parameter", input.ToUpperInvariant()[0]);
+
+        private static T ReadInput<T>(Func<string, Tuple<bool, string, T>> converter, Func<T, Tuple<bool, string>> validator)
+        {
+            while (true)
+            {
+                var input = Console.ReadLine();
+                var conversionResult = converter(input);
+
+                if (!conversionResult.Item1)
+                {
+                    Console.WriteLine($"Conversion failed: {conversionResult.Item2}. Please, correct your input.");
+                    continue;
+                }
+
+                var value = conversionResult.Item3;
+
+                var validationResult = validator(value);
+                if (!validationResult.Item1)
+                {
+                    Console.WriteLine($"Validation failed: {validationResult.Item2}. Please, correct your input.");
+                    continue;
+                }
+
+                return value;
+            }
         }
     }
 }

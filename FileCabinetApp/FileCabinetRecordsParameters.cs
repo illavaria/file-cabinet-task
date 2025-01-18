@@ -1,15 +1,10 @@
 namespace FileCabinetApp;
 
 /// <summary>
-/// Class represents records in file cabinet.
+/// Represents parameters required for creating a FileCabinetRecord.
 /// </summary>
-public class FileCabinetRecord
+public class FileCabinetRecordsParameters
 {
-    /// <summary>
-    /// Gets or sets record's id.
-    /// </summary>
-    public int Id { get; set; }
-
     /// <summary>
     /// Gets or sets first name.
     /// </summary>
@@ -39,11 +34,4 @@ public class FileCabinetRecord
     /// Gets or sets gender.
     /// </summary>
     public char Gender { get; set; }
-
-    /// <summary>
-    /// Creates string representation of the record.
-    /// </summary>
-    /// <returns>String representation of the record.</returns>
-    public override string ToString() =>
-        $"{this.Id}, {this.FirstName}, {this.LastName}, {this.DateOfBirth:yyyy-MMM-dd}, {this.NumberOfChildren}, {this.YearIncome}, {this.Gender}";
 }

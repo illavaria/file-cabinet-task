@@ -4,5 +4,365 @@
         <name>FileCabinetApp</name>
     </assembly>
     <members>
+        <member name="T:FileCabinetApp.CustomValidator">
+            <inheritdoc />
+        </member>
+        <member name="M:FileCabinetApp.CustomValidator.ValidateParameters(FileCabinetApp.FileCabinetRecordsParameters)">
+            <summary>
+            Validates the records parameters.
+            </summary>
+            <param name="parameters">Record's parameters for validation.</param>
+            <exception cref="T:System.ArgumentException">Thrown if:
+            - First name or last name is null, empty, whitespace, or has an invalid length (less than 2 or more than 40).
+            - Last name has digits.
+            - Date of birth is outside the range January 1, 1940 - today's date.
+            - Number of children is less than 0 or greater than 5.
+            - Number of children is more than 0 and record's age is less than 16.
+            - Annual income is less than 0 or greater than 200,000.
+            - Gender is not one of the allowed values ('M', 'F', 'N').
+            </exception>
+            <exception cref="T:System.ArgumentNullException">Thrown if parameters are null.</exception>
+        </member>
+        <member name="M:FileCabinetApp.CustomValidator.FirstNameValidator(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:FileCabinetApp.CustomValidator.LastNameValidator(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:FileCabinetApp.CustomValidator.DateOfBirthValidator(System.DateTime)">
+            <inheritdoc />
+        </member>
+        <member name="M:FileCabinetApp.CustomValidator.NumberOfChildrenValidator(System.Int16)">
+            <inheritdoc />
+        </member>
+        <member name="M:FileCabinetApp.CustomValidator.YearIncomeValidator(System.Decimal)">
+            <inheritdoc />
+        </member>
+        <member name="M:FileCabinetApp.CustomValidator.GenderValidator(System.Char)">
+            <inheritdoc />
+        </member>
+        <member name="T:FileCabinetApp.DefaultValidator">
+            <inheritdoc />
+        </member>
+        <member name="M:FileCabinetApp.DefaultValidator.ValidateParameters(FileCabinetApp.FileCabinetRecordsParameters)">
+            <summary>
+            Validates the records parameters.
+            </summary>
+            <param name="parameters">Record's parameters for validation.</param>
+            <exception cref="T:System.ArgumentException">Thrown if:
+            - First name or last name is null, empty, whitespace, or has an invalid length (less than 2 or more than 60).
+            - Date of birth is outside the range January 1, 1950 - today's date.
+            - Number of children is less than 0 or greater than 10.
+            - Annual income is less than 0 or greater than 250,000.
+            - Gender is not one of the allowed values ('M', 'F', 'N').
+            </exception>
+            <exception cref="T:System.ArgumentNullException">Thrown if parameters are null.</exception>
+        </member>
+        <member name="M:FileCabinetApp.DefaultValidator.FirstNameValidator(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:FileCabinetApp.DefaultValidator.LastNameValidator(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:FileCabinetApp.DefaultValidator.DateOfBirthValidator(System.DateTime)">
+            <inheritdoc />
+        </member>
+        <member name="M:FileCabinetApp.DefaultValidator.NumberOfChildrenValidator(System.Int16)">
+            <inheritdoc />
+        </member>
+        <member name="M:FileCabinetApp.DefaultValidator.YearIncomeValidator(System.Decimal)">
+            <inheritdoc />
+        </member>
+        <member name="M:FileCabinetApp.DefaultValidator.GenderValidator(System.Char)">
+            <inheritdoc />
+        </member>
+        <member name="T:FileCabinetApp.FileCabinetRecord">
+            <summary>
+            Class represents records in file cabinet.
+            </summary>
+        </member>
+        <member name="P:FileCabinetApp.FileCabinetRecord.Id">
+            <summary>
+            Gets or sets record's id.
+            </summary>
+        </member>
+        <member name="P:FileCabinetApp.FileCabinetRecord.FirstName">
+            <summary>
+            Gets or sets first name.
+            </summary>
+        </member>
+        <member name="P:FileCabinetApp.FileCabinetRecord.LastName">
+            <summary>
+            Gets or sets last name.
+            </summary>
+        </member>
+        <member name="P:FileCabinetApp.FileCabinetRecord.DateOfBirth">
+            <summary>
+            Gets or sets date of birth.
+            </summary>
+        </member>
+        <member name="P:FileCabinetApp.FileCabinetRecord.NumberOfChildren">
+            <summary>
+            Gets or sets number of children.
+            </summary>
+        </member>
+        <member name="P:FileCabinetApp.FileCabinetRecord.YearIncome">
+            <summary>
+            Gets or sets year income.
+            </summary>
+        </member>
+        <member name="P:FileCabinetApp.FileCabinetRecord.Gender">
+            <summary>
+            Gets or sets gender.
+            </summary>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetRecord.ToString">
+            <summary>
+            Creates string representation of the record.
+            </summary>
+            <returns>String representation of the record.</returns>
+        </member>
+        <member name="T:FileCabinetApp.FileCabinetRecordsParameters">
+            <summary>
+            Represents parameters required for creating a FileCabinetRecord.
+            </summary>
+        </member>
+        <member name="P:FileCabinetApp.FileCabinetRecordsParameters.FirstName">
+            <summary>
+            Gets or sets first name.
+            </summary>
+        </member>
+        <member name="P:FileCabinetApp.FileCabinetRecordsParameters.LastName">
+            <summary>
+            Gets or sets last name.
+            </summary>
+        </member>
+        <member name="P:FileCabinetApp.FileCabinetRecordsParameters.DateOfBirth">
+            <summary>
+            Gets or sets date of birth.
+            </summary>
+        </member>
+        <member name="P:FileCabinetApp.FileCabinetRecordsParameters.NumberOfChildren">
+            <summary>
+            Gets or sets number of children.
+            </summary>
+        </member>
+        <member name="P:FileCabinetApp.FileCabinetRecordsParameters.YearIncome">
+            <summary>
+            Gets or sets year income.
+            </summary>
+        </member>
+        <member name="P:FileCabinetApp.FileCabinetRecordsParameters.Gender">
+            <summary>
+            Gets or sets gender.
+            </summary>
+        </member>
+        <member name="T:FileCabinetApp.FileCabinetService">
+            <summary>
+            Abstract class represents file cabinet service.
+            </summary>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetService.#ctor(FileCabinetApp.IRecordValidator)">
+            <summary>
+            Abstract class represents file cabinet service.
+            </summary>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetService.CreateRecord(FileCabinetApp.FileCabinetRecordsParameters)">
+            <summary>
+            Creates a new record.
+            </summary>
+            <param name="parameters">Record's parameters.</param>
+            <returns>Id of the created record.</returns>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetService.GetRecords">
+            <summary>
+            Returns all records.
+            </summary>
+            <returns>Records list.</returns>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetService.GetStat">
+            <summary>
+            Gets the number of records.
+            </summary>
+            <returns>Number of records.</returns>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetService.EditRecord(System.Int32,FileCabinetApp.FileCabinetRecordsParameters)">
+            <summary>
+            Edits the record.
+            </summary>
+            <param name="id">Record Id.</param>
+            <param name="parameters">Record's parameters.</param>
+            <exception cref="T:System.ArgumentException">Thrown if record with such id doesn't exist.</exception>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetService.FindById(System.Int32)">
+            <summary>
+            Finds record by its id.
+            </summary>
+            <param name="id">Record Id.</param>
+            <returns>Record if found, otherwise null.</returns>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetService.FindByFirstName(System.String)">
+            <summary>
+            Find records by first name.
+            </summary>
+            <param name="firstName">First name to search.</param>
+            <returns>List of records with the matched first name.</returns>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetService.FindByLastName(System.String)">
+            <summary>
+            Find records by last name.
+            </summary>
+            <param name="lastName">Last name to search.</param>
+            <returns>List of records with the matched last name.</returns>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetService.FindByDateOfBirth(System.String)">
+            <summary>
+            Find records by date of birth.
+            </summary>
+            <param name="dateOfBirthString">String representing date of birth.</param>
+            <returns>List of records with the matched date of birth.</returns>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetService.AddToDictionary``1(System.Collections.Generic.IDictionary{``0,System.Collections.Generic.List{FileCabinetApp.FileCabinetRecord}},``0,FileCabinetApp.FileCabinetRecord)">
+            <summary>
+            Adds record to a dictionary.
+            </summary>
+            <param name="dictionary">The dictionary to which the record should be added.</param>
+            <param name="key">The key under which the record will be stored.</param>
+            <param name="record">The record to be added to the dictionary.</param>
+            <typeparam name="T">The type of the key in the dictionary.</typeparam>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetService.RemoveFromDictionary``1(System.Collections.Generic.IDictionary{``0,System.Collections.Generic.List{FileCabinetApp.FileCabinetRecord}},``0,FileCabinetApp.FileCabinetRecord)">
+            <summary>
+            Removes a record from the dictionary.
+            </summary>
+            <param name="dictionary">The dictionary from which the record should be removed.</param>
+            <param name="key">The key under which the record is stored.</param>
+            <param name="record">The record to be removed from the dictionary.</param>
+            <typeparam name="T">The type of the key in the dictionary.</typeparam>
+        </member>
+        <member name="T:FileCabinetApp.IFileCabinetService">
+            <summary>
+            Interface of file cabinet service.
+            </summary>
+        </member>
+        <member name="M:FileCabinetApp.IFileCabinetService.CreateRecord(FileCabinetApp.FileCabinetRecordsParameters)">
+            <summary>
+            Creates a new record.
+            </summary>
+            <param name="parameters">Record's parameters.</param>
+            <returns>Id of the created record.</returns>
+        </member>
+        <member name="M:FileCabinetApp.IFileCabinetService.GetRecords">
+            <summary>
+            Returns all records.
+            </summary>
+            <returns>Records list.</returns>
+        </member>
+        <member name="M:FileCabinetApp.IFileCabinetService.GetStat">
+            <summary>
+            Gets the number of records.
+            </summary>
+            <returns>Number of records.</returns>
+        </member>
+        <member name="M:FileCabinetApp.IFileCabinetService.EditRecord(System.Int32,FileCabinetApp.FileCabinetRecordsParameters)">
+            <summary>
+            Edits the record.
+            </summary>
+            <param name="id">Record Id.</param>
+            <param name="parameters">Record's parameters.</param>
+            <exception cref="T:System.ArgumentException">Thrown if record with such id doesn't exist.</exception>
+        </member>
+        <member name="M:FileCabinetApp.IFileCabinetService.FindById(System.Int32)">
+            <summary>
+            Finds record by its id.
+            </summary>
+            <param name="id">Record Id.</param>
+            <returns>Record if found, otherwise null.</returns>
+        </member>
+        <member name="M:FileCabinetApp.IFileCabinetService.FindByFirstName(System.String)">
+            <summary>
+            Find records by first name.
+            </summary>
+            <param name="firstName">First name to search.</param>
+            <returns>List of records with the matched first name.</returns>
+        </member>
+        <member name="M:FileCabinetApp.IFileCabinetService.FindByLastName(System.String)">
+            <summary>
+            Find records by last name.
+            </summary>
+            <param name="lastName">Last name to search.</param>
+            <returns>List of records with the matched last name.</returns>
+        </member>
+        <member name="M:FileCabinetApp.IFileCabinetService.FindByDateOfBirth(System.String)">
+            <summary>
+            Find records by date of birth.
+            </summary>
+            <param name="dateOfBirthString">String representing date of birth.</param>
+            <returns>List of records with the matched date of birth.</returns>
+        </member>
+        <member name="T:FileCabinetApp.IRecordValidator">
+            <summary>
+            Interface for validating record's parameters.
+            </summary>
+        </member>
+        <member name="M:FileCabinetApp.IRecordValidator.ValidateParameters(FileCabinetApp.FileCabinetRecordsParameters)">
+            <summary>
+            Validates all record's parameters.
+            </summary>
+            <param name="parameters">Record's parameters for validation.</param>
+        </member>
+        <member name="M:FileCabinetApp.IRecordValidator.FirstNameValidator(System.String)">
+            <summary>
+            Validates first name.
+            </summary>
+            <param name="firstName">First name for validation.</param>
+            <returns>Tuple with bool value and string to represent validation error.</returns>
+        </member>
+        <member name="M:FileCabinetApp.IRecordValidator.LastNameValidator(System.String)">
+            <summary>
+            Validates last name.
+            </summary>
+            <param name="lastName">Last name for validation.</param>
+            <returns>Tuple with bool value and string to represent validation error.</returns>
+        </member>
+        <member name="M:FileCabinetApp.IRecordValidator.DateOfBirthValidator(System.DateTime)">
+            <summary>
+            Validates date of birth.
+            </summary>
+            <param name="dateOfBirth">Date of birth for validation.</param>
+            <returns>Tuple with bool value and string to represent validation error.</returns>
+        </member>
+        <member name="M:FileCabinetApp.IRecordValidator.NumberOfChildrenValidator(System.Int16)">
+            <summary>
+            Validates number of children.
+            </summary>
+            <param name="numberOfChildren">Number of children for validation.</param>
+            <returns>Tuple with bool value and string to represent validation error.</returns>
+        </member>
+        <member name="M:FileCabinetApp.IRecordValidator.YearIncomeValidator(System.Decimal)">
+            <summary>
+            Validates year income.
+            </summary>
+            <param name="yearIncome">Year income for validation.</param>
+            <returns>Tuple with bool value and string to represent validation error.</returns>
+        </member>
+        <member name="M:FileCabinetApp.IRecordValidator.GenderValidator(System.Char)">
+            <summary>
+            Validates gender.
+            </summary>
+            <param name="gender">Gender for validation.</param>
+            <returns>Tuple with bool value and string to represent validation error.</returns>
+        </member>
+        <member name="T:FileCabinetApp.Program">
+            <summary>
+            Console client program.
+            </summary>
+        </member>
+        <member name="M:FileCabinetApp.Program.Main(System.String[])">
+            <summary>
+            Main program body.
+            </summary>
+            <param name="args">Arguments.</param>
+        </member>
     </members>
 </doc>
