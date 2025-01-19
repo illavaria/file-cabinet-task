@@ -16,7 +16,7 @@ namespace FileCabinetApp
 
         private static bool isRunning = true;
 
-        private static IFileCabinetService fileCabinetService;
+        private static FileCabinetService fileCabinetService;
         private static IRecordValidator validator;
 
         private static Tuple<string, Action<string>>[] commands =
@@ -27,7 +27,8 @@ namespace FileCabinetApp
             new Tuple<string, Action<string>>("create", Create),
             new Tuple<string, Action<string>>("list", List),
             new Tuple<string, Action<string>>("edit", Edit),
-            new Tuple<string, Action<string>>("find", Find)
+            new Tuple<string, Action<string>>("find", Find),
+            new Tuple<string, Action<string>>("export", Export)
         ];
 
         private static Tuple<string, Func<string, ReadOnlyCollection<FileCabinetRecord>>>[] findParams;
@@ -40,13 +41,20 @@ namespace FileCabinetApp
             ["create", "creates a new record", "The 'create' command creates a new record"],
             ["list", "prints all records", "The 'list' command prints prints information about all records."],
             ["edit", "edits record's data", "The 'edit' command edits record's data."],
-            ["find", "finds records", "The 'find' command prints records with the needed value"]
+            ["find", "finds records", "The 'find' command prints records with the needed value."],
+            ["export", "exports records", "The 'export' command exports records to a file."]
         ];
 
         private static Tuple<string, Func<IRecordValidator>>[] validationParams =
         [
             new Tuple<string, Func<IRecordValidator>>("custom", () => new CustomValidator()),
             new Tuple<string, Func<IRecordValidator>>("default", () => new DefaultValidator())
+        ];
+
+        private static Tuple<string, Action<FileCabinetServiceSnapshot, StreamWriter>>[] exportParams =
+        [
+            new Tuple<string, Action<FileCabinetServiceSnapshot, StreamWriter>>("csv", SaveToCsv),
+            new Tuple<string, Action<FileCabinetServiceSnapshot, StreamWriter>>("xml", SaveToXml)
         ];
 
         /// <summary>
@@ -285,6 +293,54 @@ namespace FileCabinetApp
             }
         }
 
+        private static void Export(string parameters)
+        {
+            var args = parameters.Split(' ', 2, StringSplitOptions.RemoveEmptyEntries);
+            if (args.Length < 2)
+            {
+                Console.WriteLine("Command must have 2 parameters: export type and filepath");
+                return;
+            }
+
+            var index = Array.FindIndex(exportParams, i => i.Item1.Equals(args[0], StringComparison.OrdinalIgnoreCase));
+            if (index < 0)
+            {
+                Console.WriteLine("Wrong export type.");
+            }
+
+            var saveCommand = exportParams[index].Item2;
+            var filePath = args[1];
+            try
+            {
+                var fileExtension = Path.GetExtension(filePath).Trim('.');
+                if (!string.Equals(fileExtension, exportParams[index].Item1, StringComparison.OrdinalIgnoreCase))
+                {
+                    Console.WriteLine("File extension must be the same as chosen export type");
+                    return;
+                }
+
+                if (File.Exists(filePath))
+                {
+                    Console.Write($"File '{filePath}' already exists. Overwrite? [Y/n] ");
+                    var input = Console.ReadLine()?.Trim();
+                    if (!string.Equals(input, "Y", StringComparison.OrdinalIgnoreCase))
+                    {
+                        Console.WriteLine("Export canceled.");
+                        return;
+                    }
+                }
+
+                using var streamWriter = new StreamWriter(filePath);
+                var snapshot = Program.fileCabinetService.MakeSnapshot();
+                saveCommand(snapshot, streamWriter);
+                Console.WriteLine($"All records are exported to file {filePath}.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Export failed: {ex.Message}");
+            }
+        }
+
         private static void InputParameters(out string? firstName, out string? lastName, out DateTime dateOfBirth, out short numberOfChildren, out decimal yearIncome, out char gender)
         {
             Console.Write("First name: ");
@@ -328,6 +384,12 @@ namespace FileCabinetApp
                 ? new Tuple<bool, string, char>(false, "Gender can't have more than 1 symbol", ' ')
                 : new Tuple<bool, string, char>(true, "Correct parameter", input.ToUpperInvariant()[0]);
 
+        private static void SaveToCsv(FileCabinetServiceSnapshot snapshot, StreamWriter writer) =>
+            snapshot.SaveToCsv(writer);
+        
+        private static void SaveToXml(FileCabinetServiceSnapshot snapshot, StreamWriter writer) =>
+            snapshot.SaveToXml(writer);
+        
         private static T ReadInput<T>(Func<string, Tuple<bool, string, T>> converter, Func<T, Tuple<bool, string>> validator)
         {
             while (true)

@@ -140,6 +140,8 @@ public class FileCabinetService(IRecordValidator validator) : IFileCabinetServic
             : new ReadOnlyCollection<FileCabinetRecord>(new List<FileCabinetRecord>());
     }
 
+    public FileCabinetServiceSnapshot MakeSnapshot() => new FileCabinetServiceSnapshot(this.list.ToArray());
+
     /// <summary>
     /// Adds record to a dictionary.
     /// </summary>
