@@ -16,7 +16,7 @@ namespace FileCabinetApp
 
         private static bool isRunning = true;
 
-        private static FileCabinetService fileCabinetService;
+        private static IFileCabinetService fileCabinetService;
         private static IRecordValidator validator;
 
         private static Tuple<string, Action<string>>[] commands =
@@ -57,6 +57,12 @@ namespace FileCabinetApp
             new Tuple<string, Action<FileCabinetServiceSnapshot, StreamWriter>>("xml", SaveToXml)
         ];
 
+        // private static (string, Func<IFileCabinetService>)[] storageParams =
+        //     [
+        //         new ValueTuple<string, Func<IFileCabinetService>>("memory", ()=> new FileCabinetMemoryService(validator)),
+        //         new ("file", ()=> new FileCabinetFilesystemService(new FileStream())),
+        //     ];
+
         /// <summary>
         /// Main program body.
         /// </summary>
@@ -64,16 +70,31 @@ namespace FileCabinetApp
         public static void Main(string[] args)
         {
             var validationRule = "default";
+            var storageRule = "memory";
             if (args?.Length > 0)
             {
-                if (args[0].StartsWith("--validation-rules=", StringComparison.OrdinalIgnoreCase))
+                for (int i = 0; i < args.Length; i++)
                 {
-                    validationRule = args[0]["--validation-rules=".Length..];
+                    if (args[i].StartsWith("--validation-rules=", StringComparison.OrdinalIgnoreCase))
+                    {
+                        validationRule = args[i]["--validation-rules=".Length..];
+                    }
+                    else if (string.Equals(args[i], "-v", StringComparison.OrdinalIgnoreCase))
+                    {
+                        validationRule = args[i + 1];
+                        i++;
+                    }
+                    else if (args[i].StartsWith("--storage=", StringComparison.OrdinalIgnoreCase))
+                    {
+                        storageRule = args[i]["--storage=".Length..];
+                    }
+                    else if (string.Equals(args[i], "-s", StringComparison.OrdinalIgnoreCase))
+                    {
+                        storageRule = args[i + 1];
+                        i++;
+                    }
                 }
-                else if (string.Equals(args[0], "-v", StringComparison.OrdinalIgnoreCase))
-                {
-                    validationRule = args[1];
-                }
+
             }
 
             var index = Array.FindIndex(validationParams, i => i.Item1.Equals(validationRule, StringComparison.OrdinalIgnoreCase));
@@ -83,7 +104,23 @@ namespace FileCabinetApp
                 return;
             }
 
-            Program.fileCabinetService = new FileCabinetService(validationParams[index].Item2.Invoke());
+            switch (storageRule)
+            {
+                case "memory":
+                    Program.fileCabinetService = new FileCabinetMemoryService(validationParams[index].Item2.Invoke());
+                    break;
+                case "file":
+                    Program.fileCabinetService =
+                        new FileCabinetFilesystemService(new FileStream("cabinet-records.db", FileMode.OpenOrCreate, FileAccess.ReadWrite),validationParams[index].Item2.Invoke());
+                    break;
+                default:
+                {
+                    Console.WriteLine("Unknown storage rule");
+                    return;
+                }
+
+            }
+
             Program.validator = validationParams[index].Item2.Invoke();
 
             findParams =

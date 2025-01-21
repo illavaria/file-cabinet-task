@@ -9,13 +9,12 @@ namespace FileCabinetApp;
 /// <summary>
 /// Abstract class represents file cabinet service.
 /// </summary>
-public class FileCabinetService(IRecordValidator validator) : IFileCabinetService
+public class FileCabinetMemoryService(IRecordValidator validator) : IFileCabinetService
 {
     private readonly List<FileCabinetRecord> list = new ();
     private readonly Dictionary<string, List<FileCabinetRecord>> firstNameDictionary = new ();
     private readonly Dictionary<string, List<FileCabinetRecord>> lastNameDictionary = new ();
     private readonly Dictionary<DateTime, List<FileCabinetRecord>> dateOfBirthDictionary = new ();
-    private readonly IRecordValidator validator = validator;
 
     /// <summary>
     /// Creates a new record.
@@ -24,7 +23,7 @@ public class FileCabinetService(IRecordValidator validator) : IFileCabinetServic
     /// <returns>Id of the created record.</returns>
     public int CreateRecord(FileCabinetRecordsParameters? parameters)
     {
-        this.validator.ValidateParameters(parameters);
+        validator.ValidateParameters(parameters);
 
         var record = new FileCabinetRecord
         {
@@ -49,7 +48,7 @@ public class FileCabinetService(IRecordValidator validator) : IFileCabinetServic
     /// Returns all records.
     /// </summary>
     /// <returns>Records list.</returns>
-    public ReadOnlyCollection<FileCabinetRecord> GetRecords() => new ReadOnlyCollection<FileCabinetRecord>(this.list);
+    public ReadOnlyCollection<FileCabinetRecord> GetRecords() => new (this.list);
 
     /// <summary>
     /// Gets the number of records.
@@ -66,7 +65,7 @@ public class FileCabinetService(IRecordValidator validator) : IFileCabinetServic
     public void EditRecord(int id, FileCabinetRecordsParameters? parameters)
     {
         var record = this.FindById(id) ?? throw new ArgumentException($"#{id} record is not found.");
-        this.validator.ValidateParameters(parameters);
+        validator.ValidateParameters(parameters);
 
         if (!string.Equals(record.FirstName, parameters.FirstName, StringComparison.OrdinalIgnoreCase))
         {

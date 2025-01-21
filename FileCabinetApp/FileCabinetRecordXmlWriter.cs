@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Xml;
+using System.Xml.Serialization;
 
 namespace FileCabinetApp;
 
@@ -27,20 +28,18 @@ public class FileCabinetRecordXmlWriter
     public void Write(FileCabinetRecord record)
     {
         _ = record ?? throw new ArgumentNullException(nameof(record));
-        this.writer.WriteStartElement("record");
-        this.writer.WriteAttributeString("id", record.Id.ToString(CultureInfo.InvariantCulture));
-
-        this.writer.WriteStartElement("name");
-        this.writer.WriteAttributeString("first", record.FirstName);
-        this.writer.WriteAttributeString("last", record.LastName);
-        this.writer.WriteEndElement();
-
-        this.writer.WriteElementString("dateOfBirth", record.DateOfBirth.ToString("MM/dd/yyyy", CultureInfo.InvariantCulture));
-
-        this.writer.WriteElementString("numberOfChildren", record.NumberOfChildren.ToString(CultureInfo.InvariantCulture));
-        this.writer.WriteElementString("yearIncome", record.YearIncome.ToString(CultureInfo.InvariantCulture));
-        this.writer.WriteElementString("gender", record.Gender.ToString());
-
-        this.writer.WriteEndElement();
+        var a = new XmlSerializer(typeof(FileCabinetRecordXml));
+        var recordXml = new FileCabinetRecordXml()
+        {
+            Id = record.Id,
+            Name = new Name() { FirstName = record.FirstName, LastName = record.LastName },
+            DateOfBirthString = record.DateOfBirth.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
+            NumberOfChildren = record.NumberOfChildren,
+            YearIncome = record.YearIncome,
+            Gender = record.Gender,
+        };
+        var namespaceXml = new XmlSerializerNamespaces();
+        namespaceXml.Add(string.Empty, string.Empty);
+        a.Serialize(this.writer, recordXml, namespaceXml);
     }
 }

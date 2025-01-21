@@ -61,4 +61,6 @@ public interface IFileCabinetService
     /// <param name="dateOfBirthString">String representing date of birth.</param>
     /// <returns>List of records with the matched date of birth.</returns>
     public ReadOnlyCollection<FileCabinetRecord> FindByDateOfBirth(string dateOfBirthString);
+
+    public FileCabinetServiceSnapshot MakeSnapshot();
 }
