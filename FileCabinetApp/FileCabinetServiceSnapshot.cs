@@ -1,3 +1,4 @@
+using System.Collections.ObjectModel;
 using System.Xml;
 
 namespace FileCabinetApp;
@@ -7,7 +8,15 @@ namespace FileCabinetApp;
 /// </summary>
 public class FileCabinetServiceSnapshot
 {
-    private readonly FileCabinetRecord[] records;
+    private FileCabinetRecord[] records;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="FileCabinetServiceSnapshot"/> class.
+    /// </summary>
+    public FileCabinetServiceSnapshot()
+    {
+        this.records = Array.Empty<FileCabinetRecord>();
+    }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="FileCabinetServiceSnapshot"/> class.
@@ -17,6 +26,11 @@ public class FileCabinetServiceSnapshot
     {
         this.records = records;
     }
+
+    /// <summary>
+    /// Gets records as read only collection.
+    /// </summary>
+    public ReadOnlyCollection<FileCabinetRecord> Records => this.records.AsReadOnly();
 
     /// <summary>
     /// Saves file cabinet state (records copy) in csv format.
@@ -47,5 +61,18 @@ public class FileCabinetServiceSnapshot
         }
 
         xmlWriter.WriteEndElement();
+    }
+
+    public void LoadFromCsv(StreamReader streamReader)
+    {
+        var recordCsvReader = new FileCabinetRecordCsvReader(streamReader);
+        this.records = recordCsvReader.ReadAll().ToArray();
+    }
+
+    public void LoadFromXml(StreamReader streamReader)
+    {
+        using var xmlReader = XmlReader.Create(streamReader, new XmlReaderSettings { IgnoreWhitespace = true });
+        var recordXmlReader = new FileCabinetRecordXmlReader(xmlReader);
+        this.records = recordXmlReader.ReadAll().ToArray();
     }
 }

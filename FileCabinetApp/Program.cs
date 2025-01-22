@@ -28,7 +28,8 @@ namespace FileCabinetApp
             new Tuple<string, Action<string>>("list", List),
             new Tuple<string, Action<string>>("edit", Edit),
             new Tuple<string, Action<string>>("find", Find),
-            new Tuple<string, Action<string>>("export", Export)
+            new Tuple<string, Action<string>>("export", Export),
+            new Tuple<string, Action<string>>("import", Import)
         ];
 
         private static Tuple<string, Func<string, ReadOnlyCollection<FileCabinetRecord>>>[] findParams;
@@ -42,7 +43,8 @@ namespace FileCabinetApp
             ["list", "prints all records", "The 'list' command prints prints information about all records."],
             ["edit", "edits record's data", "The 'edit' command edits record's data."],
             ["find", "finds records", "The 'find' command prints records with the needed value."],
-            ["export", "exports records", "The 'export' command exports records to a file."]
+            ["export", "exports records", "The 'export' command exports records to a file."],
+            ["import", "imports records", "The 'import' command imports records from file."]
         ];
 
         private static Tuple<string, Func<IRecordValidator>>[] validationParams =
@@ -57,11 +59,11 @@ namespace FileCabinetApp
             new Tuple<string, Action<FileCabinetServiceSnapshot, StreamWriter>>("xml", SaveToXml)
         ];
 
-        // private static (string, Func<IFileCabinetService>)[] storageParams =
-        //     [
-        //         new ValueTuple<string, Func<IFileCabinetService>>("memory", ()=> new FileCabinetMemoryService(validator)),
-        //         new ("file", ()=> new FileCabinetFilesystemService(new FileStream())),
-        //     ];
+        private static Tuple<string, Action<FileCabinetServiceSnapshot, StreamReader>>[] importParams =
+        [
+            new Tuple<string, Action<FileCabinetServiceSnapshot, StreamReader>>("csv", LoadFromCsv),
+            new Tuple<string, Action<FileCabinetServiceSnapshot, StreamReader>>("xml", LoadFromXml)
+        ];
 
         /// <summary>
         /// Main program body.
@@ -94,7 +96,6 @@ namespace FileCabinetApp
                         i++;
                     }
                 }
-
             }
 
             var index = Array.FindIndex(validationParams, i => i.Item1.Equals(validationRule, StringComparison.OrdinalIgnoreCase));
@@ -118,7 +119,6 @@ namespace FileCabinetApp
                     Console.WriteLine("Unknown storage rule");
                     return;
                 }
-
             }
 
             Program.validator = validationParams[index].Item2.Invoke();
@@ -343,30 +343,31 @@ namespace FileCabinetApp
             if (index < 0)
             {
                 Console.WriteLine("Wrong export type.");
+                return;
+            }
+
+            var filePath = args[1];
+            var fileExtension = Path.GetExtension(filePath).Trim('.');
+            if (!string.Equals(fileExtension, exportParams[index].Item1, StringComparison.OrdinalIgnoreCase))
+            {
+                Console.WriteLine("File extension must be the same as chosen export type");
+                return;
+            }
+
+            if (File.Exists(filePath))
+            {
+                Console.Write($"File '{filePath}' already exists. Overwrite? [Y/n] ");
+                var input = Console.ReadLine()?.Trim();
+                if (!string.Equals(input, "Y", StringComparison.OrdinalIgnoreCase))
+                {
+                    Console.WriteLine("Export canceled.");
+                    return;
+                }
             }
 
             var saveCommand = exportParams[index].Item2;
-            var filePath = args[1];
             try
             {
-                var fileExtension = Path.GetExtension(filePath).Trim('.');
-                if (!string.Equals(fileExtension, exportParams[index].Item1, StringComparison.OrdinalIgnoreCase))
-                {
-                    Console.WriteLine("File extension must be the same as chosen export type");
-                    return;
-                }
-
-                if (File.Exists(filePath))
-                {
-                    Console.Write($"File '{filePath}' already exists. Overwrite? [Y/n] ");
-                    var input = Console.ReadLine()?.Trim();
-                    if (!string.Equals(input, "Y", StringComparison.OrdinalIgnoreCase))
-                    {
-                        Console.WriteLine("Export canceled.");
-                        return;
-                    }
-                }
-
                 using var streamWriter = new StreamWriter(filePath);
                 var snapshot = Program.fileCabinetService.MakeSnapshot();
                 saveCommand(snapshot, streamWriter);
@@ -375,6 +376,58 @@ namespace FileCabinetApp
             catch (Exception ex)
             {
                 Console.WriteLine($"Export failed: {ex.Message}");
+            }
+        }
+
+        private static void Import(string parameters)
+        {
+            var args = parameters.Split(' ', 2, StringSplitOptions.RemoveEmptyEntries);
+            if (args.Length < 2)
+            {
+                Console.WriteLine("Command must have 2 parameters: import type and filepath");
+                return;
+            }
+
+            var index = Array.FindIndex(importParams, i => i.Item1.Equals(args[0], StringComparison.OrdinalIgnoreCase));
+            if (index < 0)
+            {
+                Console.WriteLine("Wrong import type.");
+                return;
+            }
+
+            var filePath = args[1];
+            if (!File.Exists(filePath))
+            {
+                Console.WriteLine($"Import error: file {filePath} is not exist.");
+                return;
+            }
+
+            var fileExtension = Path.GetExtension(filePath).Trim('.');
+            if (!string.Equals(fileExtension, importParams[index].Item1, StringComparison.OrdinalIgnoreCase))
+            {
+                Console.WriteLine("File extension must be the same as chosen export type");
+                return;
+            }
+
+            var loadCommand = importParams[index].Item2;
+            var recordsCount = fileCabinetService.GetStat();
+            try
+            {
+                using var streamReader = new StreamReader(filePath);
+                var snapshot = new FileCabinetServiceSnapshot();
+                loadCommand(snapshot, streamReader);
+                var validationErrors = new List<string>();
+                fileCabinetService.Restore(snapshot, ref validationErrors);
+                foreach (var error in validationErrors)
+                {
+                    Console.WriteLine(error);
+                }
+
+                Console.WriteLine($"{snapshot.Records.Count - validationErrors.Count} records were imported from file {filePath}.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Import failed: {ex.Message}");
             }
         }
 
@@ -423,10 +476,18 @@ namespace FileCabinetApp
 
         private static void SaveToCsv(FileCabinetServiceSnapshot snapshot, StreamWriter writer) =>
             snapshot.SaveToCsv(writer);
-        
+
         private static void SaveToXml(FileCabinetServiceSnapshot snapshot, StreamWriter writer) =>
             snapshot.SaveToXml(writer);
-        
+
+
+        private static void LoadFromCsv(FileCabinetServiceSnapshot snapshot, StreamReader reader) =>
+            snapshot.LoadFromCsv(reader);
+
+        private static void LoadFromXml(FileCabinetServiceSnapshot snapshot, StreamReader reader) =>
+            snapshot.LoadFromXml(reader);
+
+
         private static T ReadInput<T>(Func<string, Tuple<bool, string, T>> converter, Func<T, Tuple<bool, string>> validator)
         {
             while (true)

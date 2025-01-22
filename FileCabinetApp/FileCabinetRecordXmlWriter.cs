@@ -28,18 +28,10 @@ public class FileCabinetRecordXmlWriter
     public void Write(FileCabinetRecord record)
     {
         _ = record ?? throw new ArgumentNullException(nameof(record));
-        var a = new XmlSerializer(typeof(FileCabinetRecordXml));
-        var recordXml = new FileCabinetRecordXml()
-        {
-            Id = record.Id,
-            Name = new Name() { FirstName = record.FirstName, LastName = record.LastName },
-            DateOfBirthString = record.DateOfBirth.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
-            NumberOfChildren = record.NumberOfChildren,
-            YearIncome = record.YearIncome,
-            Gender = record.Gender,
-        };
+        var serializer = new XmlSerializer(typeof(FileCabinetRecordXml));
+        var recordXml = FileCabinetRecordMapper.MapToXml(record);
         var namespaceXml = new XmlSerializerNamespaces();
         namespaceXml.Add(string.Empty, string.Empty);
-        a.Serialize(this.writer, recordXml, namespaceXml);
+        serializer.Serialize(this.writer, recordXml, namespaceXml);
     }
 }

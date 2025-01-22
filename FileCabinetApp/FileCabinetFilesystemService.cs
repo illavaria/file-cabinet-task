@@ -2,10 +2,14 @@ using System.Collections.ObjectModel;
 
 namespace FileCabinetApp;
 
+/// <summary>
+/// Class represents filesystem file cabinet service.
+/// </summary>
 public class FileCabinetFilesystemService(FileStream fileStream, IRecordValidator validator) : IFileCabinetService
 {
     private const int RecordSize = 278;
 
+    /// <inheritdoc/>
     public int CreateRecord(FileCabinetRecordsParameters? parameters)
     {
         validator.ValidateParameters(parameters);
@@ -20,13 +24,16 @@ public class FileCabinetFilesystemService(FileStream fileStream, IRecordValidato
         return recordId;
     }
 
+    /// <inheritdoc/>
     public ReadOnlyCollection<FileCabinetRecord> GetRecords()
     {
         return this.ReadAllRecords((record, s) => true, string.Empty);
     }
 
+    /// <inheritdoc/>
     public int GetStat() => (int)(fileStream.Length / RecordSize) + 1;
 
+    /// <inheritdoc/>
     public void EditRecord(int id, FileCabinetRecordsParameters? parameters)
     {
         validator.ValidateParameters(parameters);
@@ -39,7 +46,7 @@ public class FileCabinetFilesystemService(FileStream fileStream, IRecordValidato
         writer.Flush();
     }
 
-
+    /// <inheritdoc/>
     public FileCabinetRecord? FindById(int id)
     {
         var recordOffset = RecordSize * (id - 1);
@@ -54,20 +61,51 @@ public class FileCabinetFilesystemService(FileStream fileStream, IRecordValidato
         return ReadRecord(reader);
     }
 
+    /// <inheritdoc/>
     public ReadOnlyCollection<FileCabinetRecord> FindByFirstName(string? firstName) =>
         this.ReadAllRecords((record, s) => record.FirstName == s, firstName);
 
+    /// <inheritdoc/>
     public ReadOnlyCollection<FileCabinetRecord> FindByLastName(string? lastName) =>
         this.ReadAllRecords((record, s) => record.LastName == s, lastName);
 
+    /// <inheritdoc/>
     public ReadOnlyCollection<FileCabinetRecord> FindByDateOfBirth(string dateOfBirthString) =>
         !DateTime.TryParse(dateOfBirthString, out var dateOfBirth)
             ? new ReadOnlyCollection<FileCabinetRecord>(new List<FileCabinetRecord>())
             : this.ReadAllRecords((record, date) => record.DateOfBirth == date, dateOfBirth);
 
-    public FileCabinetServiceSnapshot MakeSnapshot()
+    /// <inheritdoc/>
+    public FileCabinetServiceSnapshot MakeSnapshot() => new FileCabinetServiceSnapshot(this.GetRecords().ToArray());
+
+    /// <inheritdoc/>
+    public void Restore(FileCabinetServiceSnapshot snapshot, ref List<string> errorsList)
     {
-        throw new NotImplementedException();
+        _ = snapshot ?? throw new ArgumentNullException(nameof(snapshot));
+        foreach (var record in snapshot.Records)
+        {
+            try
+            {
+                var parameters = new FileCabinetRecordsParameters
+                {
+                    FirstName = record.FirstName, LastName = record.LastName, DateOfBirth = record.DateOfBirth,
+                    NumberOfChildren = record.NumberOfChildren, YearIncome = record.YearIncome, Gender = record.Gender,
+                };
+                validator.ValidateParameters(parameters);
+
+                var recordOffset = RecordSize * (record.Id - 1);
+                fileStream.Seek(recordOffset, SeekOrigin.Begin);
+                using var writer = new BinaryWriter(fileStream, System.Text.Encoding.Unicode, leaveOpen: true);
+
+                WriteRecord(record.Id, parameters, writer);
+
+                writer.Flush();
+            }
+            catch (Exception e)
+            {
+                errorsList?.Add($"Record #{record.Id} didn't pass validation: {e.Message}");
+            }
+        }
     }
 
     private static char[] PadString(string? value, int length)

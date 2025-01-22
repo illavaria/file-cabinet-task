@@ -63,4 +63,6 @@ public interface IFileCabinetService
     public ReadOnlyCollection<FileCabinetRecord> FindByDateOfBirth(string dateOfBirthString);
 
     public FileCabinetServiceSnapshot MakeSnapshot();
+
+    public void Restore(FileCabinetServiceSnapshot snapshot, ref List<string> errorsList);
 }

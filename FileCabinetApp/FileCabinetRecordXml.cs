@@ -19,7 +19,7 @@ public class FileCabinetRecordXml
     public Name Name { get; set; }
 
     [XmlElement("dateOfBirth")]
-    public string DateOfBirthString { get; set; }
+    public string DateOfBirth { get; set; }
 
     /// <summary>
     /// Gets or sets number of children.
@@ -34,25 +34,24 @@ public class FileCabinetRecordXml
     public decimal YearIncome { get; set; }
 
     [XmlElement("gender")]
-    public string GenderString
-    {
-        get => Gender.ToString(CultureInfo.InvariantCulture);
-        set => Gender = string.IsNullOrWhiteSpace(value) ? throw new ArgumentNullException(value) : value[0];
-    }
-
-    /// <summary>
-    /// Gets or sets gender.
-    /// </summary>
-    [XmlIgnore]
-    public char Gender { get; set; }
+    public string Gender { get; set; }
 }
 
+/// <summary>
+/// Class represents record's name.
+/// </summary>
 [XmlType("name")]
 public class Name
 {
+    /// <summary>
+    /// Gets or sets first name.
+    /// </summary>
     [XmlAttribute("first")]
     public string? FirstName { get; set; }
 
+    /// <summary>
+    /// Gets or sets last name.
+    /// </summary>
     [XmlAttribute("last")]
     public string? LastName { get; set; }
 }
