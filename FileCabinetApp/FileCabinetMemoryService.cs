@@ -1,5 +1,4 @@
 using System.Collections.ObjectModel;
-using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 
 // ReSharper disable InconsistentNaming
@@ -7,7 +6,7 @@ using System.Globalization;
 namespace FileCabinetApp;
 
 /// <summary>
-/// Abstract class represents file cabinet service.
+/// Class represents memory file cabinet service.
 /// </summary>
 public class FileCabinetMemoryService(IRecordValidator validator) : IFileCabinetService
 {
@@ -16,11 +15,7 @@ public class FileCabinetMemoryService(IRecordValidator validator) : IFileCabinet
     private readonly Dictionary<string, List<FileCabinetRecord>> lastNameDictionary = new ();
     private readonly Dictionary<DateTime, List<FileCabinetRecord>> dateOfBirthDictionary = new ();
 
-    /// <summary>
-    /// Creates a new record.
-    /// </summary>
-    /// <param name="parameters">Record's parameters.</param>
-    /// <returns>Id of the created record.</returns>
+    /// <inheritdoc/>
     public int CreateRecord(FileCabinetRecordsParameters? parameters)
     {
         validator.ValidateParameters(parameters);
@@ -44,24 +39,13 @@ public class FileCabinetMemoryService(IRecordValidator validator) : IFileCabinet
         return record.Id;
     }
 
-    /// <summary>
-    /// Returns all records.
-    /// </summary>
-    /// <returns>Records list.</returns>
-    public ReadOnlyCollection<FileCabinetRecord> GetRecords() => new (this.list);
+    /// <inheritdoc/>
+    public ReadOnlyCollection<FileCabinetRecord> GetRecords() => this.list.AsReadOnly();
 
-    /// <summary>
-    /// Gets the number of records.
-    /// </summary>
-    /// <returns>Number of records.</returns>
+    /// <inheritdoc/>
     public int GetStat() => this.list.Count;
 
-    /// <summary>
-    /// Edits the record.
-    /// </summary>
-    /// <param name="id">Record Id.</param>
-    /// <param name="parameters">Record's parameters.</param>
-    /// <exception cref="ArgumentException">Thrown if record with such id doesn't exist.</exception>
+    /// <inheritdoc/>
     public void EditRecord(int id, FileCabinetRecordsParameters? parameters)
     {
         var record = this.FindById(id) ?? throw new ArgumentException($"#{id} record is not found.");
@@ -93,40 +77,24 @@ public class FileCabinetMemoryService(IRecordValidator validator) : IFileCabinet
         record.Gender = parameters.Gender;
     }
 
-    /// <summary>
-    /// Finds record by its id.
-    /// </summary>
-    /// <param name="id">Record Id.</param>
-    /// <returns>Record if found, otherwise null.</returns>
+    /// <inheritdoc/>
     public FileCabinetRecord? FindById(int id) => this.list.Find(x => x.Id == id);
 
-    /// <summary>
-    /// Find records by first name.
-    /// </summary>
-    /// <param name="firstName">First name to search.</param>
-    /// <returns>List of records with the matched first name.</returns>
+    /// <inheritdoc/>
     public ReadOnlyCollection<FileCabinetRecord> FindByFirstName(string? firstName)
         => firstName != null &&
            this.firstNameDictionary.TryGetValue(firstName.ToUpper(CultureInfo.InvariantCulture), out var results)
-            ? new ReadOnlyCollection<FileCabinetRecord>(results)
+            ? results.AsReadOnly()
             : new ReadOnlyCollection<FileCabinetRecord>(new List<FileCabinetRecord>());
 
-    /// <summary>
-    /// Find records by last name.
-    /// </summary>
-    /// <param name="lastName">Last name to search.</param>
-    /// <returns>List of records with the matched last name.</returns>
+    /// <inheritdoc/>
     public ReadOnlyCollection<FileCabinetRecord> FindByLastName(string? lastName)
         => lastName != null &&
            this.lastNameDictionary.TryGetValue(lastName.ToUpper(CultureInfo.InvariantCulture), out var results)
-            ? new ReadOnlyCollection<FileCabinetRecord>(results)
+            ? results.AsReadOnly()
             : new ReadOnlyCollection<FileCabinetRecord>(new List<FileCabinetRecord>());
 
-    /// <summary>
-    /// Find records by date of birth.
-    /// </summary>
-    /// <param name="dateOfBirthString">String representing date of birth.</param>
-    /// <returns>List of records with the matched date of birth.</returns>
+    /// <inheritdoc/>
     public ReadOnlyCollection<FileCabinetRecord> FindByDateOfBirth(string dateOfBirthString)
     {
         if (!DateTime.TryParse(dateOfBirthString, out var dateOfBirth))
@@ -135,11 +103,43 @@ public class FileCabinetMemoryService(IRecordValidator validator) : IFileCabinet
         }
 
         return this.dateOfBirthDictionary.TryGetValue(dateOfBirth, out var results)
-            ? new ReadOnlyCollection<FileCabinetRecord>(results)
+            ? results.AsReadOnly()
             : new ReadOnlyCollection<FileCabinetRecord>(new List<FileCabinetRecord>());
     }
 
+    /// <inheritdoc/>
     public FileCabinetServiceSnapshot MakeSnapshot() => new FileCabinetServiceSnapshot(this.list.ToArray());
+
+    /// <inheritdoc/>
+    public void Restore(FileCabinetServiceSnapshot snapshot, ref List<string> errorsList)
+    {
+        _ = snapshot ?? throw new ArgumentNullException(nameof(snapshot));
+        foreach (var record in snapshot.Records)
+        {
+            try
+            {
+                validator.ValidateParameters(new FileCabinetRecordsParameters
+                {
+                    FirstName = record.FirstName, LastName = record.LastName, DateOfBirth = record.DateOfBirth,
+                    NumberOfChildren = record.NumberOfChildren, YearIncome = record.YearIncome, Gender = record.Gender,
+                });
+                var recordInList = this.FindById(record.Id);
+                if (recordInList is not null)
+                {
+                    this.list.Remove(recordInList);
+                }
+
+                this.list.Add(record);
+                AddToDictionary(this.firstNameDictionary, record.FirstName!.ToUpper(CultureInfo.InvariantCulture), record);
+                AddToDictionary(this.lastNameDictionary, record.LastName!.ToUpper(CultureInfo.InvariantCulture), record);
+                AddToDictionary(this.dateOfBirthDictionary, record.DateOfBirth, record);
+            }
+            catch (Exception e)
+            {
+                errorsList?.Add($"Record #{record.Id} didn't pass validation: {e.Message}");
+            }
+        }
+    }
 
     /// <summary>
     /// Adds record to a dictionary.
