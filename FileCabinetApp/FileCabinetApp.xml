@@ -13,78 +13,6 @@
         <member name="M:FileCabinetApp.ExportCommandHandler.Handle(FileCabinetApp.AppCommandRequest)">
             <inheritdoc/>
         </member>
-        <member name="T:FileCabinetApp.CustomValidator">
-            <inheritdoc />
-        </member>
-        <member name="M:FileCabinetApp.CustomValidator.ValidateParameters(FileCabinetApp.FileCabinetRecordsParameters)">
-            <summary>
-            Validates the records parameters.
-            </summary>
-            <param name="parameters">Record's parameters for validation.</param>
-            <exception cref="T:System.ArgumentException">Thrown if:
-            - First name or last name is null, empty, whitespace, or has an invalid length (less than 2 or more than 40).
-            - Last name has digits.
-            - Date of birth is outside the range January 1, 1940 - today's date.
-            - Number of children is less than 0 or greater than 5.
-            - Number of children is more than 0 and record's age is less than 16.
-            - Annual income is less than 0 or greater than 200,000.
-            - Gender is not one of the allowed values ('M', 'F', 'N').
-            </exception>
-            <exception cref="T:System.ArgumentNullException">Thrown if parameters are null.</exception>
-        </member>
-        <member name="M:FileCabinetApp.CustomValidator.FirstNameValidator(System.String)">
-            <inheritdoc />
-        </member>
-        <member name="M:FileCabinetApp.CustomValidator.LastNameValidator(System.String)">
-            <inheritdoc />
-        </member>
-        <member name="M:FileCabinetApp.CustomValidator.DateOfBirthValidator(System.DateTime)">
-            <inheritdoc />
-        </member>
-        <member name="M:FileCabinetApp.CustomValidator.NumberOfChildrenValidator(System.Int16)">
-            <inheritdoc />
-        </member>
-        <member name="M:FileCabinetApp.CustomValidator.YearIncomeValidator(System.Decimal)">
-            <inheritdoc />
-        </member>
-        <member name="M:FileCabinetApp.CustomValidator.GenderValidator(System.Char)">
-            <inheritdoc />
-        </member>
-        <member name="T:FileCabinetApp.DefaultValidator">
-            <inheritdoc />
-        </member>
-        <member name="M:FileCabinetApp.DefaultValidator.ValidateParameters(FileCabinetApp.FileCabinetRecordsParameters)">
-            <summary>
-            Validates the records parameters.
-            </summary>
-            <param name="parameters">Record's parameters for validation.</param>
-            <exception cref="T:System.ArgumentException">Thrown if:
-            - First name or last name is null, empty, whitespace, or has an invalid length (less than 2 or more than 60).
-            - Date of birth is outside the range January 1, 1950 - today's date.
-            - Number of children is less than 0 or greater than 10.
-            - Annual income is less than 0 or greater than 250,000.
-            - Gender is not one of the allowed values ('M', 'F', 'N').
-            </exception>
-            <exception cref="T:System.ArgumentNullException">Thrown if parameters are null.</exception>
-        </member>
-        <member name="M:FileCabinetApp.DefaultValidator.FirstNameValidator(System.String)">
-            <inheritdoc />
-        </member>
-        <member name="M:FileCabinetApp.DefaultValidator.LastNameValidator(System.String)">
-            <inheritdoc />
-        </member>
-        <member name="M:FileCabinetApp.DefaultValidator.DateOfBirthValidator(System.DateTime)">
-            <inheritdoc />
-        </member>
-        <member name="M:FileCabinetApp.DefaultValidator.NumberOfChildrenValidator(System.Int16)">
-            <inheritdoc />
-        </member>
-        <member name="M:FileCabinetApp.DefaultValidator.YearIncomeValidator(System.Decimal)">
-            <inheritdoc />
-        </member>
-        <member name="M:FileCabinetApp.DefaultValidator.GenderValidator(System.Char)">
-            <inheritdoc />
-        </member>
         <member name="T:FileCabinetApp.FileCabinetFilesystemService">
             <summary>
             Class represents filesystem file cabinet service.
@@ -546,6 +474,179 @@
             Removes deleted records from the list.
             </summary>
         </member>
+        <member name="T:FileCabinetApp.Program">
+            <summary>
+            Console client program.
+            </summary>
+        </member>
+        <member name="M:FileCabinetApp.Program.Main(System.String[])">
+            <summary>
+            Main program body.
+            </summary>
+            <param name="args">Arguments.</param>
+        </member>
+        <member name="M:FileCabinetApp.ServiceLogger.CreateRecord(FileCabinetApp.FileCabinetRecordsParameters)">
+            <inheritdoc/>
+        </member>
+        <member name="M:FileCabinetApp.ServiceLogger.GetRecords">
+            <inheritdoc/>
+        </member>
+        <member name="M:FileCabinetApp.ServiceLogger.GetNumberOfAllRecords">
+            <inheritdoc/>
+        </member>
+        <member name="M:FileCabinetApp.ServiceLogger.GetNumberOfDeletedRecords">
+            <inheritdoc/>
+        </member>
+        <member name="M:FileCabinetApp.ServiceLogger.EditRecord(System.Int32,FileCabinetApp.FileCabinetRecordsParameters)">
+            <inheritdoc/>
+        </member>
+        <member name="M:FileCabinetApp.ServiceLogger.RemoveRecord(System.Int32)">
+            <inheritdoc/>
+        </member>
+        <member name="M:FileCabinetApp.ServiceLogger.FindById(System.Int32)">
+            <inheritdoc/>
+        </member>
+        <member name="M:FileCabinetApp.ServiceLogger.FindByFirstName(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:FileCabinetApp.ServiceLogger.FindByLastName(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:FileCabinetApp.ServiceLogger.FindByDateOfBirth(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:FileCabinetApp.ServiceLogger.MakeSnapshot">
+            <inheritdoc/>
+        </member>
+        <member name="M:FileCabinetApp.ServiceLogger.Restore(FileCabinetApp.FileCabinetServiceSnapshot,System.Collections.Generic.List{System.String}@)">
+            <inheritdoc/>
+        </member>
+        <member name="M:FileCabinetApp.ServiceLogger.Purge">
+            <inheritdoc/>
+        </member>
+        <member name="T:FileCabinetApp.ServiceMeter">
+            <summary>
+            Class represents file cabinet service this timer ability.
+            </summary>
+            <param name="service">File cabinet service.</param>
+        </member>
+        <member name="M:FileCabinetApp.ServiceMeter.#ctor(FileCabinetApp.IFileCabinetService)">
+            <summary>
+            Class represents file cabinet service this timer ability.
+            </summary>
+            <param name="service">File cabinet service.</param>
+        </member>
+        <member name="M:FileCabinetApp.ServiceMeter.CreateRecord(FileCabinetApp.FileCabinetRecordsParameters)">
+            <inheritdoc/>
+        </member>
+        <member name="M:FileCabinetApp.ServiceMeter.GetRecords">
+            <inheritdoc/>
+        </member>
+        <member name="M:FileCabinetApp.ServiceMeter.GetNumberOfAllRecords">
+            <inheritdoc/>
+        </member>
+        <member name="M:FileCabinetApp.ServiceMeter.GetNumberOfDeletedRecords">
+            <inheritdoc/>
+        </member>
+        <member name="M:FileCabinetApp.ServiceMeter.EditRecord(System.Int32,FileCabinetApp.FileCabinetRecordsParameters)">
+            <inheritdoc/>
+        </member>
+        <member name="M:FileCabinetApp.ServiceMeter.RemoveRecord(System.Int32)">
+            <inheritdoc/>
+        </member>
+        <member name="M:FileCabinetApp.ServiceMeter.FindById(System.Int32)">
+            <inheritdoc/>
+        </member>
+        <member name="M:FileCabinetApp.ServiceMeter.FindByFirstName(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:FileCabinetApp.ServiceMeter.FindByLastName(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:FileCabinetApp.ServiceMeter.FindByDateOfBirth(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:FileCabinetApp.ServiceMeter.MakeSnapshot">
+            <inheritdoc/>
+        </member>
+        <member name="M:FileCabinetApp.ServiceMeter.Restore(FileCabinetApp.FileCabinetServiceSnapshot,System.Collections.Generic.List{System.String}@)">
+            <inheritdoc/>
+        </member>
+        <member name="M:FileCabinetApp.ServiceMeter.Purge">
+            <inheritdoc/>
+        </member>
+        <member name="T:FileCabinetApp.CustomValidator">
+            <inheritdoc />
+        </member>
+        <member name="M:FileCabinetApp.CustomValidator.ValidateParameters(FileCabinetApp.FileCabinetRecordsParameters)">
+            <summary>
+            Validates the records parameters.
+            </summary>
+            <param name="parameters">Record's parameters for validation.</param>
+            <exception cref="T:System.ArgumentException">Thrown if:
+            - First name or last name is null, empty, whitespace, or has an invalid length (less than 2 or more than 40).
+            - Last name has digits.
+            - Date of birth is outside the range January 1, 1940 - today's date.
+            - Number of children is less than 0 or greater than 5.
+            - Number of children is more than 0 and record's age is less than 16.
+            - Annual income is less than 0 or greater than 200,000.
+            - Gender is not one of the allowed values ('M', 'F', 'N').
+            </exception>
+            <exception cref="T:System.ArgumentNullException">Thrown if parameters are null.</exception>
+        </member>
+        <member name="M:FileCabinetApp.CustomValidator.FirstNameValidator(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:FileCabinetApp.CustomValidator.LastNameValidator(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:FileCabinetApp.CustomValidator.DateOfBirthValidator(System.DateTime)">
+            <inheritdoc />
+        </member>
+        <member name="M:FileCabinetApp.CustomValidator.NumberOfChildrenValidator(System.Int16)">
+            <inheritdoc />
+        </member>
+        <member name="M:FileCabinetApp.CustomValidator.YearIncomeValidator(System.Decimal)">
+            <inheritdoc />
+        </member>
+        <member name="M:FileCabinetApp.CustomValidator.GenderValidator(System.Char)">
+            <inheritdoc />
+        </member>
+        <member name="T:FileCabinetApp.DefaultValidator">
+            <inheritdoc />
+        </member>
+        <member name="M:FileCabinetApp.DefaultValidator.ValidateParameters(FileCabinetApp.FileCabinetRecordsParameters)">
+            <summary>
+            Validates the records parameters.
+            </summary>
+            <param name="parameters">Record's parameters for validation.</param>
+            <exception cref="T:System.ArgumentException">Thrown if:
+            - First name or last name is null, empty, whitespace, or has an invalid length (less than 2 or more than 60).
+            - Date of birth is outside the range January 1, 1950 - today's date.
+            - Number of children is less than 0 or greater than 10.
+            - Annual income is less than 0 or greater than 250,000.
+            - Gender is not one of the allowed values ('M', 'F', 'N').
+            </exception>
+            <exception cref="T:System.ArgumentNullException">Thrown if parameters are null.</exception>
+        </member>
+        <member name="M:FileCabinetApp.DefaultValidator.FirstNameValidator(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:FileCabinetApp.DefaultValidator.LastNameValidator(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:FileCabinetApp.DefaultValidator.DateOfBirthValidator(System.DateTime)">
+            <inheritdoc />
+        </member>
+        <member name="M:FileCabinetApp.DefaultValidator.NumberOfChildrenValidator(System.Int16)">
+            <inheritdoc />
+        </member>
+        <member name="M:FileCabinetApp.DefaultValidator.YearIncomeValidator(System.Decimal)">
+            <inheritdoc />
+        </member>
+        <member name="M:FileCabinetApp.DefaultValidator.GenderValidator(System.Char)">
+            <inheritdoc />
+        </member>
         <member name="T:FileCabinetApp.IRecordValidator">
             <summary>
             Interface for validating record's parameters.
@@ -598,17 +699,6 @@
             </summary>
             <param name="gender">Gender for validation.</param>
             <returns>Tuple with bool value and string to represent validation error.</returns>
-        </member>
-        <member name="T:FileCabinetApp.Program">
-            <summary>
-            Console client program.
-            </summary>
-        </member>
-        <member name="M:FileCabinetApp.Program.Main(System.String[])">
-            <summary>
-            Main program body.
-            </summary>
-            <param name="args">Arguments.</param>
         </member>
     </members>
 </doc>

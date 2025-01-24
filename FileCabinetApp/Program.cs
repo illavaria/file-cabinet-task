@@ -10,6 +10,7 @@ namespace FileCabinetApp
     {
         private const string DeveloperName = "Illaria Samal";
         private const string HintMessage = "Enter your command, or enter 'help' to get help.";
+        private const string LogFilePath = "LogFile.txt";
 
         private static bool isRunning = true;
 
@@ -32,6 +33,8 @@ namespace FileCabinetApp
         {
             var validationRule = "default";
             var storageRule = "memory";
+            var useStopWatch = false;
+            var useLogger = false;
             if (args?.Length > 0)
             {
                 for (int i = 0; i < args.Length; i++)
@@ -54,6 +57,14 @@ namespace FileCabinetApp
                         storageRule = args[i + 1];
                         i++;
                     }
+                    else if (args[i].StartsWith("-use-stopwatch", StringComparison.OrdinalIgnoreCase))
+                    {
+                        useStopWatch = true;
+                    }
+                    else if (args[i].StartsWith("-use-logger", StringComparison.OrdinalIgnoreCase))
+                    {
+                        useLogger = true;
+                    }
                 }
             }
 
@@ -67,10 +78,10 @@ namespace FileCabinetApp
             switch (storageRule)
             {
                 case "memory":
-                    Program.fileCabinetService = new FileCabinetMemoryService(validationParams[index].Item2.Invoke());
+                    fileCabinetService = new FileCabinetMemoryService(validationParams[index].Item2.Invoke());
                     break;
                 case "file":
-                    Program.fileCabinetService =
+                    fileCabinetService =
                         new FileCabinetFilesystemService(new FileStream("cabinet-records.db", FileMode.OpenOrCreate, FileAccess.ReadWrite),validationParams[index].Item2.Invoke());
                     break;
                 default:
@@ -78,6 +89,16 @@ namespace FileCabinetApp
                     Console.WriteLine("Unknown storage rule");
                     return;
                 }
+            }
+
+            if (useStopWatch)
+            {
+                fileCabinetService = new ServiceMeter(fileCabinetService);
+            }
+
+            if (useLogger)
+            {
+                fileCabinetService = new ServiceLogger(fileCabinetService, LogFilePath);
             }
 
             Program.validator = validationParams[index].Item2.Invoke();
