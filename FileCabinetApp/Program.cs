@@ -128,9 +128,9 @@ namespace FileCabinetApp
             var exitHandler = new ExitCommandHandler(state => isRunning = state);
             var statHandler = new StatCommandHandler(fileCabinetService);
             var createHandler = new CreateCommandHandler(fileCabinetService);
-            var listHandler = new ListCommandHandler(fileCabinetService);
+            var listHandler = new ListCommandHandler(fileCabinetService, DefaultRecordPrint);
             var editHandler = new EditCommandHandler(fileCabinetService);
-            var findHandler = new FindCommandHandler(fileCabinetService);
+            var findHandler = new FindCommandHandler(fileCabinetService, DefaultRecordPrint);
             var exportHandler = new ExportCommandHandler(fileCabinetService);
             var importHandler = new ImportCommandHandler(fileCabinetService);
             var removeHandler = new RemoveCommandHandler(fileCabinetService);
@@ -148,6 +148,14 @@ namespace FileCabinetApp
             removeHandler.SetNext(purgeHandler);
 
             return helpHandler;
+        }
+
+        private static void DefaultRecordPrint(IEnumerable<FileCabinetRecord> records)
+        {
+            foreach (var record in records)
+            {
+                Console.WriteLine(record.ToString());
+            }
         }
 
         public static void InputParameters(out string? firstName, out string? lastName, out DateTime dateOfBirth, out short numberOfChildren, out decimal yearIncome, out char gender)

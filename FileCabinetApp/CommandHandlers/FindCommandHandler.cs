@@ -2,7 +2,8 @@ using System.Collections.ObjectModel;
 
 namespace FileCabinetApp;
 
-public class FindCommandHandler(IFileCabinetService fileCabinetService) : ServiceCommandHandleBase(fileCabinetService)
+public class FindCommandHandler(IFileCabinetService fileCabinetService, Action<IEnumerable<FileCabinetRecord>> printer) 
+    : ServiceCommandHandleBase(fileCabinetService)
 {
     private const string CommandName = "find";
     private (string, Func<string, ReadOnlyCollection<FileCabinetRecord>>)[] findParams =
@@ -48,9 +49,6 @@ public class FindCommandHandler(IFileCabinetService fileCabinetService) : Servic
         }
 
         var results = this.findParams[index].Item2(par[1].Trim('"'));
-        foreach (var record in results)
-        {
-            Console.WriteLine(record.ToString());
-        }
+        printer(results);
     }
 }
