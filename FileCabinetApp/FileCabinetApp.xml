@@ -4,6 +4,15 @@
         <name>FileCabinetApp</name>
     </assembly>
     <members>
+        <member name="T:FileCabinetApp.ExitCommandHandler">
+            <inheritdoc />
+        </member>
+        <member name="M:FileCabinetApp.ExitCommandHandler.#ctor(System.Action{System.Boolean})">
+            <inheritdoc />
+        </member>
+        <member name="M:FileCabinetApp.ExportCommandHandler.Handle(FileCabinetApp.AppCommandRequest)">
+            <inheritdoc/>
+        </member>
         <member name="T:FileCabinetApp.CustomValidator">
             <inheritdoc />
         </member>
