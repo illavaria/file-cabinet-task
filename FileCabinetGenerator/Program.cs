@@ -139,7 +139,7 @@ public static class Program
         recordsAmount = -1;
         startId = -1;
         
-        for (int i = 0; i < args.Length; i++)
+        for (int i = 0; i < args?.Length; i++)
         {
             if (args[i].StartsWith("--output-type=", StringComparison.OrdinalIgnoreCase))
             {

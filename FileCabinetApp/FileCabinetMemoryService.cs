@@ -22,7 +22,7 @@ public class FileCabinetMemoryService(IRecordValidator validator) : IFileCabinet
 
         var record = new FileCabinetRecord
         {
-            Id = this.list.Count + 1,
+            Id = this.list.Count == 0 ? 1 : this.list.Max(x => x.Id) + 1,
             FirstName = parameters.FirstName,
             LastName = parameters.LastName,
             DateOfBirth = parameters.DateOfBirth,
@@ -43,7 +43,10 @@ public class FileCabinetMemoryService(IRecordValidator validator) : IFileCabinet
     public ReadOnlyCollection<FileCabinetRecord> GetRecords() => this.list.AsReadOnly();
 
     /// <inheritdoc/>
-    public int GetStat() => this.list.Count;
+    public int GetNumberOfAllRecords() => this.list.Count;
+
+    /// <inheritdoc/>
+    public int GetNumberOfDeletedRecords() => 0;
 
     /// <inheritdoc/>
     public void EditRecord(int id, FileCabinetRecordsParameters? parameters)
@@ -75,6 +78,16 @@ public class FileCabinetMemoryService(IRecordValidator validator) : IFileCabinet
         record.NumberOfChildren = parameters.NumberOfChildren;
         record.YearIncome = parameters.YearIncome;
         record.Gender = parameters.Gender;
+    }
+
+    /// <inheritdoc/>
+    public void RemoveRecord(int id)
+    {
+        var record = this.FindById(id) ?? throw new ArgumentException($"#{id} record doesn't exist.");
+        this.list.Remove(record);
+        RemoveFromDictionary(this.firstNameDictionary, record.FirstName!.ToUpper(CultureInfo.InvariantCulture), record);
+        RemoveFromDictionary(this.lastNameDictionary, record.LastName!.ToUpper(CultureInfo.InvariantCulture), record);
+        RemoveFromDictionary(this.dateOfBirthDictionary, record.DateOfBirth, record);
     }
 
     /// <inheritdoc/>
@@ -139,6 +152,12 @@ public class FileCabinetMemoryService(IRecordValidator validator) : IFileCabinet
                 errorsList?.Add($"Record #{record.Id} didn't pass validation: {e.Message}");
             }
         }
+    }
+
+    /// <inheritdoc/>
+    public void Purge()
+    {
+        throw new NotSupportedException("Purge method is not available in memory service");
     }
 
     /// <summary>

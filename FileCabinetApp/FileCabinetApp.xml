@@ -76,6 +76,122 @@
         <member name="M:FileCabinetApp.DefaultValidator.GenderValidator(System.Char)">
             <inheritdoc />
         </member>
+        <member name="T:FileCabinetApp.FileCabinetFilesystemService">
+            <summary>
+            Class represents filesystem file cabinet service.
+            </summary>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetFilesystemService.#ctor(System.IO.FileStream,FileCabinetApp.IRecordValidator)">
+            <summary>
+            Class represents filesystem file cabinet service.
+            </summary>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetFilesystemService.CreateRecord(FileCabinetApp.FileCabinetRecordsParameters)">
+            <inheritdoc/>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetFilesystemService.GetRecords">
+            <inheritdoc/>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetFilesystemService.GetNumberOfAllRecords">
+            <inheritdoc/>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetFilesystemService.GetNumberOfDeletedRecords">
+            <inheritdoc/>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetFilesystemService.EditRecord(System.Int32,FileCabinetApp.FileCabinetRecordsParameters)">
+            <inheritdoc/>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetFilesystemService.RemoveRecord(System.Int32)">
+            <inheritdoc/>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetFilesystemService.FindById(System.Int32)">
+            <inheritdoc/>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetFilesystemService.FindByFirstName(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetFilesystemService.FindByLastName(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetFilesystemService.FindByDateOfBirth(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetFilesystemService.MakeSnapshot">
+            <inheritdoc/>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetFilesystemService.Restore(FileCabinetApp.FileCabinetServiceSnapshot,System.Collections.Generic.List{System.String}@)">
+            <inheritdoc/>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetFilesystemService.Purge">
+            <inheritdoc/>
+        </member>
+        <member name="T:FileCabinetApp.FileCabinetMemoryService">
+            <summary>
+            Class represents memory file cabinet service.
+            </summary>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetMemoryService.#ctor(FileCabinetApp.IRecordValidator)">
+            <summary>
+            Class represents memory file cabinet service.
+            </summary>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetMemoryService.CreateRecord(FileCabinetApp.FileCabinetRecordsParameters)">
+            <inheritdoc/>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetMemoryService.GetRecords">
+            <inheritdoc/>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetMemoryService.GetNumberOfAllRecords">
+            <inheritdoc/>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetMemoryService.GetNumberOfDeletedRecords">
+            <inheritdoc/>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetMemoryService.EditRecord(System.Int32,FileCabinetApp.FileCabinetRecordsParameters)">
+            <inheritdoc/>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetMemoryService.RemoveRecord(System.Int32)">
+            <inheritdoc/>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetMemoryService.FindById(System.Int32)">
+            <inheritdoc/>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetMemoryService.FindByFirstName(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetMemoryService.FindByLastName(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetMemoryService.FindByDateOfBirth(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetMemoryService.MakeSnapshot">
+            <inheritdoc/>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetMemoryService.Restore(FileCabinetApp.FileCabinetServiceSnapshot,System.Collections.Generic.List{System.String}@)">
+            <inheritdoc/>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetMemoryService.Purge">
+            <inheritdoc/>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetMemoryService.AddToDictionary``1(System.Collections.Generic.IDictionary{``0,System.Collections.Generic.List{FileCabinetApp.FileCabinetRecord}},``0,FileCabinetApp.FileCabinetRecord)">
+            <summary>
+            Adds record to a dictionary.
+            </summary>
+            <param name="dictionary">The dictionary to which the record should be added.</param>
+            <param name="key">The key under which the record will be stored.</param>
+            <param name="record">The record to be added to the dictionary.</param>
+            <typeparam name="T">The type of the key in the dictionary.</typeparam>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetMemoryService.RemoveFromDictionary``1(System.Collections.Generic.IDictionary{``0,System.Collections.Generic.List{FileCabinetApp.FileCabinetRecord}},``0,FileCabinetApp.FileCabinetRecord)">
+            <summary>
+            Removes a record from the dictionary.
+            </summary>
+            <param name="dictionary">The dictionary from which the record should be removed.</param>
+            <param name="key">The key under which the record is stored.</param>
+            <param name="record">The record to be removed from the dictionary.</param>
+            <typeparam name="T">The type of the key in the dictionary.</typeparam>
+        </member>
         <member name="T:FileCabinetApp.FileCabinetRecord">
             <summary>
             Class represents records in file cabinet.
@@ -122,6 +238,63 @@
             </summary>
             <returns>String representation of the record.</returns>
         </member>
+        <member name="T:FileCabinetApp.FileCabinetRecordCsvReader">
+            <summary>
+            Class represents csv reader for file cabinet records.
+            </summary>
+            <param name="reader">Stream reader used to read.</param>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetRecordCsvReader.#ctor(System.IO.StreamReader)">
+            <summary>
+            Class represents csv reader for file cabinet records.
+            </summary>
+            <param name="reader">Stream reader used to read.</param>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetRecordCsvReader.ReadAll">
+            <summary>
+            Reads all records from reader.
+            </summary>
+            <returns>List of records.</returns>
+        </member>
+        <member name="T:FileCabinetApp.FileCabinetRecordCsvWriter">
+            <summary>
+            Class for writing records to csv file.
+            </summary>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetRecordCsvWriter.#ctor(System.IO.TextWriter)">
+            <summary>
+            Initializes a new instance of the <see cref="T:FileCabinetApp.FileCabinetRecordCsvWriter"/> class.
+            </summary>
+            <param name="writer">TextWriter used for writing.</param>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetRecordCsvWriter.Write(FileCabinetApp.FileCabinetRecord)">
+            <summary>
+            Writes a record in csv format.
+            </summary>
+            <param name="record">A record to write.</param>
+            <exception cref="T:System.ArgumentNullException">Thrown if record is null.</exception>
+        </member>
+        <member name="T:FileCabinetApp.FileCabinetRecordMapper">
+            <summary>
+            Class represents records mapper.
+            </summary>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetRecordMapper.MapToXml(FileCabinetApp.FileCabinetRecord)">
+            <summary>
+            Maps record to xml record.
+            </summary>
+            <param name="record">FileCabinetRecord record to map.</param>
+            <returns>Record mapped to FileCabinetRecordXml.</returns>
+            <exception cref="T:System.ArgumentNullException">Thrown if record is null.</exception>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetRecordMapper.MapFromXml(FileCabinetApp.FileCabinetRecordXml)">
+            <summary>
+            Maps xml record to record.
+            </summary>
+            <param name="xmlRecord">FileCabinetRecordXml record to map.</param>
+            <returns>Record mapped to FileCabinetRecord.</returns>
+            <exception cref="T:System.ArgumentNullException">Thrown if record is null.</exception>
+        </member>
         <member name="T:FileCabinetApp.FileCabinetRecordsParameters">
             <summary>
             Represents parameters required for creating a FileCabinetRecord.
@@ -157,88 +330,121 @@
             Gets or sets gender.
             </summary>
         </member>
-        <member name="T:FileCabinetApp.FileCabinetService">
+        <member name="T:FileCabinetApp.FileCabinetRecordXml">
             <summary>
-            Abstract class represents file cabinet service.
+            Class represents record for xml storing.
             </summary>
         </member>
-        <member name="M:FileCabinetApp.FileCabinetService.#ctor(FileCabinetApp.IRecordValidator)">
+        <member name="P:FileCabinetApp.FileCabinetRecordXml.Id">
             <summary>
-            Abstract class represents file cabinet service.
+            Gets or sets record's id.
             </summary>
         </member>
-        <member name="M:FileCabinetApp.FileCabinetService.CreateRecord(FileCabinetApp.FileCabinetRecordsParameters)">
+        <member name="P:FileCabinetApp.FileCabinetRecordXml.NumberOfChildren">
             <summary>
-            Creates a new record.
+            Gets or sets number of children.
             </summary>
-            <param name="parameters">Record's parameters.</param>
-            <returns>Id of the created record.</returns>
         </member>
-        <member name="M:FileCabinetApp.FileCabinetService.GetRecords">
+        <member name="P:FileCabinetApp.FileCabinetRecordXml.YearIncome">
             <summary>
-            Returns all records.
+            Gets or sets year income.
             </summary>
-            <returns>Records list.</returns>
         </member>
-        <member name="M:FileCabinetApp.FileCabinetService.GetStat">
+        <member name="T:FileCabinetApp.Name">
             <summary>
-            Gets the number of records.
+            Class represents record's name.
             </summary>
-            <returns>Number of records.</returns>
         </member>
-        <member name="M:FileCabinetApp.FileCabinetService.EditRecord(System.Int32,FileCabinetApp.FileCabinetRecordsParameters)">
+        <member name="P:FileCabinetApp.Name.FirstName">
             <summary>
-            Edits the record.
+            Gets or sets first name.
             </summary>
-            <param name="id">Record Id.</param>
-            <param name="parameters">Record's parameters.</param>
-            <exception cref="T:System.ArgumentException">Thrown if record with such id doesn't exist.</exception>
         </member>
-        <member name="M:FileCabinetApp.FileCabinetService.FindById(System.Int32)">
+        <member name="P:FileCabinetApp.Name.LastName">
             <summary>
-            Finds record by its id.
+            Gets or sets last name.
             </summary>
-            <param name="id">Record Id.</param>
-            <returns>Record if found, otherwise null.</returns>
         </member>
-        <member name="M:FileCabinetApp.FileCabinetService.FindByFirstName(System.String)">
+        <member name="T:FileCabinetApp.FileCabinetRecordXmlReader">
             <summary>
-            Find records by first name.
+            Class represents xml reader for file cabinet records.
             </summary>
-            <param name="firstName">First name to search.</param>
-            <returns>List of records with the matched first name.</returns>
+            <param name="reader">Xml reader used to read.</param>
         </member>
-        <member name="M:FileCabinetApp.FileCabinetService.FindByLastName(System.String)">
+        <member name="M:FileCabinetApp.FileCabinetRecordXmlReader.#ctor(System.Xml.XmlReader)">
             <summary>
-            Find records by last name.
+            Class represents xml reader for file cabinet records.
             </summary>
-            <param name="lastName">Last name to search.</param>
-            <returns>List of records with the matched last name.</returns>
+            <param name="reader">Xml reader used to read.</param>
         </member>
-        <member name="M:FileCabinetApp.FileCabinetService.FindByDateOfBirth(System.String)">
+        <member name="M:FileCabinetApp.FileCabinetRecordXmlReader.ReadAll">
             <summary>
-            Find records by date of birth.
+            Reads all records from reader.
             </summary>
-            <param name="dateOfBirthString">String representing date of birth.</param>
-            <returns>List of records with the matched date of birth.</returns>
+            <returns>List of records.</returns>
         </member>
-        <member name="M:FileCabinetApp.FileCabinetService.AddToDictionary``1(System.Collections.Generic.IDictionary{``0,System.Collections.Generic.List{FileCabinetApp.FileCabinetRecord}},``0,FileCabinetApp.FileCabinetRecord)">
+        <member name="T:FileCabinetApp.FileCabinetRecordXmlWriter">
             <summary>
-            Adds record to a dictionary.
+            Class for writing records to xml file.
             </summary>
-            <param name="dictionary">The dictionary to which the record should be added.</param>
-            <param name="key">The key under which the record will be stored.</param>
-            <param name="record">The record to be added to the dictionary.</param>
-            <typeparam name="T">The type of the key in the dictionary.</typeparam>
         </member>
-        <member name="M:FileCabinetApp.FileCabinetService.RemoveFromDictionary``1(System.Collections.Generic.IDictionary{``0,System.Collections.Generic.List{FileCabinetApp.FileCabinetRecord}},``0,FileCabinetApp.FileCabinetRecord)">
+        <member name="M:FileCabinetApp.FileCabinetRecordXmlWriter.#ctor(System.Xml.XmlWriter)">
             <summary>
-            Removes a record from the dictionary.
+            Initializes a new instance of the <see cref="T:FileCabinetApp.FileCabinetRecordXmlWriter"/> class.
             </summary>
-            <param name="dictionary">The dictionary from which the record should be removed.</param>
-            <param name="key">The key under which the record is stored.</param>
-            <param name="record">The record to be removed from the dictionary.</param>
-            <typeparam name="T">The type of the key in the dictionary.</typeparam>
+            <param name="writer">XmlWriter used for writing.</param>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetRecordXmlWriter.Write(FileCabinetApp.FileCabinetRecord)">
+            <summary>
+            Writes a record in xml format.
+            </summary>
+            <param name="record">A record to write.</param>
+            <exception cref="T:System.ArgumentNullException">Thrown if record is null.</exception>
+        </member>
+        <member name="T:FileCabinetApp.FileCabinetServiceSnapshot">
+            <summary>
+            Class represents a snapshot of file cabinet service.
+            </summary>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetServiceSnapshot.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:FileCabinetApp.FileCabinetServiceSnapshot"/> class.
+            </summary>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetServiceSnapshot.#ctor(FileCabinetApp.FileCabinetRecord[])">
+            <summary>
+            Initializes a new instance of the <see cref="T:FileCabinetApp.FileCabinetServiceSnapshot"/> class.
+            </summary>
+            <param name="records">Array of records of file cabinet service.</param>
+        </member>
+        <member name="P:FileCabinetApp.FileCabinetServiceSnapshot.Records">
+            <summary>
+            Gets records as read only collection.
+            </summary>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetServiceSnapshot.SaveToCsv(System.IO.StreamWriter)">
+            <summary>
+            Saves file cabinet state (records copy) in csv format.
+            </summary>
+            <param name="streamWriter">StreamWriter used for saving.</param>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetServiceSnapshot.SaveToXml(System.IO.StreamWriter)">
+            <summary>
+            Saves file cabinet state (records copy) in xml format.
+            </summary>
+            <param name="streamWriter">StreamWriter used for saving.</param>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetServiceSnapshot.LoadFromCsv(System.IO.StreamReader)">
+            <summary>
+            Loads records from csv file.
+            </summary>
+            <param name="streamReader">Stream reader used for reading csv file.</param>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetServiceSnapshot.LoadFromXml(System.IO.StreamReader)">
+            <summary>
+            Loads records from xml file.
+            </summary>
+            <param name="streamReader">Stream reader used for reading xml file.</param>
         </member>
         <member name="T:FileCabinetApp.IFileCabinetService">
             <summary>
@@ -258,11 +464,17 @@
             </summary>
             <returns>Records list.</returns>
         </member>
-        <member name="M:FileCabinetApp.IFileCabinetService.GetStat">
+        <member name="M:FileCabinetApp.IFileCabinetService.GetNumberOfAllRecords">
             <summary>
-            Gets the number of records.
+            Gets the number of all records.
             </summary>
-            <returns>Number of records.</returns>
+            <returns>Number of all records.</returns>
+        </member>
+        <member name="M:FileCabinetApp.IFileCabinetService.GetNumberOfDeletedRecords">
+            <summary>
+            Gets the number of deleted records.
+            </summary>
+            <returns>Number of deleted records.</returns>
         </member>
         <member name="M:FileCabinetApp.IFileCabinetService.EditRecord(System.Int32,FileCabinetApp.FileCabinetRecordsParameters)">
             <summary>
@@ -270,6 +482,13 @@
             </summary>
             <param name="id">Record Id.</param>
             <param name="parameters">Record's parameters.</param>
+            <exception cref="T:System.ArgumentException">Thrown if record with such id doesn't exist.</exception>
+        </member>
+        <member name="M:FileCabinetApp.IFileCabinetService.RemoveRecord(System.Int32)">
+            <summary>
+            Removes the record.
+            </summary>
+            <param name="id">Record Id.</param>
             <exception cref="T:System.ArgumentException">Thrown if record with such id doesn't exist.</exception>
         </member>
         <member name="M:FileCabinetApp.IFileCabinetService.FindById(System.Int32)">
@@ -299,6 +518,24 @@
             </summary>
             <param name="dateOfBirthString">String representing date of birth.</param>
             <returns>List of records with the matched date of birth.</returns>
+        </member>
+        <member name="M:FileCabinetApp.IFileCabinetService.MakeSnapshot">
+            <summary>
+            Makes snapshot of the current file cabinet state.
+            </summary>
+            <returns>A new snapshot.</returns>
+        </member>
+        <member name="M:FileCabinetApp.IFileCabinetService.Restore(FileCabinetApp.FileCabinetServiceSnapshot,System.Collections.Generic.List{System.String}@)">
+            <summary>
+            Restores file cabinet state to the snapshot's state.
+            </summary>
+            <param name="snapshot">Snapshot representing state for setting.</param>
+            <param name="errorsList">List of errors that occured during restoring.</param>
+        </member>
+        <member name="M:FileCabinetApp.IFileCabinetService.Purge">
+            <summary>
+            Removes deleted records from the list.
+            </summary>
         </member>
         <member name="T:FileCabinetApp.IRecordValidator">
             <summary>

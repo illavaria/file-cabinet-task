@@ -29,7 +29,9 @@ namespace FileCabinetApp
             new Tuple<string, Action<string>>("edit", Edit),
             new Tuple<string, Action<string>>("find", Find),
             new Tuple<string, Action<string>>("export", Export),
-            new Tuple<string, Action<string>>("import", Import)
+            new Tuple<string, Action<string>>("import", Import),
+            new Tuple<string, Action<string>>("remove", Remove),
+            new Tuple<string, Action<string>>("purge", Purge),
         ];
 
         private static Tuple<string, Func<string, ReadOnlyCollection<FileCabinetRecord>>>[] findParams;
@@ -44,7 +46,9 @@ namespace FileCabinetApp
             ["edit", "edits record's data", "The 'edit' command edits record's data."],
             ["find", "finds records", "The 'find' command prints records with the needed value."],
             ["export", "exports records", "The 'export' command exports records to a file."],
-            ["import", "imports records", "The 'import' command imports records from file."]
+            ["import", "imports records", "The 'import' command imports records from file."],
+            ["remove", "removes the record", "The 'remove' command removes the record by its id"],
+            ["purge", "removes deleted records", "The 'purge' command removes deleted records"]
         ];
 
         private static Tuple<string, Func<IRecordValidator>>[] validationParams =
@@ -199,12 +203,24 @@ namespace FileCabinetApp
 
         private static void Stat(string parameters)
         {
-            var recordsCount = fileCabinetService.GetStat();
-            Console.WriteLine($"{recordsCount} record(s).");
+            if (!string.IsNullOrWhiteSpace(parameters))
+            {
+                Console.WriteLine("This command doesn't take any arguments");
+                return;
+            }
+
+            Console.WriteLine($"Number of all records: {fileCabinetService.GetNumberOfAllRecords()}.");
+            Console.WriteLine($"Number of deleted records: {fileCabinetService.GetNumberOfDeletedRecords()}.");
         }
 
         private static void Create(string parameters)
         {
+            if (!string.IsNullOrWhiteSpace(parameters))
+            {
+                Console.WriteLine("This command doesn't take any arguments");
+                return;
+            }
+
             while (true)
             {
                 try
@@ -243,6 +259,12 @@ namespace FileCabinetApp
 
         private static void List(string parameters)
         {
+            if (!string.IsNullOrWhiteSpace(parameters))
+            {
+                Console.WriteLine("This command doesn't take any arguments");
+                return;
+            }
+
             var records = fileCabinetService.GetRecords();
             foreach (var record in records)
             {
@@ -410,7 +432,6 @@ namespace FileCabinetApp
             }
 
             var loadCommand = importParams[index].Item2;
-            var recordsCount = fileCabinetService.GetStat();
             try
             {
                 using var streamReader = new StreamReader(filePath);
@@ -429,6 +450,39 @@ namespace FileCabinetApp
             {
                 Console.WriteLine($"Import failed: {ex.Message}");
             }
+        }
+
+        private static void Remove(string parameters)
+        {
+            if (!int.TryParse(parameters, CultureInfo.InvariantCulture, out var recordId))
+            {
+                Console.WriteLine("Pass one number as a record id");
+                return;
+            }
+
+            try
+            {
+                Program.fileCabinetService.RemoveRecord(recordId);
+                Console.WriteLine($"Record {recordId} is removed.");
+            }
+            catch (ArgumentException e)
+            {
+                Console.WriteLine(e.Message);
+            }
+        }
+
+        private static void Purge(string parameters)
+        {
+            if (!string.IsNullOrWhiteSpace(parameters))
+            {
+                Console.WriteLine("This command doesn't take any arguments");
+                return;
+            }
+
+            var recordBefore = fileCabinetService.GetNumberOfAllRecords();
+            fileCabinetService.Purge();
+            Console.WriteLine(
+                $"Data file processing is completed: {recordBefore - fileCabinetService.GetNumberOfAllRecords()} of {recordBefore} records were purged.");
         }
 
         private static void InputParameters(out string? firstName, out string? lastName, out DateTime dateOfBirth, out short numberOfChildren, out decimal yearIncome, out char gender)

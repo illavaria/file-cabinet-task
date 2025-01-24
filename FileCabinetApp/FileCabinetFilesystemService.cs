@@ -13,15 +13,41 @@ public class FileCabinetFilesystemService(FileStream fileStream, IRecordValidato
     public int CreateRecord(FileCabinetRecordsParameters? parameters)
     {
         validator.ValidateParameters(parameters);
-
-        var recordOffset = fileStream.Length;
-        var recordId = ((int)recordOffset / RecordSize) + 1;
-        fileStream.Seek(recordOffset, SeekOrigin.Begin);
+        var recordId = GetNextRecordId();
+        fileStream.Seek(0, SeekOrigin.End);
         using var writer = new BinaryWriter(fileStream, System.Text.Encoding.Unicode, leaveOpen: true);
         WriteRecord(recordId, parameters!, writer);
 
         writer.Flush();
         return recordId;
+
+        int GetNextRecordId()
+        {
+            if (fileStream.Length == 0)
+            {
+                return 1;
+            }
+
+            fileStream.Seek(-RecordSize, SeekOrigin.End);
+            var maxId = 0;
+
+            while (fileStream.Position > 0)
+            {
+                using var reader = new BinaryReader(fileStream, System.Text.Encoding.Unicode, leaveOpen: true);
+
+                var status = reader.ReadInt16();
+                var id = reader.ReadInt32();
+
+                if ((status & 0b0100) == 0)
+                {
+                    maxId = Math.Max(id, maxId);
+                }
+
+                fileStream.Seek(-RecordSize - 6, SeekOrigin.Current);
+            }
+
+            return maxId + 1;
+        }
     }
 
     /// <inheritdoc/>
@@ -31,35 +57,111 @@ public class FileCabinetFilesystemService(FileStream fileStream, IRecordValidato
     }
 
     /// <inheritdoc/>
-    public int GetStat() => (int)(fileStream.Length / RecordSize) + 1;
+    public int GetNumberOfAllRecords() => (int)(fileStream.Length / RecordSize);
+
+    /// <inheritdoc/>
+    public int GetNumberOfDeletedRecords()
+    {
+        var count = 0;
+        fileStream.Seek(0, SeekOrigin.Begin);
+        using var reader = new BinaryReader(fileStream, System.Text.Encoding.Unicode, leaveOpen: true);
+
+        while (fileStream.Position < fileStream.Length)
+        {
+            var status = reader.ReadInt16();
+            if ((status & 0b0100) != 0)
+            {
+                count++;
+            }
+
+            fileStream.Seek(RecordSize - 2, SeekOrigin.Current);
+        }
+
+        return count;
+    }
 
     /// <inheritdoc/>
     public void EditRecord(int id, FileCabinetRecordsParameters? parameters)
     {
         validator.ValidateParameters(parameters);
-        var recordOffset = RecordSize * (id - 1);
-        fileStream.Seek(recordOffset, SeekOrigin.Begin);
+
+        fileStream.Seek(0, SeekOrigin.Begin);
+        using var reader = new BinaryReader(fileStream, System.Text.Encoding.Unicode, leaveOpen: true);
+
+        while (fileStream.Position < fileStream.Length)
+        {
+            var status = reader.ReadInt16();
+            if ((status & 0b0100) != 0)
+            {
+                fileStream.Seek(RecordSize - 2, SeekOrigin.Current);
+                continue;
+            }
+
+            var record = ReadRecord(reader);
+            if (record.Id == id)
+            {
+                fileStream.Seek(-RecordSize, SeekOrigin.Current);
+                break;
+            }
+        }
+
+        if (fileStream.Position >= fileStream.Length)
+        {
+            throw new ArgumentException($"#{id} record is not found.");
+        }
+
         using var writer = new BinaryWriter(fileStream, System.Text.Encoding.Unicode, leaveOpen: true);
-
         WriteRecord(id, parameters!, writer);
-
         writer.Flush();
     }
 
     /// <inheritdoc/>
-    public FileCabinetRecord? FindById(int id)
+    public void RemoveRecord(int id)
     {
-        var recordOffset = RecordSize * (id - 1);
-        if (recordOffset > fileStream.Length)
-        {
-            return null;
-        }
-
-        fileStream.Seek(recordOffset + 2, SeekOrigin.Begin);
+        fileStream.Seek(0, SeekOrigin.Begin);
         using var reader = new BinaryReader(fileStream, System.Text.Encoding.Unicode, leaveOpen: true);
 
-        return ReadRecord(reader);
+        while (fileStream.Position < fileStream.Length)
+        {
+            var status = reader.ReadInt16();
+            if ((status & 0b0100) != 0)
+            {
+                fileStream.Seek(RecordSize - 2, SeekOrigin.Current);
+                continue;
+            }
+
+            var record = ReadRecord(reader);
+            if (record.Id == id)
+            {
+                fileStream.Seek(-RecordSize, SeekOrigin.Current);
+                using var writer = new BinaryWriter(fileStream, System.Text.Encoding.Unicode, leaveOpen: true);
+                writer.Write((short)(status | 0b0100));
+                writer.Flush();
+                break;
+            }
+        }
+
+        if (fileStream.Position >= fileStream.Length)
+        {
+            throw new ArgumentException($"#{id} record is not found.");
+        }
     }
+
+    /// <inheritdoc/>
+    public FileCabinetRecord? FindById(int id) =>
+        this.ReadAllRecords((record, i) => record.Id == i, id).SingleOrDefault();
+    // {
+    //     var recordOffset = RecordSize * (id - 1);
+    //     if (recordOffset > fileStream.Length)
+    //     {
+    //         return null;
+    //     }
+    //
+    //     fileStream.Seek(recordOffset + 2, SeekOrigin.Begin);
+    //     using var reader = new BinaryReader(fileStream, System.Text.Encoding.Unicode, leaveOpen: true);
+    //
+    //     return ReadRecord(reader);
+    // }
 
     /// <inheritdoc/>
     public ReadOnlyCollection<FileCabinetRecord> FindByFirstName(string? firstName) =>
@@ -93,12 +195,28 @@ public class FileCabinetFilesystemService(FileStream fileStream, IRecordValidato
                 };
                 validator.ValidateParameters(parameters);
 
-                var recordOffset = RecordSize * (record.Id - 1);
-                fileStream.Seek(recordOffset, SeekOrigin.Begin);
+                fileStream.Seek(0, SeekOrigin.Begin);
+                using var reader = new BinaryReader(fileStream, System.Text.Encoding.Unicode, leaveOpen: true);
+
+                while (fileStream.Position < fileStream.Length)
+                {
+                    var status = reader.ReadInt16();
+                    if ((status & 0b0100) != 0)
+                    {
+                        fileStream.Seek(RecordSize - 2, SeekOrigin.Current);
+                        continue;
+                    }
+
+                    var recordRead = ReadRecord(reader);
+                    if (recordRead.Id == record.Id)
+                    {
+                        fileStream.Seek(-RecordSize, SeekOrigin.Current);
+                        break;
+                    }
+                }
+
                 using var writer = new BinaryWriter(fileStream, System.Text.Encoding.Unicode, leaveOpen: true);
-
                 WriteRecord(record.Id, parameters, writer);
-
                 writer.Flush();
             }
             catch (Exception e)
@@ -106,6 +224,41 @@ public class FileCabinetFilesystemService(FileStream fileStream, IRecordValidato
                 errorsList?.Add($"Record #{record.Id} didn't pass validation: {e.Message}");
             }
         }
+    }
+
+    /// <inheritdoc/>
+    public void Purge()
+    {
+        fileStream.Seek(0, SeekOrigin.Begin);
+
+        long writePosition = 0;
+        long readPosition = 0;
+
+        while (readPosition < fileStream.Length)
+        {
+            fileStream.Seek(readPosition, SeekOrigin.Begin);
+            using var reader = new BinaryReader(fileStream, System.Text.Encoding.Unicode, leaveOpen: true);
+            using var writer = new BinaryWriter(fileStream, System.Text.Encoding.Unicode, leaveOpen: true);
+
+            var status = reader.ReadInt16();
+            var recordBytes = reader.ReadBytes(RecordSize - 2);
+
+            if ((status & 0b0100) == 0)
+            {
+                if (writePosition != readPosition)
+                {
+                    fileStream.Seek(writePosition, SeekOrigin.Begin);
+                    writer.Write(status);
+                    writer.Write(recordBytes);
+                }
+
+                writePosition += RecordSize;
+            }
+
+            readPosition += RecordSize;
+        }
+
+        fileStream.SetLength(writePosition);
     }
 
     private static char[] PadString(string? value, int length)
@@ -143,7 +296,7 @@ public class FileCabinetFilesystemService(FileStream fileStream, IRecordValidato
 
     private static void WriteRecord(int id, FileCabinetRecordsParameters? parameters, BinaryWriter writer)
     {
-        writer.Write((short)1);
+        writer.Write((short)0);
         writer.Write(id);
         writer.Write(PadString(parameters.FirstName, 60));
         writer.Write(PadString(parameters.LastName, 60));
@@ -164,7 +317,7 @@ public class FileCabinetFilesystemService(FileStream fileStream, IRecordValidato
         while (fileStream.Position < fileStream.Length)
         {
             var status = reader.ReadInt16();
-            if (status != 1)
+            if ((status & 0b0100) != 0)
             {
                 fileStream.Seek(RecordSize - 2, SeekOrigin.Current);
                 continue;

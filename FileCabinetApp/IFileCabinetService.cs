@@ -21,10 +21,16 @@ public interface IFileCabinetService
     public ReadOnlyCollection<FileCabinetRecord> GetRecords();
 
     /// <summary>
-    /// Gets the number of records.
+    /// Gets the number of all records.
     /// </summary>
-    /// <returns>Number of records.</returns>
-    public int GetStat();
+    /// <returns>Number of all records.</returns>
+    public int GetNumberOfAllRecords();
+
+    /// <summary>
+    /// Gets the number of deleted records.
+    /// </summary>
+    /// <returns>Number of deleted records.</returns>
+    public int GetNumberOfDeletedRecords();
 
     /// <summary>
     /// Edits the record.
@@ -33,6 +39,13 @@ public interface IFileCabinetService
     /// <param name="parameters">Record's parameters.</param>
     /// <exception cref="ArgumentException">Thrown if record with such id doesn't exist.</exception>
     public void EditRecord(int id, FileCabinetRecordsParameters? parameters);
+
+    /// <summary>
+    /// Removes the record.
+    /// </summary>
+    /// <param name="id">Record Id.</param>
+    /// <exception cref="ArgumentException">Thrown if record with such id doesn't exist.</exception>
+    public void RemoveRecord(int id);
 
     /// <summary>
     /// Finds record by its id.
@@ -62,7 +75,21 @@ public interface IFileCabinetService
     /// <returns>List of records with the matched date of birth.</returns>
     public ReadOnlyCollection<FileCabinetRecord> FindByDateOfBirth(string dateOfBirthString);
 
+    /// <summary>
+    /// Makes snapshot of the current file cabinet state.
+    /// </summary>
+    /// <returns>A new snapshot.</returns>
     public FileCabinetServiceSnapshot MakeSnapshot();
 
+    /// <summary>
+    /// Restores file cabinet state to the snapshot's state.
+    /// </summary>
+    /// <param name="snapshot">Snapshot representing state for setting.</param>
+    /// <param name="errorsList">List of errors that occured during restoring.</param>
     public void Restore(FileCabinetServiceSnapshot snapshot, ref List<string> errorsList);
+
+    /// <summary>
+    /// Removes deleted records from the list.
+    /// </summary>
+    public void Purge();
 }

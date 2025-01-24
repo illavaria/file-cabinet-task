@@ -63,12 +63,20 @@ public class FileCabinetServiceSnapshot
         xmlWriter.WriteEndElement();
     }
 
+    /// <summary>
+    /// Loads records from csv file.
+    /// </summary>
+    /// <param name="streamReader">Stream reader used for reading csv file.</param>
     public void LoadFromCsv(StreamReader streamReader)
     {
         var recordCsvReader = new FileCabinetRecordCsvReader(streamReader);
         this.records = recordCsvReader.ReadAll().ToArray();
     }
 
+    /// <summary>
+    /// Loads records from xml file.
+    /// </summary>
+    /// <param name="streamReader">Stream reader used for reading xml file.</param>
     public void LoadFromXml(StreamReader streamReader)
     {
         using var xmlReader = XmlReader.Create(streamReader, new XmlReaderSettings { IgnoreWhitespace = true });
