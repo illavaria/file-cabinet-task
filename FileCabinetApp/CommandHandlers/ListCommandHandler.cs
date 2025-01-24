@@ -1,6 +1,7 @@
 namespace FileCabinetApp;
 
-public class ListCommandHandler(IFileCabinetService fileCabinetService) : ServiceCommandHandleBase(fileCabinetService)
+public class ListCommandHandler(IFileCabinetService fileCabinetService, Action<IEnumerable<FileCabinetRecord>> printer) 
+    : ServiceCommandHandleBase(fileCabinetService)
 {
     private const string CommandName = "list";
 
@@ -26,9 +27,6 @@ public class ListCommandHandler(IFileCabinetService fileCabinetService) : Servic
         }
 
         var records = this.fileCabinetService.GetRecords();
-        foreach (var record in records)
-        {
-            Console.WriteLine(record.ToString());
-        }
+        printer(records);
     }
 }
