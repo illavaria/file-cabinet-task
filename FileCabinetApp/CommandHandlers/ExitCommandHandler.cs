@@ -1,26 +1,21 @@
 namespace FileCabinetApp;
 
-/// <inheritdoc />
-public class ExitCommandHandler(Action<bool> changeState): CommandHandlerBase
+/// <summary>
+/// Class represents command handler for exit operation.
+/// </summary>
+public class ExitCommandHandler : CommandHandlerBase
 {
-    private const string CommandName = "exit";
+    private readonly Action<bool> changeState;
 
-    public override void Handle(AppCommandRequest commandRequest)
+    public ExitCommandHandler(Action<bool> changeState)
+        : base("exit")
     {
-        _ = commandRequest ?? throw new ArgumentNullException(nameof(commandRequest));
-
-        if (!commandRequest.Command.Equals(CommandName, StringComparison.OrdinalIgnoreCase))
-        {
-            this.NextHandler.Handle(commandRequest);
-            return;
-        }
-
-        this.Exit(commandRequest.Parameters);
+        this.changeState = changeState;
     }
-    
-    private void Exit(string parameters)
+
+    protected override void HandleCore(string parameters)
     {
         Console.WriteLine("Exiting an application...");
-        changeState(false);
+        this.changeState(false);
     }
 }

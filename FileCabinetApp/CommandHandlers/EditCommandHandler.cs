@@ -2,24 +2,14 @@ using System.Globalization;
 
 namespace FileCabinetApp;
 
-public class EditCommandHandler(IFileCabinetService fileCabinetService) : ServiceCommandHandleBase(fileCabinetService)
+/// <summary>
+/// Class represents command handler for edit operation.
+/// </summary>
+/// <param name="fileCabinetService">File cabinet service command is operated in.</param>
+public class EditCommandHandler(IFileCabinetService fileCabinetService) : ServiceCommandHandleBase(fileCabinetService, "edit")
 {
-    private const string CommandName = "edit";
-
-    public override void Handle(AppCommandRequest commandRequest)
-    {
-        _ = commandRequest ?? throw new ArgumentNullException(nameof(commandRequest));
-
-        if (!commandRequest.Command.Equals(CommandName, StringComparison.OrdinalIgnoreCase))
-        {
-            this.NextHandler.Handle(commandRequest);
-            return;
-        }
-
-        this.Edit(commandRequest.Parameters);
-    }
-
-    private void Edit(string parameters)
+    /// <inheritdoc/>
+    protected override void HandleCore(string parameters)
     {
         if (!int.TryParse(parameters, CultureInfo.InvariantCulture, out var recordId))
         {

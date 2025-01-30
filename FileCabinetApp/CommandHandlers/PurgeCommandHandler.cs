@@ -1,23 +1,13 @@
 namespace FileCabinetApp;
 
-public class PurgeCommandHandler(IFileCabinetService fileCabinetService) : ServiceCommandHandleBase(fileCabinetService)
+/// <summary>
+/// Class represents command handler for purge operation.
+/// </summary>
+/// <param name="fileCabinetService">File cabinet service command is operated in.</param>
+public class PurgeCommandHandler(IFileCabinetService fileCabinetService) : ServiceCommandHandleBase(fileCabinetService, "purge")
 {
-    private const string CommandName = "purge";
-
-    public override void Handle(AppCommandRequest commandRequest)
-    {
-        _ = commandRequest ?? throw new ArgumentNullException(nameof(commandRequest));
-
-        if (!commandRequest.Command.Equals(CommandName, StringComparison.OrdinalIgnoreCase))
-        {
-            this.NextHandler.Handle(commandRequest);
-            return;
-        }
-
-        this.Purge(commandRequest.Parameters);
-    }
-
-    private void Purge(string parameters)
+    /// <inheritdoc/>
+    protected override void HandleCore(string parameters)
     {
         if (!string.IsNullOrWhiteSpace(parameters))
         {

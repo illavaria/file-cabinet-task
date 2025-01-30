@@ -1,23 +1,13 @@
 namespace FileCabinetApp;
 
-public class StatCommandHandler(IFileCabinetService fileCabinetService) : ServiceCommandHandleBase(fileCabinetService)
+/// <summary>
+/// Class represents command handler for stat operation.
+/// </summary>
+/// <param name="fileCabinetService">File cabinet service command is operated in.</param>
+public class StatCommandHandler(IFileCabinetService fileCabinetService) : ServiceCommandHandleBase(fileCabinetService, "stat")
 {
-    private const string CommandName = "stat";
-
-    public override void Handle(AppCommandRequest commandRequest)
-    {
-        _ = commandRequest ?? throw new ArgumentNullException(nameof(commandRequest));
-
-        if (!commandRequest.Command.Equals(CommandName, StringComparison.OrdinalIgnoreCase))
-        {
-            this.NextHandler.Handle(commandRequest);
-            return;
-        }
-
-        this.Stat(commandRequest.Parameters);
-    }
-
-    private void Stat(string parameters)
+    /// <inheritdoc/>
+    protected override void HandleCore(string parameters)
     {
         if (!string.IsNullOrWhiteSpace(parameters))
         {

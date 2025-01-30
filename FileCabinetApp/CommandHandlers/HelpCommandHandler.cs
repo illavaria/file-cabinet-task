@@ -1,8 +1,10 @@
 namespace FileCabinetApp;
 
-public class HelpCommandHandler: CommandHandlerBase
+/// <summary>
+/// Class represents command handler for help operation.
+/// </summary>
+public class HelpCommandHandler : CommandHandlerBase
 {
-    private const string CommandName = "help";
     private const int CommandHelpIndex = 0;
     private const int DescriptionHelpIndex = 1;
     private const int ExplanationHelpIndex = 2;
@@ -22,20 +24,12 @@ public class HelpCommandHandler: CommandHandlerBase
         ["purge", "removes deleted records", "The 'purge' command removes deleted records"]
     ];
 
-    public override void Handle(AppCommandRequest commandRequest)
+    public HelpCommandHandler()
+        : base("help")
     {
-        _ = commandRequest ?? throw new ArgumentNullException(nameof(commandRequest));
-
-        if (!commandRequest.Command.Equals(CommandName, StringComparison.OrdinalIgnoreCase))
-        {
-            this.NextHandler.Handle(commandRequest);
-            return;
-        }
-
-        PrintHelp(commandRequest.Parameters);
     }
 
-    private static void PrintHelp(string parameters)
+    protected override void HandleCore(string parameters)
     {
         if (!string.IsNullOrEmpty(parameters))
         {

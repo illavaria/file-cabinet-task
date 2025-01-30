@@ -1,27 +1,16 @@
 namespace FileCabinetApp;
 
-public class ExportCommandHandler(IFileCabinetService fileCabinetService) : ServiceCommandHandleBase(fileCabinetService)
+/// <summary>
+/// Class represents command handler for export operation.
+/// </summary>
+/// <param name="fileCabinetService">File cabinet service command is operated in.</param>
+public class ExportCommandHandler(IFileCabinetService fileCabinetService) : ServiceCommandHandleBase(fileCabinetService, "export")
 {
-    private const string CommandName = "export";
-    private static Tuple<string, Action<FileCabinetServiceSnapshot, StreamWriter>>[] exportParams =
+    private static (string, Action<FileCabinetServiceSnapshot, StreamWriter>)[] exportParams =
     [
-        new Tuple<string, Action<FileCabinetServiceSnapshot, StreamWriter>>("csv", SaveToCsv),
-        new Tuple<string, Action<FileCabinetServiceSnapshot, StreamWriter>>("xml", SaveToXml)
+        new ("csv", SaveToCsv),
+        new ("xml", SaveToXml)
     ];
-
-    /// <inheritdoc/>
-    public override void Handle(AppCommandRequest commandRequest)
-    {
-        _ = commandRequest ?? throw new ArgumentNullException(nameof(commandRequest));
-
-        if (!commandRequest.Command.Equals(CommandName, StringComparison.OrdinalIgnoreCase))
-        {
-            this.NextHandler.Handle(commandRequest);
-            return;
-        }
-
-        this.Export(commandRequest.Parameters);
-    }
 
     private static void SaveToCsv(FileCabinetServiceSnapshot snapshot, StreamWriter writer) =>
         snapshot.SaveToCsv(writer);
@@ -29,7 +18,8 @@ public class ExportCommandHandler(IFileCabinetService fileCabinetService) : Serv
     private static void SaveToXml(FileCabinetServiceSnapshot snapshot, StreamWriter writer) =>
         snapshot.SaveToXml(writer);
 
-    private void Export(string parameters)
+    /// <inheritdoc/>
+    protected override void HandleCore(string parameters)
     {
         var args = parameters.Split(' ', 2, StringSplitOptions.RemoveEmptyEntries);
         if (args.Length < 2)

@@ -1,23 +1,13 @@
 namespace FileCabinetApp;
 
-public class CreateCommandHandler(IFileCabinetService fileCabinetService) : ServiceCommandHandleBase(fileCabinetService)
+/// <summary>
+/// Class represents command handler for create operation.
+/// </summary>
+/// <param name="fileCabinetService">File cabinet service command is operated in.</param>
+public class CreateCommandHandler(IFileCabinetService fileCabinetService) : ServiceCommandHandleBase(fileCabinetService, "create")
 {
-    private const string CommandName = "create";
-
-    public override void Handle(AppCommandRequest commandRequest)
-    {
-        _ = commandRequest ?? throw new ArgumentNullException(nameof(commandRequest));
-
-        if (!commandRequest.Command.Equals(CommandName, StringComparison.OrdinalIgnoreCase))
-        {
-            this.NextHandler.Handle(commandRequest);
-            return;
-        }
-
-        this.Create(commandRequest.Parameters);
-    }
-
-    private void Create(string parameters)
+    /// <inheritdoc/>
+    protected override void HandleCore(string parameters)
     {
         if (!string.IsNullOrWhiteSpace(parameters))
         {

@@ -1,24 +1,14 @@
 namespace FileCabinetApp;
 
+/// <summary>
+/// Class represents command handler for list operation.
+/// </summary>
+/// <param name="fileCabinetService">File cabinet service command is operated in.</param>
 public class ListCommandHandler(IFileCabinetService fileCabinetService, Action<IEnumerable<FileCabinetRecord>> printer) 
-    : ServiceCommandHandleBase(fileCabinetService)
+    : ServiceCommandHandleBase(fileCabinetService, "list")
 {
-    private const string CommandName = "list";
-
-    public override void Handle(AppCommandRequest commandRequest)
-    {
-        _ = commandRequest ?? throw new ArgumentNullException(nameof(commandRequest));
-
-        if (!commandRequest.Command.Equals(CommandName, StringComparison.OrdinalIgnoreCase))
-        {
-            this.NextHandler.Handle(commandRequest);
-            return;
-        }
-
-        this.List(commandRequest.Parameters);
-    }
-
-    private void List(string parameters)
+    /// <inheritdoc/>
+    protected override void HandleCore(string parameters)
     {
         if (!string.IsNullOrWhiteSpace(parameters))
         {

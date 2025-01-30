@@ -1,5 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using System.Globalization;
+using Newtonsoft.Json;
 
 namespace FileCabinetApp
 {
@@ -15,15 +16,13 @@ namespace FileCabinetApp
         private static bool isRunning = true;
 
         private static IFileCabinetService fileCabinetService;
-        private static IRecordValidator validator;
+        private static IRecordConsoleInputValidator inputValidator;
 
-        private static string[] commands = ["help", "exit", "stat", "create", "list", "edit", "find", "export", "import", "remove", "purge"];
-
-        private static Tuple<string, Func<IRecordValidator>>[] validationParams =
-        [
-            new Tuple<string, Func<IRecordValidator>>("custom", () => new CustomValidator()),
-            new Tuple<string, Func<IRecordValidator>>("default", () => new DefaultValidator())
-        ];
+        // private static (string, Func<IRecordValidator>, Func<IRecordConsoleInputValidator>)[] validationParams =
+        // [
+        //     new ("custom", () => new ValidatorBuilder().CreateCustom(), ()=> new CustomValidator()),
+        //     new ("default", () => new ValidatorBuilder().CreateDefault(), () => new DefaultValidator())
+        // ];
 
         /// <summary>
         /// Main program body.
@@ -68,21 +67,36 @@ namespace FileCabinetApp
                 }
             }
 
-            var index = Array.FindIndex(validationParams, i => i.Item1.Equals(validationRule, StringComparison.OrdinalIgnoreCase));
-            if (index < 0)
+            var json = File.ReadAllText("validation-rules.json");
+            var validationSettings = JsonConvert.DeserializeObject<ValidationSettings.ValidationSettings>(json);
+            IRecordValidator validator;
+
+            if (string.Equals(validationRule, "default", StringComparison.OrdinalIgnoreCase))
+            {
+                Program.inputValidator = new InputValidator(validationSettings.Default);
+                validator = new ValidatorBuilder().CreateDefault(validationSettings.Default);
+            }
+            else if (string.Equals(validationRule, "custom", StringComparison.OrdinalIgnoreCase))
+            {
+                Program.inputValidator = new InputValidator(validationSettings.Custom);
+                validator = new ValidatorBuilder().CreateCustom(validationSettings.Custom);
+            }
+            else
             {
                 Console.WriteLine("Unknown validation rule");
                 return;
             }
 
+
             switch (storageRule)
             {
                 case "memory":
-                    fileCabinetService = new FileCabinetMemoryService(validationParams[index].Item2.Invoke());
+                    fileCabinetService = new FileCabinetMemoryService(validator);
                     break;
                 case "file":
                     fileCabinetService =
-                        new FileCabinetFilesystemService(new FileStream("cabinet-records.db", FileMode.OpenOrCreate, FileAccess.ReadWrite),validationParams[index].Item2.Invoke());
+                        new FileCabinetFilesystemService(
+                            new FileStream("cabinet-records.db", FileMode.OpenOrCreate, FileAccess.ReadWrite), validator);
                     break;
                 default:
                 {
@@ -100,8 +114,6 @@ namespace FileCabinetApp
             {
                 fileCabinetService = new ServiceLogger(fileCabinetService, LogFilePath);
             }
-
-            Program.validator = validationParams[index].Item2.Invoke();
 
             Console.WriteLine($"File Cabinet Application, developed by {DeveloperName}");
             Console.WriteLine(HintMessage);
@@ -121,29 +133,17 @@ namespace FileCabinetApp
                     continue;
                 }
 
-                if (commands.FirstOrDefault(c => c.Equals(command, StringComparison.OrdinalIgnoreCase)) is not null)
-                {
-                    const int parametersIndex = 1;
-                    var parameters = inputs.Length > 1 ? inputs[parametersIndex] : string.Empty;
+                const int parametersIndex = 1;
+                var parameters = inputs.Length > 1 ? inputs[parametersIndex] : string.Empty;
 
-                    var commandHandler = CreateCommandHandlers();
-                    commandHandler.Handle(new AppCommandRequest { Command = command, Parameters = parameters });
-                }
-                else
-                {
-                    PrintMissedCommandInfo(command);
-                }
-            }
-            while (isRunning);
+                var commandHandler = CreateCommandHandlers(command);
+                commandHandler.Handle(new AppCommandRequest { Command = command, Parameters = parameters });
+
+
+            } while (isRunning);
         }
 
-        private static void PrintMissedCommandInfo(string command)
-        {
-            Console.WriteLine($"There is no '{command}' command.");
-            Console.WriteLine();
-        }
-
-        private static ICommandHandler CreateCommandHandlers()
+        private static ICommandHandler CreateCommandHandlers(string command)
         {
             var helpHandler = new HelpCommandHandler();
             var exitHandler = new ExitCommandHandler(state => isRunning = state);
@@ -156,6 +156,7 @@ namespace FileCabinetApp
             var importHandler = new ImportCommandHandler(fileCabinetService);
             var removeHandler = new RemoveCommandHandler(fileCabinetService);
             var purgeHandler = new PurgeCommandHandler(fileCabinetService);
+            var unknownHandler = new UnknownCommandHandler(command);
 
             helpHandler.SetNext(exitHandler);
             exitHandler.SetNext(statHandler);
@@ -167,6 +168,7 @@ namespace FileCabinetApp
             exportHandler.SetNext(importHandler);
             importHandler.SetNext(removeHandler);
             removeHandler.SetNext(purgeHandler);
+            purgeHandler.SetNext(unknownHandler);
 
             return helpHandler;
         }
@@ -181,22 +183,23 @@ namespace FileCabinetApp
 
         public static void InputParameters(out string? firstName, out string? lastName, out DateTime dateOfBirth, out short numberOfChildren, out decimal yearIncome, out char gender)
         {
+            var valid = new LastNameValidator(2, 4);
             Console.Write("First name: ");
-            firstName = ReadInput(StringConverter, validator.FirstNameValidator);
+            firstName = ReadInput(StringConverter, inputValidator.FirstNameValidator);
             Console.Write("Last name: ");
-            lastName = ReadInput(StringConverter, validator.LastNameValidator);
+            lastName = ReadInput(StringConverter, inputValidator.LastNameValidator);
 
             Console.Write("Date of birth: ");
-            dateOfBirth = ReadInput(DateConverter, validator.DateOfBirthValidator);
+            dateOfBirth = ReadInput(DateConverter, inputValidator.DateOfBirthValidator);
 
             Console.Write("Number of children: ");
-            numberOfChildren = ReadInput(ShortConverter, validator.NumberOfChildrenValidator);
+            numberOfChildren = ReadInput(ShortConverter, inputValidator.NumberOfChildrenValidator);
 
             Console.Write("Year income: ");
-            yearIncome = ReadInput(DecimalConverter, validator.YearIncomeValidator);
+            yearIncome = ReadInput(DecimalConverter, inputValidator.YearIncomeValidator);
 
             Console.Write("Gender (M, F, N): ");
-            gender = ReadInput(CharConverter, validator.GenderValidator);
+            gender = ReadInput(CharConverter, inputValidator.GenderValidator);
         }
 
         private static Tuple<bool, string, string> StringConverter(string input) =>
@@ -225,6 +228,7 @@ namespace FileCabinetApp
 
         private static T ReadInput<T>(Func<string, Tuple<bool, string, T>> converter, Func<T, Tuple<bool, string>> validator)
         {
+            var parameters = new FileCabinetRecordsParameters();
             while (true)
             {
                 var input = Console.ReadLine();

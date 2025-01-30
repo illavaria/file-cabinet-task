@@ -1,26 +1,16 @@
 namespace FileCabinetApp;
 
-public class ImportCommandHandler(IFileCabinetService fileCabinetService) : ServiceCommandHandleBase(fileCabinetService)
+/// <summary>
+/// Class represents command handler for import operation.
+/// </summary>
+/// <param name="fileCabinetService">File cabinet service command is operated in.</param>
+public class ImportCommandHandler(IFileCabinetService fileCabinetService) : ServiceCommandHandleBase(fileCabinetService, "import")
 {
-    private const string CommandName = "import";
     private static (string, Action<FileCabinetServiceSnapshot, StreamReader>)[] importParams =
     [
         new ("csv", LoadFromCsv),
         new ("xml", LoadFromXml)
     ];
-
-    public override void Handle(AppCommandRequest commandRequest)
-    {
-        _ = commandRequest ?? throw new ArgumentNullException(nameof(commandRequest));
-
-        if (!commandRequest.Command.Equals(CommandName, StringComparison.OrdinalIgnoreCase))
-        {
-            this.NextHandler.Handle(commandRequest);
-            return;
-        }
-
-        this.Import(commandRequest.Parameters);
-    }
 
     private static void LoadFromCsv(FileCabinetServiceSnapshot snapshot, StreamReader reader) =>
         snapshot.LoadFromCsv(reader);
@@ -28,7 +18,8 @@ public class ImportCommandHandler(IFileCabinetService fileCabinetService) : Serv
     private static void LoadFromXml(FileCabinetServiceSnapshot snapshot, StreamReader reader) =>
         snapshot.LoadFromXml(reader);
 
-    private void Import(string parameters)
+    /// <inheritdoc/>
+    protected override void HandleCore(string parameters)
     {
         var args = parameters.Split(' ', 2, StringSplitOptions.RemoveEmptyEntries);
         if (args.Length < 2)

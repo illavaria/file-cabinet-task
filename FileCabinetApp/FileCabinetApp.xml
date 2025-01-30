@@ -4,14 +4,208 @@
         <name>FileCabinetApp</name>
     </assembly>
     <members>
-        <member name="T:FileCabinetApp.ExitCommandHandler">
-            <inheritdoc />
+        <member name="T:FileCabinetApp.AppCommandRequest">
+            <summary>
+            Class represents app command request.
+            </summary>
         </member>
-        <member name="M:FileCabinetApp.ExitCommandHandler.#ctor(System.Action{System.Boolean})">
-            <inheritdoc />
+        <member name="P:FileCabinetApp.AppCommandRequest.Command">
+            <summary>
+            Gets or sets command name.
+            </summary>
         </member>
-        <member name="M:FileCabinetApp.ExportCommandHandler.Handle(FileCabinetApp.AppCommandRequest)">
+        <member name="P:FileCabinetApp.AppCommandRequest.Parameters">
+            <summary>
+            Gets or sets command parameters.
+            </summary>
+        </member>
+        <member name="T:FileCabinetApp.CommandHandlerBase">
+            <summary>
+            Abstract class that represents command handler.
+            </summary>
+        </member>
+        <member name="P:FileCabinetApp.CommandHandlerBase.NextHandler">
+            <summary>
+            Gets the next command handler.
+            </summary>
+        </member>
+        <member name="M:FileCabinetApp.CommandHandlerBase.SetNext(FileCabinetApp.ICommandHandler)">
             <inheritdoc/>
+        </member>
+        <member name="M:FileCabinetApp.CommandHandlerBase.Handle(FileCabinetApp.AppCommandRequest)">
+            <inheritdoc/>
+        </member>
+        <member name="T:FileCabinetApp.CreateCommandHandler">
+            <summary>
+            Class represents command handler for create operation.
+            </summary>
+            <param name="fileCabinetService">File cabinet service command is operated in.</param>
+        </member>
+        <member name="M:FileCabinetApp.CreateCommandHandler.#ctor(FileCabinetApp.IFileCabinetService)">
+            <summary>
+            Class represents command handler for create operation.
+            </summary>
+            <param name="fileCabinetService">File cabinet service command is operated in.</param>
+        </member>
+        <member name="M:FileCabinetApp.CreateCommandHandler.HandleCore(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="T:FileCabinetApp.EditCommandHandler">
+            <summary>
+            Class represents command handler for edit operation.
+            </summary>
+            <param name="fileCabinetService">File cabinet service command is operated in.</param>
+        </member>
+        <member name="M:FileCabinetApp.EditCommandHandler.#ctor(FileCabinetApp.IFileCabinetService)">
+            <summary>
+            Class represents command handler for edit operation.
+            </summary>
+            <param name="fileCabinetService">File cabinet service command is operated in.</param>
+        </member>
+        <member name="M:FileCabinetApp.EditCommandHandler.HandleCore(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="T:FileCabinetApp.ExitCommandHandler">
+            <summary>
+            Class represents command handler for exit operation.
+            </summary>
+        </member>
+        <member name="T:FileCabinetApp.ExportCommandHandler">
+            <summary>
+            Class represents command handler for export operation.
+            </summary>
+            <param name="fileCabinetService">File cabinet service command is operated in.</param>
+        </member>
+        <member name="M:FileCabinetApp.ExportCommandHandler.#ctor(FileCabinetApp.IFileCabinetService)">
+            <summary>
+            Class represents command handler for export operation.
+            </summary>
+            <param name="fileCabinetService">File cabinet service command is operated in.</param>
+        </member>
+        <member name="M:FileCabinetApp.ExportCommandHandler.HandleCore(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="T:FileCabinetApp.FindCommandHandler">
+            <summary>
+            Class represents command handler for find operation.
+            </summary>
+            <param name="fileCabinetService">File cabinet service command is operated in.</param>
+        </member>
+        <member name="M:FileCabinetApp.FindCommandHandler.#ctor(FileCabinetApp.IFileCabinetService,System.Action{System.Collections.Generic.IEnumerable{FileCabinetApp.FileCabinetRecord}})">
+            <summary>
+            Class represents command handler for find operation.
+            </summary>
+            <param name="fileCabinetService">File cabinet service command is operated in.</param>
+        </member>
+        <member name="M:FileCabinetApp.FindCommandHandler.HandleCore(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="T:FileCabinetApp.HelpCommandHandler">
+            <summary>
+            Class represents command handler for help operation.
+            </summary>
+        </member>
+        <member name="T:FileCabinetApp.ICommandHandler">
+            <summary>
+            Interface representing command handler.
+            </summary>
+        </member>
+        <member name="M:FileCabinetApp.ICommandHandler.SetNext(FileCabinetApp.ICommandHandler)">
+            <summary>
+            Sets the next command.
+            </summary>
+            <param name="commandHandler">Command to be set next.</param>
+        </member>
+        <member name="M:FileCabinetApp.ICommandHandler.Handle(FileCabinetApp.AppCommandRequest)">
+            <summary>
+            Handles the command.
+            </summary>
+            <param name="commandRequest">Command request to handle.</param>
+        </member>
+        <member name="T:FileCabinetApp.ImportCommandHandler">
+            <summary>
+            Class represents command handler for import operation.
+            </summary>
+            <param name="fileCabinetService">File cabinet service command is operated in.</param>
+        </member>
+        <member name="M:FileCabinetApp.ImportCommandHandler.#ctor(FileCabinetApp.IFileCabinetService)">
+            <summary>
+            Class represents command handler for import operation.
+            </summary>
+            <param name="fileCabinetService">File cabinet service command is operated in.</param>
+        </member>
+        <member name="M:FileCabinetApp.ImportCommandHandler.HandleCore(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="T:FileCabinetApp.ListCommandHandler">
+            <summary>
+            Class represents command handler for list operation.
+            </summary>
+            <param name="fileCabinetService">File cabinet service command is operated in.</param>
+        </member>
+        <member name="M:FileCabinetApp.ListCommandHandler.#ctor(FileCabinetApp.IFileCabinetService,System.Action{System.Collections.Generic.IEnumerable{FileCabinetApp.FileCabinetRecord}})">
+            <summary>
+            Class represents command handler for list operation.
+            </summary>
+            <param name="fileCabinetService">File cabinet service command is operated in.</param>
+        </member>
+        <member name="M:FileCabinetApp.ListCommandHandler.HandleCore(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="T:FileCabinetApp.PurgeCommandHandler">
+            <summary>
+            Class represents command handler for purge operation.
+            </summary>
+            <param name="fileCabinetService">File cabinet service command is operated in.</param>
+        </member>
+        <member name="M:FileCabinetApp.PurgeCommandHandler.#ctor(FileCabinetApp.IFileCabinetService)">
+            <summary>
+            Class represents command handler for purge operation.
+            </summary>
+            <param name="fileCabinetService">File cabinet service command is operated in.</param>
+        </member>
+        <member name="M:FileCabinetApp.PurgeCommandHandler.HandleCore(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="T:FileCabinetApp.RemoveCommandHandler">
+            <summary>
+            Class represents command handler for remove operation.
+            </summary>
+            <param name="fileCabinetService">File cabinet service command is operated in.</param>
+        </member>
+        <member name="M:FileCabinetApp.RemoveCommandHandler.#ctor(FileCabinetApp.IFileCabinetService)">
+            <summary>
+            Class represents command handler for remove operation.
+            </summary>
+            <param name="fileCabinetService">File cabinet service command is operated in.</param>
+        </member>
+        <member name="M:FileCabinetApp.RemoveCommandHandler.HandleCore(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="T:FileCabinetApp.ServiceCommandHandleBase">
+            <summary>
+            Abstract class representing command handler base that uses file cabinet service.
+            </summary>
+        </member>
+        <member name="T:FileCabinetApp.StatCommandHandler">
+            <summary>
+            Class represents command handler for stat operation.
+            </summary>
+            <param name="fileCabinetService">File cabinet service command is operated in.</param>
+        </member>
+        <member name="M:FileCabinetApp.StatCommandHandler.#ctor(FileCabinetApp.IFileCabinetService)">
+            <summary>
+            Class represents command handler for stat operation.
+            </summary>
+            <param name="fileCabinetService">File cabinet service command is operated in.</param>
+        </member>
+        <member name="M:FileCabinetApp.StatCommandHandler.HandleCore(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="T:FileCabinetApp.UnknownCommandHandler">
+            <summary>
+            Class represents command handler for unknown operation.
+            </summary>
         </member>
         <member name="T:FileCabinetApp.FileCabinetFilesystemService">
             <summary>
@@ -575,77 +769,76 @@
         <member name="M:FileCabinetApp.ServiceMeter.Purge">
             <inheritdoc/>
         </member>
-        <member name="T:FileCabinetApp.CustomValidator">
-            <inheritdoc />
-        </member>
-        <member name="M:FileCabinetApp.CustomValidator.ValidateParameters(FileCabinetApp.FileCabinetRecordsParameters)">
+        <member name="M:FileCabinetApp.FirstNameValidator.#ctor(System.Int32,System.Int32)">
             <summary>
-            Validates the records parameters.
+            Initializes a new instance of the <see cref="T:FileCabinetApp.FirstNameValidator"/> class.
             </summary>
-            <param name="parameters">Record's parameters for validation.</param>
-            <exception cref="T:System.ArgumentException">Thrown if:
-            - First name or last name is null, empty, whitespace, or has an invalid length (less than 2 or more than 40).
-            - Last name has digits.
-            - Date of birth is outside the range January 1, 1940 - today's date.
-            - Number of children is less than 0 or greater than 5.
-            - Number of children is more than 0 and record's age is less than 16.
-            - Annual income is less than 0 or greater than 200,000.
-            - Gender is not one of the allowed values ('M', 'F', 'N').
-            </exception>
-            <exception cref="T:System.ArgumentNullException">Thrown if parameters are null.</exception>
+            <param name="minLength"></param>
+            <param name="maxLength"></param>
+            <param name="maxLangth"></param>
         </member>
-        <member name="M:FileCabinetApp.CustomValidator.FirstNameValidator(System.String)">
+        <member name="T:FileCabinetApp.InputValidator">
             <inheritdoc />
         </member>
-        <member name="M:FileCabinetApp.CustomValidator.LastNameValidator(System.String)">
+        <member name="M:FileCabinetApp.InputValidator.FirstNameValidator(System.String)">
             <inheritdoc />
         </member>
-        <member name="M:FileCabinetApp.CustomValidator.DateOfBirthValidator(System.DateTime)">
+        <member name="M:FileCabinetApp.InputValidator.LastNameValidator(System.String)">
             <inheritdoc />
         </member>
-        <member name="M:FileCabinetApp.CustomValidator.NumberOfChildrenValidator(System.Int16)">
+        <member name="M:FileCabinetApp.InputValidator.DateOfBirthValidator(System.DateTime)">
             <inheritdoc />
         </member>
-        <member name="M:FileCabinetApp.CustomValidator.YearIncomeValidator(System.Decimal)">
+        <member name="M:FileCabinetApp.InputValidator.NumberOfChildrenValidator(System.Int16)">
             <inheritdoc />
         </member>
-        <member name="M:FileCabinetApp.CustomValidator.GenderValidator(System.Char)">
+        <member name="M:FileCabinetApp.InputValidator.YearIncomeValidator(System.Decimal)">
             <inheritdoc />
         </member>
-        <member name="T:FileCabinetApp.DefaultValidator">
+        <member name="M:FileCabinetApp.InputValidator.GenderValidator(System.Char)">
             <inheritdoc />
         </member>
-        <member name="M:FileCabinetApp.DefaultValidator.ValidateParameters(FileCabinetApp.FileCabinetRecordsParameters)">
+        <member name="M:FileCabinetApp.IRecordConsoleInputValidator.FirstNameValidator(System.String)">
             <summary>
-            Validates the records parameters.
+            Validates first name.
             </summary>
-            <param name="parameters">Record's parameters for validation.</param>
-            <exception cref="T:System.ArgumentException">Thrown if:
-            - First name or last name is null, empty, whitespace, or has an invalid length (less than 2 or more than 60).
-            - Date of birth is outside the range January 1, 1950 - today's date.
-            - Number of children is less than 0 or greater than 10.
-            - Annual income is less than 0 or greater than 250,000.
-            - Gender is not one of the allowed values ('M', 'F', 'N').
-            </exception>
-            <exception cref="T:System.ArgumentNullException">Thrown if parameters are null.</exception>
+            <param name="firstName">First name for validation.</param>
+            <returns>Tuple with bool value and string to represent validation error.</returns>
         </member>
-        <member name="M:FileCabinetApp.DefaultValidator.FirstNameValidator(System.String)">
-            <inheritdoc />
+        <member name="M:FileCabinetApp.IRecordConsoleInputValidator.LastNameValidator(System.String)">
+            <summary>
+            Validates last name.
+            </summary>
+            <param name="lastName">Last name for validation.</param>
+            <returns>Tuple with bool value and string to represent validation error.</returns>
         </member>
-        <member name="M:FileCabinetApp.DefaultValidator.LastNameValidator(System.String)">
-            <inheritdoc />
+        <member name="M:FileCabinetApp.IRecordConsoleInputValidator.DateOfBirthValidator(System.DateTime)">
+            <summary>
+            Validates date of birth.
+            </summary>
+            <param name="dateOfBirth">Date of birth for validation.</param>
+            <returns>Tuple with bool value and string to represent validation error.</returns>
         </member>
-        <member name="M:FileCabinetApp.DefaultValidator.DateOfBirthValidator(System.DateTime)">
-            <inheritdoc />
+        <member name="M:FileCabinetApp.IRecordConsoleInputValidator.NumberOfChildrenValidator(System.Int16)">
+            <summary>
+            Validates number of children.
+            </summary>
+            <param name="numberOfChildren">Number of children for validation.</param>
+            <returns>Tuple with bool value and string to represent validation error.</returns>
         </member>
-        <member name="M:FileCabinetApp.DefaultValidator.NumberOfChildrenValidator(System.Int16)">
-            <inheritdoc />
+        <member name="M:FileCabinetApp.IRecordConsoleInputValidator.YearIncomeValidator(System.Decimal)">
+            <summary>
+            Validates year income.
+            </summary>
+            <param name="yearIncome">Year income for validation.</param>
+            <returns>Tuple with bool value and string to represent validation error.</returns>
         </member>
-        <member name="M:FileCabinetApp.DefaultValidator.YearIncomeValidator(System.Decimal)">
-            <inheritdoc />
-        </member>
-        <member name="M:FileCabinetApp.DefaultValidator.GenderValidator(System.Char)">
-            <inheritdoc />
+        <member name="M:FileCabinetApp.IRecordConsoleInputValidator.GenderValidator(System.Char)">
+            <summary>
+            Validates gender.
+            </summary>
+            <param name="gender">Gender for validation.</param>
+            <returns>Tuple with bool value and string to represent validation error.</returns>
         </member>
         <member name="T:FileCabinetApp.IRecordValidator">
             <summary>
@@ -658,47 +851,13 @@
             </summary>
             <param name="parameters">Record's parameters for validation.</param>
         </member>
-        <member name="M:FileCabinetApp.IRecordValidator.FirstNameValidator(System.String)">
+        <member name="M:FileCabinetApp.LastNameValidator.#ctor(System.Int32,System.Int32)">
             <summary>
-            Validates first name.
+            Initializes a new instance of the <see cref="T:FileCabinetApp.LastNameValidator"/> class.
             </summary>
-            <param name="firstName">First name for validation.</param>
-            <returns>Tuple with bool value and string to represent validation error.</returns>
-        </member>
-        <member name="M:FileCabinetApp.IRecordValidator.LastNameValidator(System.String)">
-            <summary>
-            Validates last name.
-            </summary>
-            <param name="lastName">Last name for validation.</param>
-            <returns>Tuple with bool value and string to represent validation error.</returns>
-        </member>
-        <member name="M:FileCabinetApp.IRecordValidator.DateOfBirthValidator(System.DateTime)">
-            <summary>
-            Validates date of birth.
-            </summary>
-            <param name="dateOfBirth">Date of birth for validation.</param>
-            <returns>Tuple with bool value and string to represent validation error.</returns>
-        </member>
-        <member name="M:FileCabinetApp.IRecordValidator.NumberOfChildrenValidator(System.Int16)">
-            <summary>
-            Validates number of children.
-            </summary>
-            <param name="numberOfChildren">Number of children for validation.</param>
-            <returns>Tuple with bool value and string to represent validation error.</returns>
-        </member>
-        <member name="M:FileCabinetApp.IRecordValidator.YearIncomeValidator(System.Decimal)">
-            <summary>
-            Validates year income.
-            </summary>
-            <param name="yearIncome">Year income for validation.</param>
-            <returns>Tuple with bool value and string to represent validation error.</returns>
-        </member>
-        <member name="M:FileCabinetApp.IRecordValidator.GenderValidator(System.Char)">
-            <summary>
-            Validates gender.
-            </summary>
-            <param name="gender">Gender for validation.</param>
-            <returns>Tuple with bool value and string to represent validation error.</returns>
+            <param name="minLength"></param>
+            <param name="maxLength"></param>
+            <param name="maxLangth"></param>
         </member>
     </members>
 </doc>
