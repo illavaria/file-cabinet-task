@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.ObjectModel;
 using System.Globalization;
 
@@ -67,29 +68,29 @@ public class ServiceLogger(IFileCabinetService service, string logFilePath) : IF
     }
 
     /// <inheritdoc/>
-    public ReadOnlyCollection<FileCabinetRecord> FindByFirstName(string? firstName)
+    public IEnumerable<FileCabinetRecord> FindByFirstName(string? firstName)
     {
         this.WriteLog($"Calling FindByFirstName() with firstName = '{firstName}'");
         var result = service.FindByFirstName(firstName);
-        this.WriteLog($"FindByFirstName() returned '{result.Count}' records");
+        this.WriteLog($"FindByFirstName() returned '{result.Count()}' records");
         return result;
     }
 
     /// <inheritdoc/>
-    public ReadOnlyCollection<FileCabinetRecord> FindByLastName(string? lastName)
+    public IEnumerable<FileCabinetRecord> FindByLastName(string? lastName)
     {
         this.WriteLog($"Calling FindByLastName() with lastName = '{lastName}'");
         var result = service.FindByFirstName(lastName);
-        this.WriteLog($"FindByLastName() returned '{result.Count}' records");
+        this.WriteLog($"FindByLastName() returned '{result.Count()}' records");
         return result;
     }
 
     /// <inheritdoc/>
-    public ReadOnlyCollection<FileCabinetRecord> FindByDateOfBirth(string dateOfBirthString)
+    public IEnumerable<FileCabinetRecord> FindByDateOfBirth(string dateOfBirthString)
     {
         this.WriteLog($"Calling FindByDateOfBirth() with dateOfBirth = '{dateOfBirthString}'");
         var result = service.FindByDateOfBirth(dateOfBirthString);
-        this.WriteLog($"FindByDateOfBirth() returned '{result.Count}' records");
+        this.WriteLog($"FindByDateOfBirth() returned '{result.Count()}' records");
         return result;
     }
 

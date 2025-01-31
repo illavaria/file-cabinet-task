@@ -35,19 +35,19 @@ public class ServiceMeter(IFileCabinetService service) : IFileCabinetService
 
     /// <inheritdoc/>
     public FileCabinetRecord? FindById(int id) =>
-        MeasureExecutionTime(nameof(this.CreateRecord), () => service.FindById(id));
+        MeasureExecutionTime(nameof(this.FindById), () => service.FindById(id));
 
     /// <inheritdoc/>
-    public ReadOnlyCollection<FileCabinetRecord> FindByFirstName(string? firstName) =>
-        MeasureExecutionTime(nameof(this.CreateRecord), () => service.FindByFirstName(firstName));
+    public IEnumerable<FileCabinetRecord> FindByFirstName(string? firstName) =>
+        MeasureExecutionTime(nameof(this.FindByFirstName), () => service.FindByFirstName(firstName));
 
     /// <inheritdoc/>
-    public ReadOnlyCollection<FileCabinetRecord> FindByLastName(string? lastName) =>
-        MeasureExecutionTime(nameof(this.CreateRecord), () => service.FindByLastName(lastName));
+    public IEnumerable<FileCabinetRecord> FindByLastName(string? lastName) =>
+        MeasureExecutionTime(nameof(this.FindByLastName), () => service.FindByLastName(lastName));
 
     /// <inheritdoc/>
-    public ReadOnlyCollection<FileCabinetRecord> FindByDateOfBirth(string dateOfBirthString) =>
-        MeasureExecutionTime(nameof(this.CreateRecord), () => service.FindByDateOfBirth(dateOfBirthString));
+    public IEnumerable<FileCabinetRecord> FindByDateOfBirth(string dateOfBirthString) =>
+        MeasureExecutionTime(nameof(this.FindByDateOfBirth), () => service.FindByDateOfBirth(dateOfBirthString));
 
     /// <inheritdoc/>
     public FileCabinetServiceSnapshot MakeSnapshot() =>
@@ -78,7 +78,6 @@ public class ServiceMeter(IFileCabinetService service) : IFileCabinetService
     private static void MeasureExecutionTime(string methodName, Action action)
     {
         var stopwatch = Stopwatch.StartNew();
-        Console.WriteLine($"Method {methodName} started.");
         action.Invoke();
         stopwatch.Stop();
         Console.WriteLine($"{methodName} method execution duration is {stopwatch.ElapsedTicks} ticks.");

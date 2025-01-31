@@ -9,7 +9,7 @@ namespace FileCabinetApp;
 public class FindCommandHandler(IFileCabinetService fileCabinetService, Action<IEnumerable<FileCabinetRecord>> printer)
     : ServiceCommandHandleBase(fileCabinetService, "find")
 {
-    private (string, Func<string, ReadOnlyCollection<FileCabinetRecord>>)[] findParams =
+    private (string, Func<string, IEnumerable<FileCabinetRecord>>)[] findParams =
     [
         new ("firstName", fileCabinetService.FindByFirstName),
         new ("lastName", fileCabinetService.FindByLastName),

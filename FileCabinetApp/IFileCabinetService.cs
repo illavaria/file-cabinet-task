@@ -59,21 +59,21 @@ public interface IFileCabinetService
     /// </summary>
     /// <param name="firstName">First name to search.</param>
     /// <returns>List of records with the matched first name.</returns>
-    public ReadOnlyCollection<FileCabinetRecord> FindByFirstName(string? firstName);
+    public IEnumerable<FileCabinetRecord> FindByFirstName(string? firstName);
 
     /// <summary>
     /// Find records by last name.
     /// </summary>
     /// <param name="lastName">Last name to search.</param>
     /// <returns>List of records with the matched last name.</returns>
-    public ReadOnlyCollection<FileCabinetRecord> FindByLastName(string? lastName);
+    public IEnumerable<FileCabinetRecord> FindByLastName(string? lastName);
 
     /// <summary>
     /// Find records by date of birth.
     /// </summary>
     /// <param name="dateOfBirthString">String representing date of birth.</param>
     /// <returns>List of records with the matched date of birth.</returns>
-    public ReadOnlyCollection<FileCabinetRecord> FindByDateOfBirth(string dateOfBirthString);
+    public IEnumerable<FileCabinetRecord> FindByDateOfBirth(string dateOfBirthString);
 
     /// <summary>
     /// Makes snapshot of the current file cabinet state.

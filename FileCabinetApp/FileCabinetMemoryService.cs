@@ -94,30 +94,39 @@ public class FileCabinetMemoryService(IRecordValidator validator) : IFileCabinet
     public FileCabinetRecord? FindById(int id) => this.list.Find(x => x.Id == id);
 
     /// <inheritdoc/>
-    public ReadOnlyCollection<FileCabinetRecord> FindByFirstName(string? firstName)
-        => firstName != null &&
-           this.firstNameDictionary.TryGetValue(firstName.ToUpper(CultureInfo.InvariantCulture), out var results)
-            ? results.AsReadOnly()
-            : new ReadOnlyCollection<FileCabinetRecord>(new List<FileCabinetRecord>());
-
-    /// <inheritdoc/>
-    public ReadOnlyCollection<FileCabinetRecord> FindByLastName(string? lastName)
-        => lastName != null &&
-           this.lastNameDictionary.TryGetValue(lastName.ToUpper(CultureInfo.InvariantCulture), out var results)
-            ? results.AsReadOnly()
-            : new ReadOnlyCollection<FileCabinetRecord>(new List<FileCabinetRecord>());
-
-    /// <inheritdoc/>
-    public ReadOnlyCollection<FileCabinetRecord> FindByDateOfBirth(string dateOfBirthString)
+    public IEnumerable<FileCabinetRecord> FindByFirstName(string? firstName)
     {
-        if (!DateTime.TryParse(dateOfBirthString, out var dateOfBirth))
+        if (firstName != null && this.firstNameDictionary.TryGetValue(firstName.ToUpper(CultureInfo.InvariantCulture), out var results))
         {
-            return new ReadOnlyCollection<FileCabinetRecord>(new List<FileCabinetRecord>());
+            foreach (var result in results)
+            {
+                yield return result;
+            }
         }
+    }
 
-        return this.dateOfBirthDictionary.TryGetValue(dateOfBirth, out var results)
-            ? results.AsReadOnly()
-            : new ReadOnlyCollection<FileCabinetRecord>(new List<FileCabinetRecord>());
+    /// <inheritdoc/>
+    public IEnumerable<FileCabinetRecord> FindByLastName(string? lastName)
+    {
+        if (lastName != null && this.lastNameDictionary.TryGetValue(lastName.ToUpper(CultureInfo.InvariantCulture), out var results))
+        {
+            foreach (var result in results)
+            {
+                yield return result;
+            }
+        }
+    }
+
+    /// <inheritdoc/>
+    public IEnumerable<FileCabinetRecord> FindByDateOfBirth(string dateOfBirthString)
+    {
+        if (DateTime.TryParse(dateOfBirthString, out var dateOfBirth) && this.dateOfBirthDictionary.TryGetValue(dateOfBirth, out var results))
+        {
+            foreach (var result in results)
+            {
+                yield return result;
+            }
+        }
     }
 
     /// <inheritdoc/>

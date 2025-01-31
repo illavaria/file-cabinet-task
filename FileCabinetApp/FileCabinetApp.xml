@@ -212,11 +212,6 @@
             Class represents filesystem file cabinet service.
             </summary>
         </member>
-        <member name="M:FileCabinetApp.FileCabinetFilesystemService.#ctor(System.IO.FileStream,FileCabinetApp.IRecordValidator)">
-            <summary>
-            Class represents filesystem file cabinet service.
-            </summary>
-        </member>
         <member name="M:FileCabinetApp.FileCabinetFilesystemService.CreateRecord(FileCabinetApp.FileCabinetRecordsParameters)">
             <inheritdoc/>
         </member>
@@ -255,6 +250,24 @@
         </member>
         <member name="M:FileCabinetApp.FileCabinetFilesystemService.Purge">
             <inheritdoc/>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetFilesystemService.AddToDictionary``1(System.Collections.Generic.IDictionary{``0,System.Collections.Generic.List{System.Int64}},``0,System.Int64)">
+            <summary>
+            Adds record to a dictionary.
+            </summary>
+            <param name="dictionary">The dictionary to which the record should be added.</param>
+            <param name="key">The key under which the record will be stored.</param>
+            <param name="recordOffset">The record to be added to the dictionary.</param>
+            <typeparam name="T">The type of the key in the dictionary.</typeparam>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetFilesystemService.RemoveFromDictionary``1(System.Collections.Generic.IDictionary{``0,System.Collections.Generic.List{System.Int64}},``0,System.Int64)">
+            <summary>
+            Removes a record from the dictionary.
+            </summary>
+            <param name="dictionary">The dictionary from which the record should be removed.</param>
+            <param name="key">The key under which the record is stored.</param>
+            <param name="recordOffset">The record to be removed from the dictionary.</param>
+            <typeparam name="T">The type of the key in the dictionary.</typeparam>
         </member>
         <member name="T:FileCabinetApp.FileCabinetMemoryService">
             <summary>
