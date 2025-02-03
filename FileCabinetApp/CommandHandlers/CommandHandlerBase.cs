@@ -5,7 +5,7 @@ namespace FileCabinetApp;
 /// </summary>
 public abstract class CommandHandlerBase : ICommandHandler
 {
-    private readonly string commandName;
+    protected readonly string commandName;
 
     protected CommandHandlerBase(string commandName)
     {

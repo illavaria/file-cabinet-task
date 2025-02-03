@@ -92,4 +92,6 @@ public interface IFileCabinetService
     /// Removes deleted records from the list.
     /// </summary>
     public void Purge();
+
+    public void InsertRecord(int id, FileCabinetRecordsParameters parameters);
 }

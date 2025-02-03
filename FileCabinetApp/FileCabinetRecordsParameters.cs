@@ -5,6 +5,22 @@ namespace FileCabinetApp;
 /// </summary>
 public class FileCabinetRecordsParameters
 {
+    
+    public FileCabinetRecordsParameters(FileCabinetRecord record)
+    {
+        _ = record ?? throw new ArgumentNullException(nameof(record));
+        this.FirstName = record.FirstName;
+        this.LastName = record.LastName;
+        this.DateOfBirth = record.DateOfBirth;
+        this.NumberOfChildren = record.NumberOfChildren;
+        this.YearIncome = record.YearIncome;
+        this.Gender = record.Gender;
+    }
+
+    public FileCabinetRecordsParameters()
+    {
+    }
+
     /// <summary>
     /// Gets or sets first name.
     /// </summary>

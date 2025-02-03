@@ -36,7 +36,7 @@ namespace FileCabinetApp
             var useLogger = false;
             if (args?.Length > 0)
             {
-                for (int i = 0; i < args.Length; i++)
+                for (var i = 0; i < args.Length; i++)
                 {
                     if (args[i].StartsWith("--validation-rules=", StringComparison.OrdinalIgnoreCase))
                     {
@@ -156,6 +156,9 @@ namespace FileCabinetApp
             var importHandler = new ImportCommandHandler(fileCabinetService);
             var removeHandler = new RemoveCommandHandler(fileCabinetService);
             var purgeHandler = new PurgeCommandHandler(fileCabinetService);
+            var insertHandler = new InsertCommandHandler(fileCabinetService);
+            var deleteHandler = new DeleteCommandHandler(fileCabinetService);
+            var updateHandler = new UpdateCommandHandler(fileCabinetService);
             var unknownHandler = new UnknownCommandHandler(command);
 
             helpHandler.SetNext(exitHandler);
@@ -168,7 +171,10 @@ namespace FileCabinetApp
             exportHandler.SetNext(importHandler);
             importHandler.SetNext(removeHandler);
             removeHandler.SetNext(purgeHandler);
-            purgeHandler.SetNext(unknownHandler);
+            purgeHandler.SetNext(insertHandler);
+            insertHandler.SetNext(deleteHandler);
+            deleteHandler.SetNext(updateHandler);
+            updateHandler.SetNext(unknownHandler);
 
             return helpHandler;
         }

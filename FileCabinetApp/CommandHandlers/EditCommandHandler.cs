@@ -36,20 +36,10 @@ public class EditCommandHandler(IFileCabinetService fileCabinetService) : Servic
                 Console.WriteLine($"Record #{recordId} is updated.");
                 return;
             }
-            catch (ArgumentNullException e)
-            {
-                Console.WriteLine(e.Message);
-                Console.WriteLine("Press esc to cancel creation or any other key to try again");
-                if (Console.ReadKey().Key == ConsoleKey.Escape)
-                {
-                    Console.WriteLine(" Update canceled");
-                    return;
-                }
-            }
             catch (ArgumentException e)
             {
                 Console.WriteLine(e.Message);
-                Console.WriteLine("Press esc to cancel creation or any other key to try again");
+                Console.WriteLine("Press esc to cancel edit or any other key to try again");
                 if (Console.ReadKey().Key == ConsoleKey.Escape)
                 {
                     Console.WriteLine(" Update canceled");

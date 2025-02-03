@@ -28,16 +28,6 @@ public class CreateCommandHandler(IFileCabinetService fileCabinetService) : Serv
                 Console.WriteLine($"Record #{recordId} is created.");
                 return;
             }
-            catch (ArgumentNullException e)
-            {
-                Console.WriteLine(e.Message);
-                Console.WriteLine("Press esc to cancel creation or any other key to try again");
-                if (Console.ReadKey().Key == ConsoleKey.Escape)
-                {
-                    Console.WriteLine(" Creation canceled");
-                    return;
-                }
-            }
             catch (ArgumentException e)
             {
                 Console.WriteLine(e.Message);

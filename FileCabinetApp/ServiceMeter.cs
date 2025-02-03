@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 
 namespace FileCabinetApp;
 
@@ -65,6 +66,9 @@ public class ServiceMeter(IFileCabinetService service) : IFileCabinetService
     /// <inheritdoc/>
     public void Purge() =>
         MeasureExecutionTime(nameof(this.Purge), service.Purge);
+
+    public void InsertRecord(int id, FileCabinetRecordsParameters parameters)=>
+        MeasureExecutionTime(nameof(this.InsertRecord), () => service.InsertRecord(id, parameters));
 
     private static T MeasureExecutionTime<T>(string methodName, Func<T> func)
     {

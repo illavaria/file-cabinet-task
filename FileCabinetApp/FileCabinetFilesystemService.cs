@@ -40,19 +40,8 @@ public class FileCabinetFilesystemService : IFileCabinetService
     /// <inheritdoc/>
     public int CreateRecord(FileCabinetRecordsParameters? parameters)
     {
-        this.recordValidator.ValidateParameters(parameters);
         var recordId = GetNextRecordId();
-        var recordOffset = this.fileStream.Length;
-
-        this.fileStream.Seek(0, SeekOrigin.End);
-        using var writer = new BinaryWriter(this.fileStream, System.Text.Encoding.Unicode, leaveOpen: true);
-        WriteRecord(recordId, parameters!, writer);
-        writer.Flush();
-
-        AddToDictionary(this.firstNameDictionary, parameters.FirstName!.ToUpper(CultureInfo.InvariantCulture), recordOffset);
-        AddToDictionary(this.lastNameDictionary, parameters.LastName!.ToUpper(CultureInfo.InvariantCulture), recordOffset);
-        AddToDictionary(this.dateOfBirthDictionary, parameters.DateOfBirth, recordOffset);
-
+        this.InsertRecord(recordId, parameters);
         return recordId;
 
         int GetNextRecordId()
@@ -63,12 +52,11 @@ public class FileCabinetFilesystemService : IFileCabinetService
             }
 
             this.fileStream.Seek(-RecordSize, SeekOrigin.End);
+            using var reader = new BinaryReader(this.fileStream, System.Text.Encoding.Unicode, leaveOpen: true);
             var maxId = 1;
 
             while (this.fileStream.Position > 0)
             {
-                using var reader = new BinaryReader(this.fileStream, System.Text.Encoding.Unicode, leaveOpen: true);
-
                 var status = reader.ReadInt16();
                 var id = reader.ReadInt32();
 
@@ -332,6 +320,21 @@ public class FileCabinetFilesystemService : IFileCabinetService
         }
 
         this.fileStream.SetLength(writePosition);
+    }
+
+    public void InsertRecord(int id, FileCabinetRecordsParameters parameters)
+    {
+        this.recordValidator.ValidateParameters(parameters);
+        var recordOffset = this.fileStream.Length;
+
+        this.fileStream.Seek(0, SeekOrigin.End);
+        using var writer = new BinaryWriter(this.fileStream, System.Text.Encoding.Unicode, leaveOpen: true);
+        WriteRecord(id, parameters!, writer);
+        writer.Flush();
+
+        AddToDictionary(this.firstNameDictionary, parameters.FirstName!.ToUpper(CultureInfo.InvariantCulture), recordOffset);
+        AddToDictionary(this.lastNameDictionary, parameters.LastName!.ToUpper(CultureInfo.InvariantCulture), recordOffset);
+        AddToDictionary(this.dateOfBirthDictionary, parameters.DateOfBirth, recordOffset);
     }
 
     private static char[] PadString(string? value, int length)

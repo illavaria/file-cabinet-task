@@ -15,7 +15,7 @@ public class GenderValidator:IRecordValidator
     public void ValidateParameters(FileCabinetRecordsParameters? parameters)
     {
         ArgumentNullException.ThrowIfNull(parameters);
-        _ = allowedGenders.Contains(parameters.Gender)
+        _ = allowedGenders.Contains(char.ToUpperInvariant(parameters.Gender))
             ? parameters.Gender
             : throw new ArgumentException(
                 $"Gender must be one of the following: {string.Join(", ", this.allowedGenders)}");

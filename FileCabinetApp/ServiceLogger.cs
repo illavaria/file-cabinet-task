@@ -130,6 +130,13 @@ public class ServiceLogger(IFileCabinetService service, string logFilePath) : IF
         this.WriteLog("Purge() completed");
     }
 
+    public void InsertRecord(int id, FileCabinetRecordsParameters parameters)
+    {
+        this.WriteLog($"Calling Insert() with Id = '{id}', {FormatParameters(parameters)}");
+        service.InsertRecord(id, parameters);
+        this.WriteLog("Insert() completed");
+    }
+
     private static string FormatParameters(FileCabinetRecordsParameters? parameters)
         => parameters is null
             ? "null"

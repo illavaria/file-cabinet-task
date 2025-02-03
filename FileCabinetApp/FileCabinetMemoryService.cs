@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using System.Globalization;
+using System.Runtime.CompilerServices;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable NullableWarningSuppressionIsUsed
@@ -167,6 +168,33 @@ public class FileCabinetMemoryService(IRecordValidator validator) : IFileCabinet
     public void Purge()
     {
         throw new NotSupportedException("Purge method is not available in memory service");
+    }
+    
+    public void InsertRecord(int id, FileCabinetRecordsParameters parameters)
+    {
+        ArgumentNullException.ThrowIfNull(parameters);
+        validator.ValidateParameters(parameters);
+        if (this.FindById(id) is not null)
+        {
+            throw new ArgumentException($"Record with {id} already exists.");
+        }
+
+        var record = new FileCabinetRecord
+        {
+            Id = id,
+            FirstName = parameters.FirstName,
+            LastName = parameters.LastName,
+            DateOfBirth = parameters.DateOfBirth,
+            NumberOfChildren = parameters.NumberOfChildren,
+            YearIncome = parameters.YearIncome,
+            Gender = parameters.Gender,
+        };
+
+        this.list.Add(record);
+
+        AddToDictionary(this.firstNameDictionary, parameters.FirstName!.ToUpper(CultureInfo.InvariantCulture), record);
+        AddToDictionary(this.lastNameDictionary, parameters.LastName!.ToUpper(CultureInfo.InvariantCulture), record);
+        AddToDictionary(this.dateOfBirthDictionary, parameters.DateOfBirth, record);
     }
 
     /// <summary>
