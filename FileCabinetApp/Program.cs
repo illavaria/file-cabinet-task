@@ -10,7 +10,7 @@ namespace FileCabinetApp
     public static class Program
     {
         private const string DeveloperName = "Illaria Samal";
-        private const string HintMessage = "Enter your command, or enter 'help' to get help.";
+        private const string HintMessage = "Enter your command, or enter 'help' to see the available commands and their parameters.";
         private const string LogFilePath = "LogFile.txt";
 
         private static bool isRunning = true;
@@ -138,8 +138,6 @@ namespace FileCabinetApp
 
                 var commandHandler = CreateCommandHandlers(command);
                 commandHandler.Handle(new AppCommandRequest { Command = command, Parameters = parameters });
-
-
             } while (isRunning);
         }
 
@@ -159,6 +157,7 @@ namespace FileCabinetApp
             var insertHandler = new InsertCommandHandler(fileCabinetService);
             var deleteHandler = new DeleteCommandHandler(fileCabinetService);
             var updateHandler = new UpdateCommandHandler(fileCabinetService);
+            var selectHandler = new SelectCommandHandler(fileCabinetService);
             var unknownHandler = new UnknownCommandHandler(command);
 
             helpHandler.SetNext(exitHandler);
@@ -174,7 +173,8 @@ namespace FileCabinetApp
             purgeHandler.SetNext(insertHandler);
             insertHandler.SetNext(deleteHandler);
             deleteHandler.SetNext(updateHandler);
-            updateHandler.SetNext(unknownHandler);
+            updateHandler.SetNext(selectHandler);
+            selectHandler.SetNext(unknownHandler);
 
             return helpHandler;
         }

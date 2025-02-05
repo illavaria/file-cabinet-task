@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Reflection;
 using System.Text.RegularExpressions;
 
 namespace FileCabinetApp;
@@ -12,7 +13,7 @@ public class UpdateCommandHandler(IFileCabinetService fileCabinetService)
         if (!match.Success)
         {
             Console.WriteLine(
-                "Invalid update command format. Use: update set <ColumnName> = '<Value>' where <ColumnName> = '<Value>'");
+                "Invalid update command format. Use: update set <field> = '<Value>' where <field> = '<Value>'");
             return;
         }
 
@@ -20,7 +21,7 @@ public class UpdateCommandHandler(IFileCabinetService fileCabinetService)
         var wherePart = match.Groups[2].Value;
 
         var setClauses = ParseKeyValuePairs(setPart);
-        var whereClauses = ParseKeyValuePairs(wherePart);
+        var conditions = ParseKeyValuePairs(wherePart);
 
         if (setClauses.Count == 0)
         {
@@ -28,7 +29,7 @@ public class UpdateCommandHandler(IFileCabinetService fileCabinetService)
             return;
         }
 
-        if (whereClauses.Count == 0)
+        if (conditions.Count == 0)
         {
             Console.WriteLine("Where part must have fields and their values. Values must be in ' '");
             return;
@@ -40,18 +41,9 @@ public class UpdateCommandHandler(IFileCabinetService fileCabinetService)
             return;
         }
 
-        HashSet<string> allowedFilters = new (StringComparer.OrdinalIgnoreCase) { "id", "firstName", "lastName", "dateOfBirth" };
-
-        var invalidKeys = whereClauses.Keys.Where(key => !allowedFilters.Contains(key)).ToList();
-        if (invalidKeys.Count != 0)
-        {
-            Console.WriteLine($"Error: Invalid filter(s) detected: {string.Join(", ", invalidKeys)}. Allowed filters: {string.Join(", ", allowedFilters)}.");
-            return;
-        }
-
         List<FileCabinetRecord> foundRecords = [];
 
-        if (whereClauses.TryGetValue("ID", out var id))
+        if (conditions.TryGetValue("ID", out var id))
         {
             var recordId = int.Parse(id, CultureInfo.InvariantCulture);
             var foundRecord = this.fileCabinetService.FindById(recordId);
@@ -65,19 +57,15 @@ public class UpdateCommandHandler(IFileCabinetService fileCabinetService)
         }
         else
         {
-            if (whereClauses.TryGetValue("DATEOFBIRTH", out var dateOfBirth))
+            try
             {
-                foundRecords = this.fileCabinetService.FindByDateOfBirth(dateOfBirth).ToList();
+                foundRecords = this.fileCabinetService.GetRecords().Where(record => CheckRecordSatisfiesConditions(record, conditions)).ToList();
             }
-            else
+            catch (ArgumentException e)
             {
-                foundRecords = this.fileCabinetService.GetRecords().ToList();
+                Console.WriteLine(e.Message);
+                return;
             }
-
-            foundRecords = foundRecords.Where(record =>
-                (!whereClauses.ContainsKey("FIRSTNAME") || record.FirstName.Equals(whereClauses["FIRSTNAME"], StringComparison.OrdinalIgnoreCase)) &&
-                (!whereClauses.ContainsKey("LASTNAME") || record.LastName.Equals(whereClauses["LASTNAME"], StringComparison.OrdinalIgnoreCase))
-            ).ToList();
         }
 
         if (foundRecords.Count == 0)
@@ -90,7 +78,7 @@ public class UpdateCommandHandler(IFileCabinetService fileCabinetService)
         {
             try
             {
-                var recordParams = CreateRecordsParametes(setClauses, record);
+                var recordParams = CreateRecordsParameters(setClauses, record);
                 this.fileCabinetService.EditRecord(record.Id, recordParams);
             }
             catch (ArgumentException e)
@@ -121,8 +109,7 @@ public class UpdateCommandHandler(IFileCabinetService fileCabinetService)
         return result;
     }
 
-    private static FileCabinetRecordsParameters CreateRecordsParametes(Dictionary<string, string> setParams,
-        FileCabinetRecord record)
+    private static FileCabinetRecordsParameters CreateRecordsParameters(Dictionary<string, string> setParams, FileCabinetRecord record)
     {
         var recordParams = new FileCabinetRecordsParameters(record);
         foreach (var (fieldName, value) in setParams)
@@ -153,5 +140,27 @@ public class UpdateCommandHandler(IFileCabinetService fileCabinetService)
         }
 
         return recordParams;
+    }
+
+    private static bool CheckRecordSatisfiesConditions(FileCabinetRecord record, Dictionary<string, string> conditions)
+    {
+        foreach (var (field, value) in conditions)
+        {
+            var property = typeof(FileCabinetRecord).GetProperty(field, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+            if (property == null)
+            {
+                throw new ArgumentException($"Records don't have {field} field");
+            }
+
+            var recordValue = property.GetValue(record);
+            var convertedValue = Convert.ChangeType(value, property.PropertyType, CultureInfo.InvariantCulture);
+
+            if (!object.Equals(recordValue, convertedValue))
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

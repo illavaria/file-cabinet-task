@@ -4,7 +4,8 @@ namespace FileCabinetApp;
 /// Class represents command handler for create operation.
 /// </summary>
 /// <param name="fileCabinetService">File cabinet service command is operated in.</param>
-public class CreateCommandHandler(IFileCabinetService fileCabinetService) : ServiceCommandHandleBase(fileCabinetService, "create")
+public class CreateCommandHandler(IFileCabinetService fileCabinetService)
+    : ServiceCommandHandleBase(fileCabinetService, "create")
 {
     /// <inheritdoc/>
     protected override void HandleCore(string parameters)

@@ -7,7 +7,7 @@ public class UnknownCommandHandler : CommandHandlerBase
 {
     private readonly List<string> commands =
     [
-        "create", "delete", "edit", "exit", "export", "find", "help", "import", "insert", "list", "purge", "remove", "stat", "update"
+        "create", "delete", "edit", "exit", "export", "find", "help", "import", "insert", "list", "purge", "remove", "select", "stat", "update"
     ];
 
     public UnknownCommandHandler(string commandName)

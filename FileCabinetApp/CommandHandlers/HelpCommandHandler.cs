@@ -10,22 +10,23 @@ public class HelpCommandHandler : CommandHandlerBase
     private const int ExplanationHelpIndex = 2;
 
     private static string[][] helpMessages =
-    [
-        ["create", "creates a new record", "The 'create' command creates a new record"],
-        ["delete", "deletes a record", "The 'delete' command deletes a record that satisfies the condition."],
-        ["edit", "edits record's data", "The 'edit' command edits record's data."],
-        ["exit", "exits the application", "The 'exit' command exits the application."],
-        ["export", "exports records", "The 'export' command exports records to a file."],
-        ["find", "finds records", "The 'find' command prints records with the needed value."],
-        ["help", "prints the help screen", "The 'help' command prints the help screen."],
-        ["import", "imports records", "The 'import' command imports records from file."],
-        ["insert", "inserts a new record", "The 'insert' command creates a new record with specified id"],
-        ["list", "prints all records", "The 'list' command prints prints information about all records."],
-        ["purge", "removes deleted records", "The 'purge' command removes deleted records"],
-        ["remove", "removes the record", "The 'remove' command removes the record by its id"],
-        ["stat", "prints the statistics of records", "The 'stat' command prints the statistics of records"],
-        ["update", "updates records", "The 'update' command updates some fields of records that satisfy the condition."]
-    ];
+    {
+        ["create", "The 'create' command creates a new record.", "Syntax: create"],
+        ["delete", "The 'delete' command deletes a record that satisfies the condition.", "Syntax: delete where <condition>"],
+        ["edit", "The 'edit' command edits record's data.", "Syntax: edit <id>"],
+        ["exit", "The 'exit' command exits the application.", "Syntax: exit"],
+        ["export", "The 'export' command exports records to a file.", "Syntax: export <format> <filename>"],
+        ["find", "The 'find' command prints records with the needed value.", "Syntax: find <field> <value>"],
+        ["help", "The 'help' command prints the help screen.", "Syntax: help [command]"],
+        ["import", "The 'import' command imports records from file.", "Syntax: import <format> <filename>"],
+        ["insert", "The 'insert' command creates a new record with specified id.", "Syntax: insert (<fields>) values (<values>)"],
+        ["list", "The 'list' command prints information about all records.", "Syntax: list"],
+        ["purge", "The 'purge' command removes deleted records.", "Syntax: purge"],
+        ["remove", "The 'remove' command removes the record by its id.", "Syntax: remove <id>"],
+        ["select", "The 'select' command prints selected fields for records that satisfy the condition", "Syntax: select <field1>, <field2> where <field3> = '<value1>' and <field4> = '<value2>'"],
+        ["stat", "The 'stat' command prints the statistics of records.", "Syntax: stat"],
+        ["update", "The 'update' command updates some fields of records that satisfy the condition.", "Syntax: update set <field1> = <value1>, <field2> = <value2> where <field3> = '<value3>' and <field4> = '<values4>'"],
+    };
 
     public HelpCommandHandler()
         : base("help")
