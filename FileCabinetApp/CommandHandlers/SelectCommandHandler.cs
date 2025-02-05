@@ -24,7 +24,7 @@ public class SelectCommandHandler(IFileCabinetService fileCabinetService)
 
         try
         {
-            var filteredRecords = this.fileCabinetService.GetRecords().Where(record => CheckRecordSatisfiesConditions(record, conditions)).ToList();
+            var filteredRecords = this.fileCabinetService.Find(conditions).ToList();
             WriteTable(filteredRecords, selectedFields, Console.Out);
         }
         catch (ArgumentException e)
@@ -124,27 +124,5 @@ public class SelectCommandHandler(IFileCabinetService fileCabinetService)
         }
 
         return result;
-    }
-
-    private static bool CheckRecordSatisfiesConditions(FileCabinetRecord record, Dictionary<string, string> conditions)
-    {
-        foreach (var (field, value) in conditions)
-        {
-            var property = typeof(FileCabinetRecord).GetProperty(field, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
-            if (property == null)
-            {
-                throw new ArgumentException("No such field");
-            }
-
-            var recordValue = property.GetValue(record);
-            var convertedValue = Convert.ChangeType(value, property.PropertyType, CultureInfo.InvariantCulture);
-
-            if (!object.Equals(recordValue, convertedValue))
-            {
-                return false;
-            }
-        }
-
-        return true;
     }
 }

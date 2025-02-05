@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using System.Globalization;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 
 // ReSharper disable InconsistentNaming
@@ -15,6 +16,8 @@ public class FileCabinetMemoryService(IRecordValidator validator) : IFileCabinet
     private readonly Dictionary<string, List<FileCabinetRecord>> firstNameDictionary = new ();
     private readonly Dictionary<string, List<FileCabinetRecord>> lastNameDictionary = new ();
     private readonly Dictionary<DateTime, List<FileCabinetRecord>> dateOfBirthDictionary = new ();
+
+    private readonly Dictionary<string, List<FileCabinetRecord>> cache = new ();
 
     /// <inheritdoc/>
     public int CreateRecord(FileCabinetRecordsParameters? parameters)
@@ -33,6 +36,7 @@ public class FileCabinetMemoryService(IRecordValidator validator) : IFileCabinet
         };
 
         this.list.Add(record);
+        this.cache.Clear();
         AddToDictionary(this.firstNameDictionary, parameters.FirstName!.ToUpper(CultureInfo.InvariantCulture), record);
         AddToDictionary(this.lastNameDictionary, parameters.LastName!.ToUpper(CultureInfo.InvariantCulture), record);
         AddToDictionary(this.dateOfBirthDictionary, parameters.DateOfBirth, record);
@@ -74,6 +78,7 @@ public class FileCabinetMemoryService(IRecordValidator validator) : IFileCabinet
             record.DateOfBirth = parameters.DateOfBirth;
         }
 
+        this.cache.Clear();
         record.FirstName = parameters.FirstName;
         record.LastName = parameters.LastName;
         record.NumberOfChildren = parameters.NumberOfChildren;
@@ -86,6 +91,7 @@ public class FileCabinetMemoryService(IRecordValidator validator) : IFileCabinet
     {
         var record = this.FindById(id) ?? throw new ArgumentException($"#{id} record doesn't exist.");
         this.list.Remove(record);
+        this.cache.Clear();
         RemoveFromDictionary(this.firstNameDictionary, record.FirstName!.ToUpper(CultureInfo.InvariantCulture), record);
         RemoveFromDictionary(this.lastNameDictionary, record.LastName!.ToUpper(CultureInfo.InvariantCulture), record);
         RemoveFromDictionary(this.dateOfBirthDictionary, record.DateOfBirth, record);
@@ -130,6 +136,21 @@ public class FileCabinetMemoryService(IRecordValidator validator) : IFileCabinet
         }
     }
 
+    public IEnumerable<FileCabinetRecord> Find(Dictionary<string, string> conditions)
+    {
+        _ = conditions ?? throw new ArgumentNullException(nameof(conditions));
+        var hashKey = string.Join(',', conditions.Select(kv => $"{kv.Key}={kv.Value}"));
+        if (this.cache.TryGetValue(hashKey, out var records))
+        {
+            Console.WriteLine($"from cache: {cache}");
+            return records;
+        }
+
+        records = this.list.Where(record => CheckRecordSatisfiesConditions(record, conditions)).ToList();
+        this.cache.Add(hashKey, records);
+        return records;
+    }
+
     /// <inheritdoc/>
     public FileCabinetServiceSnapshot MakeSnapshot() => new FileCabinetServiceSnapshot(this.list.ToArray());
 
@@ -153,6 +174,7 @@ public class FileCabinetMemoryService(IRecordValidator validator) : IFileCabinet
                 }
 
                 this.list.Add(record);
+                this.cache.Clear();
                 AddToDictionary(this.firstNameDictionary, record.FirstName!.ToUpper(CultureInfo.InvariantCulture), record);
                 AddToDictionary(this.lastNameDictionary, record.LastName!.ToUpper(CultureInfo.InvariantCulture), record);
                 AddToDictionary(this.dateOfBirthDictionary, record.DateOfBirth, record);
@@ -191,6 +213,7 @@ public class FileCabinetMemoryService(IRecordValidator validator) : IFileCabinet
         };
 
         this.list.Add(record);
+        this.cache.Clear();
 
         AddToDictionary(this.firstNameDictionary, parameters.FirstName!.ToUpper(CultureInfo.InvariantCulture), record);
         AddToDictionary(this.lastNameDictionary, parameters.LastName!.ToUpper(CultureInfo.InvariantCulture), record);
@@ -232,5 +255,48 @@ public class FileCabinetMemoryService(IRecordValidator validator) : IFileCabinet
                 dictionary.Remove(key);
             }
         }
+    }
+    
+    private static bool CheckRecordSatisfiesConditions(FileCabinetRecord record, Dictionary<string, string> conditions)
+    {
+        foreach (var (field, value) in conditions)
+        {
+            var property = typeof(FileCabinetRecord).GetProperty(field, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+            if (property == null)
+            {
+                throw new ArgumentException("No such field");
+            }
+
+            var recordValue = property.GetValue(record);
+            var convertedValue = Convert.ChangeType(value, property.PropertyType, CultureInfo.InvariantCulture);
+
+            switch (recordValue)
+            {
+                case string recordStr:
+                    if (!string.Equals(value, recordStr, StringComparison.OrdinalIgnoreCase))
+                    {
+                        return false;
+                    }
+
+                    break;
+
+                case char recordChar when convertedValue is char convertedChar:
+                    if (char.ToUpperInvariant(recordChar) != char.ToUpperInvariant(convertedChar))
+                    {
+                        return false;
+                    }
+
+                    break;
+                default:
+                    if (!object.Equals(recordValue, convertedValue))
+                    {
+                        return false;
+                    }
+
+                    break;
+            }
+        }
+
+        return true;
     }
 }

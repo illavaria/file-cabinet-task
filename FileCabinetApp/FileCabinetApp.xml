@@ -182,6 +182,19 @@
         <member name="M:FileCabinetApp.RemoveCommandHandler.HandleCore(System.String)">
             <inheritdoc/>
         </member>
+        <member name="M:FileCabinetApp.SelectCommandHandler.WriteTable``1(System.Collections.Generic.ICollection{``0},System.Collections.Generic.IReadOnlyCollection{System.String},System.IO.TextWriter)">
+            <summary>
+            Write in table form to the text stream a set of elements of type T (<see cref="T:System.Collections.Generic.ICollection`1"/>),
+            where the state of each object of type T is described by public properties that have only build-in
+            type (int, char, string etc.)
+            </summary>
+            <typeparam name="T">Type selector.</typeparam>
+            <param name="collection">Collection of elements of type T.</param>
+            <param name="writer">Text stream.</param>
+            <exception cref="T:System.ArgumentNullException">Throw if <paramref name="collection"/> is null.</exception>
+            <exception cref="T:System.ArgumentNullException">Throw if <paramref name="writer"/> is null.</exception>
+            <exception cref="T:System.ArgumentException">Throw if <paramref name="collection"/> is empty.</exception>
+        </member>
         <member name="T:FileCabinetApp.ServiceCommandHandleBase">
             <summary>
             Abstract class representing command handler base that uses file cabinet service.

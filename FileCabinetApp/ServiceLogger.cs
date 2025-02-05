@@ -94,6 +94,14 @@ public class ServiceLogger(IFileCabinetService service, string logFilePath) : IF
         return result;
     }
 
+    public IEnumerable<FileCabinetRecord> Find(Dictionary<string, string> conditions)
+    {
+        this.WriteLog($"Calling Find() with {string.Join(", ", conditions.Select(field => $"{field.Key} = {field.Value}"))}");
+        var result = service.Find(conditions);
+        this.WriteLog($"Find() returned '{result.Count()}' records");
+        return result;
+    }
+
     /// <inheritdoc/>
     public FileCabinetServiceSnapshot MakeSnapshot()
     {

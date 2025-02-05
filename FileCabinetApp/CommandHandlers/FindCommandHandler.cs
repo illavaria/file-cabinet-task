@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.ObjectModel;
 
 namespace FileCabinetApp;
@@ -25,21 +26,34 @@ public class FindCommandHandler(IFileCabinetService fileCabinetService, Action<I
             return;
         }
 
-        var par = parameters.Split(' ', 2);
+        var par = parameters.Split(" = ", 2);
         if (par.Length < 2)
         {
             Console.WriteLine("Command takes 2 parameters: field's name and value");
             return;
         }
 
+        var conditions = new Dictionary<string, string> { { par[0], par[1].Trim('\'') } };
+        IEnumerable<FileCabinetRecord> results;
+
         var index = Array.FindIndex(this.findParams, tuple => string.Equals(par[0], tuple.Item1, StringComparison.OrdinalIgnoreCase));
         if (index == -1)
         {
-            Console.WriteLine("Wrong field name");
-            return;
+            try
+            {
+                results = this.fileCabinetService.Find(conditions);
+            }
+            catch (ArgumentException e)
+            {
+                Console.WriteLine(e.Message);
+                return;
+            }
+        }
+        else
+        {
+            results = this.findParams[index].Item2(par[1].Trim('"'));
         }
 
-        var results = this.findParams[index].Item2(par[1].Trim('"'));
         printer(results);
     }
 }

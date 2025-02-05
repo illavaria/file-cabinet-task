@@ -59,7 +59,7 @@ public class UpdateCommandHandler(IFileCabinetService fileCabinetService)
         {
             try
             {
-                foundRecords = this.fileCabinetService.GetRecords().Where(record => CheckRecordSatisfiesConditions(record, conditions)).ToList();
+                foundRecords = this.fileCabinetService.Find(conditions).ToList();
             }
             catch (ArgumentException e)
             {

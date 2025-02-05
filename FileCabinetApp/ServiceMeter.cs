@@ -50,6 +50,9 @@ public class ServiceMeter(IFileCabinetService service) : IFileCabinetService
     public IEnumerable<FileCabinetRecord> FindByDateOfBirth(string dateOfBirthString) =>
         MeasureExecutionTime(nameof(this.FindByDateOfBirth), () => service.FindByDateOfBirth(dateOfBirthString));
 
+    public IEnumerable<FileCabinetRecord> Find(Dictionary<string, string> conditions) =>
+        MeasureExecutionTime(nameof(this.Find), () => service.Find(conditions));
+
     /// <inheritdoc/>
     public FileCabinetServiceSnapshot MakeSnapshot() =>
         MeasureExecutionTime(nameof(this.MakeSnapshot), service.MakeSnapshot);

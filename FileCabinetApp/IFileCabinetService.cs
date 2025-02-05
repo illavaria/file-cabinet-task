@@ -75,6 +75,8 @@ public interface IFileCabinetService
     /// <returns>List of records with the matched date of birth.</returns>
     public IEnumerable<FileCabinetRecord> FindByDateOfBirth(string dateOfBirthString);
 
+    public IEnumerable<FileCabinetRecord> Find(Dictionary<string, string> conditions);
+
     /// <summary>
     /// Makes snapshot of the current file cabinet state.
     /// </summary>

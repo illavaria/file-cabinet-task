@@ -1,5 +1,7 @@
+using System.Collections;
 using System.Collections.ObjectModel;
 using System.Globalization;
+using System.Reflection;
 
 namespace FileCabinetApp;
 
@@ -241,6 +243,9 @@ public class FileCabinetFilesystemService : IFileCabinetService
         }
     }
 
+    public IEnumerable<FileCabinetRecord> Find(Dictionary<string, string> conditions) =>
+        this.GetRecords().Where(record => CheckRecordSatisfiesConditions(record, conditions)).ToList();
+
     /// <inheritdoc/>
     public FileCabinetServiceSnapshot MakeSnapshot() => new FileCabinetServiceSnapshot(this.GetRecords().ToArray());
 
@@ -438,5 +443,27 @@ public class FileCabinetFilesystemService : IFileCabinetService
                 dictionary.Remove(key);
             }
         }
+    }
+    
+    private static bool CheckRecordSatisfiesConditions(FileCabinetRecord record, Dictionary<string, string> conditions)
+    {
+        foreach (var (field, value) in conditions)
+        {
+            var property = typeof(FileCabinetRecord).GetProperty(field, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+            if (property == null)
+            {
+                throw new ArgumentException("No such field");
+            }
+
+            var recordValue = property.GetValue(record);
+            var convertedValue = Convert.ChangeType(value, property.PropertyType, CultureInfo.InvariantCulture);
+
+            if (!object.Equals(recordValue, convertedValue))
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 }
