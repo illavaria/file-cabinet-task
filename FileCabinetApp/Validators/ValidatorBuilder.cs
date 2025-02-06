@@ -18,6 +18,12 @@ public class ValidatorBuilder
     public IRecordValidator CreateDefault(DefaultSettings validationSettings)
     {
         ArgumentNullException.ThrowIfNull(validationSettings);
+        ArgumentNullException.ThrowIfNull(validationSettings.FirstName);
+        ArgumentNullException.ThrowIfNull(validationSettings.LastName);
+        ArgumentNullException.ThrowIfNull(validationSettings.DateOfBirth);
+        ArgumentNullException.ThrowIfNull(validationSettings.NumberOfChildren);
+        ArgumentNullException.ThrowIfNull(validationSettings.YearIncome);
+        ArgumentNullException.ThrowIfNull(validationSettings.Gender);
         this.ValidateFirstName(validationSettings.FirstName.Min, validationSettings.FirstName.Max);
         this.ValidateLastName(validationSettings.LastName.Min, validationSettings.LastName.Max);
         this.ValidateDateOfBirth(validationSettings.DateOfBirth.DateFrom, DateTime.Today);
@@ -35,6 +41,12 @@ public class ValidatorBuilder
     public IRecordValidator CreateCustom(CustomSettings validationSettings)
     {
         ArgumentNullException.ThrowIfNull(validationSettings);
+        ArgumentNullException.ThrowIfNull(validationSettings.FirstName);
+        ArgumentNullException.ThrowIfNull(validationSettings.LastName);
+        ArgumentNullException.ThrowIfNull(validationSettings.DateOfBirth);
+        ArgumentNullException.ThrowIfNull(validationSettings.NumberOfChildren);
+        ArgumentNullException.ThrowIfNull(validationSettings.YearIncome);
+        ArgumentNullException.ThrowIfNull(validationSettings.Gender);
         this.ValidateFirstName(validationSettings.FirstName.Min, validationSettings.FirstName.Max);
         this.ValidateLastName(validationSettings.LastName.Min, validationSettings.LastName.Max);
         this.ValidateDateOfBirth(validationSettings.DateOfBirth.DateFrom, DateTime.Today);

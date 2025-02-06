@@ -8,7 +8,7 @@ namespace FileCabinetApp.FileCabinetServices;
 /// </summary>
 /// <param name="service">File cabinet service.</param>
 /// <param name="writer">Text writer used to write log.</param>
-public class ServiceMeter(IFileCabinetService service, TextWriter writer) : IFileCabinetService
+public class FileCabinetServiceMeter(IFileCabinetService service, TextWriter writer) : IFileCabinetService
 {
     private readonly IFileCabinetService service = service ?? throw new ArgumentNullException(nameof(service));
     private readonly TextWriter writer = writer ?? throw new ArgumentNullException(nameof(writer));

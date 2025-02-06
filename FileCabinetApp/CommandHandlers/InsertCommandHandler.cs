@@ -11,8 +11,6 @@ namespace FileCabinetApp.CommandHandlers;
 public class InsertCommandHandler(IFileCabinetService fileCabinetService)
     : ServiceCommandHandleBase(fileCabinetService, "insert")
 {
-    private new readonly IFileCabinetService fileCabinetService = fileCabinetService ?? throw new ArgumentNullException(nameof(fileCabinetService));
-
     /// <inheritdoc/>
     protected override void HandleCore(string? parameters)
     {

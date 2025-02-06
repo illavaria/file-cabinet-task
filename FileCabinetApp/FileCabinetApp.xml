@@ -707,6 +707,124 @@
             <param name="record">The record to be removed from the dictionary.</param>
             <typeparam name="T">The type of the key in the dictionary.</typeparam>
         </member>
+        <member name="T:FileCabinetApp.FileCabinetServices.FileCabinetServiceLogger">
+            <summary>
+            Class represents logger decorator for file cabinet service.
+            </summary>
+            <param name="service">File cabinet service that is decorated.</param>
+            <param name="writer">Text writer used to write log.</param>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetServices.FileCabinetServiceLogger.#ctor(FileCabinetApp.FileCabinetServices.IFileCabinetService,System.IO.TextWriter)">
+            <summary>
+            Class represents logger decorator for file cabinet service.
+            </summary>
+            <param name="service">File cabinet service that is decorated.</param>
+            <param name="writer">Text writer used to write log.</param>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetServices.FileCabinetServiceLogger.CreateRecord(FileCabinetApp.FileCabinetRecordsParameters)">
+            <inheritdoc/>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetServices.FileCabinetServiceLogger.GetRecords">
+            <inheritdoc/>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetServices.FileCabinetServiceLogger.GetNumberOfAllRecords">
+            <inheritdoc/>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetServices.FileCabinetServiceLogger.GetNumberOfDeletedRecords">
+            <inheritdoc/>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetServices.FileCabinetServiceLogger.EditRecord(System.Int32,FileCabinetApp.FileCabinetRecordsParameters)">
+            <inheritdoc/>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetServices.FileCabinetServiceLogger.RemoveRecord(System.Int32)">
+            <inheritdoc/>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetServices.FileCabinetServiceLogger.FindById(System.Int32)">
+            <inheritdoc/>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetServices.FileCabinetServiceLogger.FindByFirstName(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetServices.FileCabinetServiceLogger.FindByLastName(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetServices.FileCabinetServiceLogger.FindByDateOfBirth(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetServices.FileCabinetServiceLogger.Find(System.Collections.Generic.Dictionary{System.String,System.String})">
+            <inheritdoc/>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetServices.FileCabinetServiceLogger.MakeSnapshot">
+            <inheritdoc/>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetServices.FileCabinetServiceLogger.Restore(FileCabinetApp.FileCabinetServiceSnapshot,System.Collections.ObjectModel.Collection{System.String}@)">
+            <inheritdoc/>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetServices.FileCabinetServiceLogger.Purge">
+            <inheritdoc/>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetServices.FileCabinetServiceLogger.InsertRecord(System.Int32,FileCabinetApp.FileCabinetRecordsParameters)">
+            <inheritdoc/>
+        </member>
+        <member name="T:FileCabinetApp.FileCabinetServices.FileCabinetServiceMeter">
+            <summary>
+            Class represents file cabinet service this timer ability.
+            </summary>
+            <param name="service">File cabinet service.</param>
+            <param name="writer">Text writer used to write log.</param>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetServices.FileCabinetServiceMeter.#ctor(FileCabinetApp.FileCabinetServices.IFileCabinetService,System.IO.TextWriter)">
+            <summary>
+            Class represents file cabinet service this timer ability.
+            </summary>
+            <param name="service">File cabinet service.</param>
+            <param name="writer">Text writer used to write log.</param>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetServices.FileCabinetServiceMeter.CreateRecord(FileCabinetApp.FileCabinetRecordsParameters)">
+            <inheritdoc/>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetServices.FileCabinetServiceMeter.GetRecords">
+            <inheritdoc/>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetServices.FileCabinetServiceMeter.GetNumberOfAllRecords">
+            <inheritdoc/>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetServices.FileCabinetServiceMeter.GetNumberOfDeletedRecords">
+            <inheritdoc/>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetServices.FileCabinetServiceMeter.EditRecord(System.Int32,FileCabinetApp.FileCabinetRecordsParameters)">
+            <inheritdoc/>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetServices.FileCabinetServiceMeter.RemoveRecord(System.Int32)">
+            <inheritdoc/>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetServices.FileCabinetServiceMeter.FindById(System.Int32)">
+            <inheritdoc/>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetServices.FileCabinetServiceMeter.FindByFirstName(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetServices.FileCabinetServiceMeter.FindByLastName(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetServices.FileCabinetServiceMeter.FindByDateOfBirth(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetServices.FileCabinetServiceMeter.Find(System.Collections.Generic.Dictionary{System.String,System.String})">
+            <inheritdoc/>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetServices.FileCabinetServiceMeter.MakeSnapshot">
+            <inheritdoc/>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetServices.FileCabinetServiceMeter.Restore(FileCabinetApp.FileCabinetServiceSnapshot,System.Collections.ObjectModel.Collection{System.String}@)">
+            <inheritdoc/>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetServices.FileCabinetServiceMeter.Purge">
+            <inheritdoc/>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetServices.FileCabinetServiceMeter.InsertRecord(System.Int32,FileCabinetApp.FileCabinetRecordsParameters)">
+            <inheritdoc/>
+        </member>
         <member name="T:FileCabinetApp.FileCabinetServices.IFileCabinetService">
             <summary>
             Interface of file cabinet service.
@@ -811,124 +929,6 @@
             </summary>
             <param name="id">Record id.</param>
             <param name="parameters">Record's parameters.</param>
-        </member>
-        <member name="T:FileCabinetApp.FileCabinetServices.ServiceLogger">
-            <summary>
-            Class represents logger decorator for file cabinet service.
-            </summary>
-            <param name="service">File cabinet service that is decorated.</param>
-            <param name="writer">Text writer used to write log.</param>
-        </member>
-        <member name="M:FileCabinetApp.FileCabinetServices.ServiceLogger.#ctor(FileCabinetApp.FileCabinetServices.IFileCabinetService,System.IO.TextWriter)">
-            <summary>
-            Class represents logger decorator for file cabinet service.
-            </summary>
-            <param name="service">File cabinet service that is decorated.</param>
-            <param name="writer">Text writer used to write log.</param>
-        </member>
-        <member name="M:FileCabinetApp.FileCabinetServices.ServiceLogger.CreateRecord(FileCabinetApp.FileCabinetRecordsParameters)">
-            <inheritdoc/>
-        </member>
-        <member name="M:FileCabinetApp.FileCabinetServices.ServiceLogger.GetRecords">
-            <inheritdoc/>
-        </member>
-        <member name="M:FileCabinetApp.FileCabinetServices.ServiceLogger.GetNumberOfAllRecords">
-            <inheritdoc/>
-        </member>
-        <member name="M:FileCabinetApp.FileCabinetServices.ServiceLogger.GetNumberOfDeletedRecords">
-            <inheritdoc/>
-        </member>
-        <member name="M:FileCabinetApp.FileCabinetServices.ServiceLogger.EditRecord(System.Int32,FileCabinetApp.FileCabinetRecordsParameters)">
-            <inheritdoc/>
-        </member>
-        <member name="M:FileCabinetApp.FileCabinetServices.ServiceLogger.RemoveRecord(System.Int32)">
-            <inheritdoc/>
-        </member>
-        <member name="M:FileCabinetApp.FileCabinetServices.ServiceLogger.FindById(System.Int32)">
-            <inheritdoc/>
-        </member>
-        <member name="M:FileCabinetApp.FileCabinetServices.ServiceLogger.FindByFirstName(System.String)">
-            <inheritdoc/>
-        </member>
-        <member name="M:FileCabinetApp.FileCabinetServices.ServiceLogger.FindByLastName(System.String)">
-            <inheritdoc/>
-        </member>
-        <member name="M:FileCabinetApp.FileCabinetServices.ServiceLogger.FindByDateOfBirth(System.String)">
-            <inheritdoc/>
-        </member>
-        <member name="M:FileCabinetApp.FileCabinetServices.ServiceLogger.Find(System.Collections.Generic.Dictionary{System.String,System.String})">
-            <inheritdoc/>
-        </member>
-        <member name="M:FileCabinetApp.FileCabinetServices.ServiceLogger.MakeSnapshot">
-            <inheritdoc/>
-        </member>
-        <member name="M:FileCabinetApp.FileCabinetServices.ServiceLogger.Restore(FileCabinetApp.FileCabinetServiceSnapshot,System.Collections.ObjectModel.Collection{System.String}@)">
-            <inheritdoc/>
-        </member>
-        <member name="M:FileCabinetApp.FileCabinetServices.ServiceLogger.Purge">
-            <inheritdoc/>
-        </member>
-        <member name="M:FileCabinetApp.FileCabinetServices.ServiceLogger.InsertRecord(System.Int32,FileCabinetApp.FileCabinetRecordsParameters)">
-            <inheritdoc/>
-        </member>
-        <member name="T:FileCabinetApp.FileCabinetServices.ServiceMeter">
-            <summary>
-            Class represents file cabinet service this timer ability.
-            </summary>
-            <param name="service">File cabinet service.</param>
-            <param name="writer">Text writer used to write log.</param>
-        </member>
-        <member name="M:FileCabinetApp.FileCabinetServices.ServiceMeter.#ctor(FileCabinetApp.FileCabinetServices.IFileCabinetService,System.IO.TextWriter)">
-            <summary>
-            Class represents file cabinet service this timer ability.
-            </summary>
-            <param name="service">File cabinet service.</param>
-            <param name="writer">Text writer used to write log.</param>
-        </member>
-        <member name="M:FileCabinetApp.FileCabinetServices.ServiceMeter.CreateRecord(FileCabinetApp.FileCabinetRecordsParameters)">
-            <inheritdoc/>
-        </member>
-        <member name="M:FileCabinetApp.FileCabinetServices.ServiceMeter.GetRecords">
-            <inheritdoc/>
-        </member>
-        <member name="M:FileCabinetApp.FileCabinetServices.ServiceMeter.GetNumberOfAllRecords">
-            <inheritdoc/>
-        </member>
-        <member name="M:FileCabinetApp.FileCabinetServices.ServiceMeter.GetNumberOfDeletedRecords">
-            <inheritdoc/>
-        </member>
-        <member name="M:FileCabinetApp.FileCabinetServices.ServiceMeter.EditRecord(System.Int32,FileCabinetApp.FileCabinetRecordsParameters)">
-            <inheritdoc/>
-        </member>
-        <member name="M:FileCabinetApp.FileCabinetServices.ServiceMeter.RemoveRecord(System.Int32)">
-            <inheritdoc/>
-        </member>
-        <member name="M:FileCabinetApp.FileCabinetServices.ServiceMeter.FindById(System.Int32)">
-            <inheritdoc/>
-        </member>
-        <member name="M:FileCabinetApp.FileCabinetServices.ServiceMeter.FindByFirstName(System.String)">
-            <inheritdoc/>
-        </member>
-        <member name="M:FileCabinetApp.FileCabinetServices.ServiceMeter.FindByLastName(System.String)">
-            <inheritdoc/>
-        </member>
-        <member name="M:FileCabinetApp.FileCabinetServices.ServiceMeter.FindByDateOfBirth(System.String)">
-            <inheritdoc/>
-        </member>
-        <member name="M:FileCabinetApp.FileCabinetServices.ServiceMeter.Find(System.Collections.Generic.Dictionary{System.String,System.String})">
-            <inheritdoc/>
-        </member>
-        <member name="M:FileCabinetApp.FileCabinetServices.ServiceMeter.MakeSnapshot">
-            <inheritdoc/>
-        </member>
-        <member name="M:FileCabinetApp.FileCabinetServices.ServiceMeter.Restore(FileCabinetApp.FileCabinetServiceSnapshot,System.Collections.ObjectModel.Collection{System.String}@)">
-            <inheritdoc/>
-        </member>
-        <member name="M:FileCabinetApp.FileCabinetServices.ServiceMeter.Purge">
-            <inheritdoc/>
-        </member>
-        <member name="M:FileCabinetApp.FileCabinetServices.ServiceMeter.InsertRecord(System.Int32,FileCabinetApp.FileCabinetRecordsParameters)">
-            <inheritdoc/>
         </member>
         <member name="T:FileCabinetApp.FileCabinetServiceSnapshot">
             <summary>

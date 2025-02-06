@@ -9,7 +9,6 @@ namespace FileCabinetApp.CommandHandlers;
 public class CreateCommandHandler(IFileCabinetService fileCabinetService, Func<FileCabinetRecordsParameters> inputParameters)
     : ServiceCommandHandleBase(fileCabinetService, "create")
 {
-    private new readonly IFileCabinetService fileCabinetService = fileCabinetService ?? throw new ArgumentNullException(nameof(fileCabinetService));
     private Func<FileCabinetRecordsParameters> inputParameters = inputParameters ?? throw new ArgumentNullException(nameof(inputParameters));
 
     /// <inheritdoc/>

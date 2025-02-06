@@ -9,8 +9,6 @@ namespace FileCabinetApp.CommandHandlers;
 public class ExportCommandHandler(IFileCabinetService fileCabinetService)
     : ServiceCommandHandleBase(fileCabinetService, "export")
 {
-    private new readonly IFileCabinetService fileCabinetService = fileCabinetService ?? throw new ArgumentNullException(nameof(fileCabinetService));
-
     private static (string, Action<FileCabinetServiceSnapshot, StreamWriter>)[] exportParams =
     [
         new ("csv", SaveToCsv),

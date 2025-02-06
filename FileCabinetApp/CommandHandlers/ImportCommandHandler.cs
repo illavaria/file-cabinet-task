@@ -10,8 +10,6 @@ namespace FileCabinetApp.CommandHandlers;
 public class ImportCommandHandler(IFileCabinetService fileCabinetService)
     : ServiceCommandHandleBase(fileCabinetService, "import")
 {
-    private new readonly IFileCabinetService fileCabinetService = fileCabinetService ?? throw new ArgumentNullException(nameof(fileCabinetService));
-
     private static readonly (string, Action<FileCabinetServiceSnapshot, StreamReader>)[] importParams =
     [
         new ("csv", LoadFromCsv),

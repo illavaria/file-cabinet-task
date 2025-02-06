@@ -10,8 +10,6 @@ namespace FileCabinetApp.CommandHandlers;
 public class RemoveCommandHandler(IFileCabinetService fileCabinetService)
     : ServiceCommandHandleBase(fileCabinetService, "remove")
 {
-    private new readonly IFileCabinetService fileCabinetService = fileCabinetService ?? throw new ArgumentNullException(nameof(fileCabinetService));
-
     /// <inheritdoc/>
     protected override void HandleCore(string? parameters)
     {

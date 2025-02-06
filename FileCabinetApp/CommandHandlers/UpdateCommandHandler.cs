@@ -11,8 +11,6 @@ namespace FileCabinetApp.CommandHandlers;
 public class UpdateCommandHandler(IFileCabinetService fileCabinetService)
     : ServiceCommandHandleBase(fileCabinetService, "update")
 {
-    private new readonly IFileCabinetService fileCabinetService = fileCabinetService ?? throw new ArgumentNullException(nameof(fileCabinetService));
-
     /// <inheritdoc/>
     protected override void HandleCore(string? parameters)
     {

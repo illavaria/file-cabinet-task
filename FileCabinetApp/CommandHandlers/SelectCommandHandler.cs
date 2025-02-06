@@ -13,8 +13,6 @@ namespace FileCabinetApp.CommandHandlers;
 public class SelectCommandHandler(IFileCabinetService fileCabinetService)
     : ServiceCommandHandleBase(fileCabinetService, "select")
 {
-    private new readonly IFileCabinetService fileCabinetService = fileCabinetService ?? throw new ArgumentNullException(nameof(fileCabinetService));
-
     /// <inheritdoc/>
     protected override void HandleCore(string? parameters)
     {

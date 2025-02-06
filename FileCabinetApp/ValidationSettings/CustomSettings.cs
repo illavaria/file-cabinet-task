@@ -6,16 +6,16 @@ namespace FileCabinetApp.ValidationSettings;
 public class CustomSettings : IBaseSettings
 {
     /// <inheritdoc/>
-    public RangeSettings FirstName { get; set; }
+    public RangeSettings? FirstName { get; set; }
 
     /// <inheritdoc/>
-    public RangeSettings LastName { get; set; }
+    public RangeSettings? LastName { get; set; }
 
     /// <inheritdoc/>
-    public RangeDateSettings DateOfBirth { get; set; }
+    public RangeDateSettings? DateOfBirth { get; set; }
 
     /// <inheritdoc/>
-    public RangeSettings NumberOfChildren { get; set; }
+    public RangeSettings? NumberOfChildren { get; set; }
 
     /// <summary>
     /// Gets or sets the min age allowed to have children.
@@ -23,8 +23,8 @@ public class CustomSettings : IBaseSettings
     public int MinAgeToHaveChildren { get; set; }
 
     /// <inheritdoc/>
-    public RangeSettings YearIncome { get; set; }
+    public RangeSettings? YearIncome { get; set; }
 
     /// <inheritdoc/>
-    public GenderSettings Gender { get; set; }
+    public GenderSettings? Gender { get; set; }
 }

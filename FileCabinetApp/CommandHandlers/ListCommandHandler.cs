@@ -9,7 +9,6 @@ namespace FileCabinetApp.CommandHandlers;
 public class ListCommandHandler(IFileCabinetService fileCabinetService, Action<IEnumerable<FileCabinetRecord>> printer)
     : ServiceCommandHandleBase(fileCabinetService, "list")
 {
-    private new readonly IFileCabinetService fileCabinetService = fileCabinetService ?? throw new ArgumentNullException(nameof(fileCabinetService));
     private readonly Action<IEnumerable<FileCabinetRecord>> printer = printer ?? throw new ArgumentNullException(nameof(printer));
 
     /// <inheritdoc/>

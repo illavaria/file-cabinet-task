@@ -10,7 +10,6 @@ namespace FileCabinetApp.CommandHandlers;
 public class EditCommandHandler(IFileCabinetService fileCabinetService, Func<FileCabinetRecordsParameters> inputParameters)
     : ServiceCommandHandleBase(fileCabinetService, "edit")
 {
-    private new readonly IFileCabinetService fileCabinetService = fileCabinetService ?? throw new ArgumentNullException(nameof(fileCabinetService));
     private Func<FileCabinetRecordsParameters> inputParameters = inputParameters ?? throw new ArgumentNullException(nameof(inputParameters));
 
     /// <inheritdoc/>
@@ -32,7 +31,7 @@ public class EditCommandHandler(IFileCabinetService fileCabinetService, Func<Fil
         {
             try
             {
-                var recordParameters = inputParameters();
+                var recordParameters = this.inputParameters();
                 this.fileCabinetService.EditRecord(recordId, recordParameters);
                 Console.WriteLine($"Record #{recordId} is updated.");
                 return;

@@ -92,21 +92,46 @@ namespace FileCabinetApp
 
             IRecordValidator validator;
 
-            if (string.Equals(validationRule, "default", StringComparison.OrdinalIgnoreCase))
+            try
             {
-                Program.inputValidator = new InputValidator(validationSettings.Default);
-                validator = new ValidatorBuilder().CreateDefault(validationSettings.Default);
-                Console.WriteLine("Program is running with default validation setting.");
+                if (string.Equals(validationRule, "default", StringComparison.OrdinalIgnoreCase))
+                {
+                    if (validationSettings.Default is null)
+                    {
+                        Console.WriteLine("Check validation file. It must have default parameters.");
+                        return;
+                    }
+
+                    Program.inputValidator = new InputValidator(validationSettings.Default);
+                    validator = new ValidatorBuilder().CreateDefault(validationSettings.Default);
+                    Console.WriteLine("Program is running with default validation setting.");
+                }
+                else if (string.Equals(validationRule, "custom", StringComparison.OrdinalIgnoreCase))
+                {
+                    if (validationSettings.Custom is null)
+                    {
+                        Console.WriteLine("Check validation file. It must have default parameters.");
+                        return;
+                    }
+
+                    Program.inputValidator = new InputValidator(validationSettings.Custom);
+                    validator = new ValidatorBuilder().CreateCustom(validationSettings.Custom);
+                    Console.WriteLine("Program is running with custom validation setting.");
+                }
+                else
+                {
+                    Console.WriteLine("Unknown validation rule");
+                    return;
+                }
             }
-            else if (string.Equals(validationRule, "custom", StringComparison.OrdinalIgnoreCase))
+            catch (ArgumentNullException e)
             {
-                Program.inputValidator = new InputValidator(validationSettings.Custom);
-                validator = new ValidatorBuilder().CreateCustom(validationSettings.Custom);
-                Console.WriteLine("Program is running with custom validation setting.");
+                Console.WriteLine($"Couldn't get validation settings: {e.Message}");
+                return;
             }
-            else
+            catch (ArgumentOutOfRangeException e)
             {
-                Console.WriteLine("Unknown validation rule");
+                Console.WriteLine($"Couldn't get validation settings: {e.Message}");
                 return;
             }
 
@@ -133,14 +158,14 @@ namespace FileCabinetApp
 
             if (useStopWatch)
             {
-                fileCabinetService = new ServiceMeter(fileCabinetService, stopWatchWriter);
+                fileCabinetService = new FileCabinetServiceMeter(fileCabinetService, stopWatchWriter);
                 Console.WriteLine($"Execution time is written to {(stopWatchWriter == Console.Out ? "console" : $"logfile {LogFilePath}")}");
             }
 
             if (useLogger)
             {
                 streamWriter.AutoFlush = true;
-                fileCabinetService = new ServiceLogger(fileCabinetService, streamWriter);
+                fileCabinetService = new FileCabinetServiceLogger(fileCabinetService, streamWriter);
                 Console.WriteLine($"Log is written to {LogFilePath}");
             }
 

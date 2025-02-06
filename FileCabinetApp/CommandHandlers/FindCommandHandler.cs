@@ -9,7 +9,6 @@ namespace FileCabinetApp.CommandHandlers;
 public class FindCommandHandler(IFileCabinetService fileCabinetService, Action<IEnumerable<FileCabinetRecord>> printer)
     : ServiceCommandHandleBase(fileCabinetService, "find")
 {
-    private new readonly IFileCabinetService fileCabinetService = fileCabinetService ?? throw new ArgumentNullException(nameof(fileCabinetService));
     private readonly Action<IEnumerable<FileCabinetRecord>> printer = printer ?? throw new ArgumentNullException(nameof(printer));
 
     private readonly (string, Func<string, IEnumerable<FileCabinetRecord>>)[] findParams =

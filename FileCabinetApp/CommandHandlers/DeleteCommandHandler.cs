@@ -11,9 +11,6 @@ namespace FileCabinetApp.CommandHandlers;
 public class DeleteCommandHandler(IFileCabinetService fileCabinetService)
     : ServiceCommandHandleBase(fileCabinetService, "delete")
 {
-    private new readonly IFileCabinetService fileCabinetService =
-        fileCabinetService ?? throw new ArgumentNullException(nameof(fileCabinetService));
-
     /// <inheritdoc/>
     protected override void HandleCore(string? parameters)
     {

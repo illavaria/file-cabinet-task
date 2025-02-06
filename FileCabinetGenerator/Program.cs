@@ -58,19 +58,42 @@ public static class Program
         }
         FileCabinetRecordGenerator generator;
 
-        if (string.Equals(validationRule, "default", StringComparison.OrdinalIgnoreCase))
+        try
         {
-            generator = new FileCabinetRecordGenerator(configuration.Default);
-            Console.WriteLine("Generating with default validation setting.");
+            if (string.Equals(validationRule, "default", StringComparison.OrdinalIgnoreCase))
+            {
+                if (configuration.Default is null)
+                {
+                    Console.WriteLine("Check validation file. It must have default parameters.");
+                    return;
+                }
+                generator = new FileCabinetRecordGenerator(configuration.Default);
+                Console.WriteLine("Generating with default validation setting.");
+            }
+            else if (string.Equals(validationRule, "custom", StringComparison.OrdinalIgnoreCase))
+            {
+                if (configuration.Custom is null)
+                {
+                    Console.WriteLine("Check validation file. It must have custom parameters.");
+                    return;
+                }
+                generator = new FileCabinetRecordGenerator(configuration.Custom);
+                Console.WriteLine("Generating with custom validation setting.");
+            }
+            else
+            {
+                Console.WriteLine("Unknown validation rule");
+                return;
+            }
         }
-        else if (string.Equals(validationRule, "custom", StringComparison.OrdinalIgnoreCase))
+        catch (ArgumentNullException e)
         {
-            generator = new FileCabinetRecordGenerator(configuration.Custom);
-            Console.WriteLine("Generating with custom validation setting.");
+            Console.WriteLine($"Couldn't get validation settings: {e.Message}");
+            return;
         }
-        else
+        catch (ArgumentOutOfRangeException e)
         {
-            Console.WriteLine("Unknown validation rule");
+            Console.WriteLine($"Couldn't get validation settings: {e.Message}");
             return;
         }
 

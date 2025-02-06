@@ -11,6 +11,12 @@ public class FileCabinetRecordGenerator
     public FileCabinetRecordGenerator(IBaseSettings configuration)
     {
         ArgumentNullException.ThrowIfNull(configuration);
+        ArgumentNullException.ThrowIfNull(configuration.FirstName);
+        ArgumentNullException.ThrowIfNull(configuration.LastName);
+        ArgumentNullException.ThrowIfNull(configuration.DateOfBirth);
+        ArgumentNullException.ThrowIfNull(configuration.NumberOfChildren);
+        ArgumentNullException.ThrowIfNull(configuration.YearIncome);
+        ArgumentNullException.ThrowIfNull(configuration.Gender);
         this.configuration = configuration;
     }
 
