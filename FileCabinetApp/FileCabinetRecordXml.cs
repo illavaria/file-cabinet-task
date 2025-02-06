@@ -1,4 +1,3 @@
-using System.Globalization;
 using System.Xml.Serialization;
 
 namespace FileCabinetApp;
@@ -15,11 +14,17 @@ public class FileCabinetRecordXml
     [XmlElement("id")]
     public int Id { get; set; }
 
+    /// <summary>
+    /// Gets or sets name.
+    /// </summary>
     [XmlElement("name")]
-    public Name Name { get; set; }
+    public Name? Name { get; set; }
 
+    /// <summary>
+    /// Gets or sets date of birth.
+    /// </summary>
     [XmlElement("dateOfBirth")]
-    public string DateOfBirth { get; set; }
+    public string? DateOfBirth { get; set; }
 
     /// <summary>
     /// Gets or sets number of children.
@@ -33,8 +38,11 @@ public class FileCabinetRecordXml
     [XmlElement("yearIncome")]
     public decimal YearIncome { get; set; }
 
+    /// <summary>
+    /// Gets or sets gender.
+    /// </summary>
     [XmlElement("gender")]
-    public string Gender { get; set; }
+    public string? Gender { get; set; }
 }
 
 /// <summary>

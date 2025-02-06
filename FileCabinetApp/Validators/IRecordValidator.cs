@@ -1,4 +1,4 @@
-namespace FileCabinetApp;
+namespace FileCabinetApp.Validators;
 
 /// <summary>
 /// Interface for validating record's parameters.

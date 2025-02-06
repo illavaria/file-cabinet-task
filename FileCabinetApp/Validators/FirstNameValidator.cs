@@ -1,24 +1,18 @@
-namespace FileCabinetApp;
+namespace FileCabinetApp.Validators;
 
-public class FirstNameValidator:IRecordValidator
-{ 
-    private readonly int minLength;
-    private readonly int maxLength;
+/// <summary>
+/// Class represents first name validator.
+/// </summary>
+/// <param name="minLength">Min length allowed for first name.</param>
+/// <param name="maxLength">Max length allowed for first name.</param>
+public class FirstNameValidator(int minLength, int maxLength) : IRecordValidator
+{
+    private readonly int minLength = minLength < 0 ? throw new ArgumentOutOfRangeException(nameof(minLength)) : minLength;
+    private readonly int maxLength = maxLength < 0 || maxLength < minLength
+        ? throw new ArgumentOutOfRangeException(nameof(maxLength))
+        : maxLength;
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="FirstNameValidator"/> class.
-    /// </summary>
-    /// <param name="minLength"></param>
-    /// <param name="maxLength"></param>
-    /// <param name="maxLangth"></param>
-    public FirstNameValidator(int minLength, int maxLength)
-    {
-        this.minLength = minLength < 0 ? throw new ArgumentOutOfRangeException(nameof(minLength)) : minLength;
-        this.maxLength = maxLength < 0 || maxLength < minLength
-            ? throw new ArgumentOutOfRangeException(nameof(maxLength))
-            : maxLength;
-    }
-
+    /// <inheritdoc/>
     public void ValidateParameters(FileCabinetRecordsParameters? parameters)
     {
         ArgumentNullException.ThrowIfNull(parameters);

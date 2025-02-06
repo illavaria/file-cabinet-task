@@ -1,21 +1,16 @@
-namespace FileCabinetApp;
+namespace FileCabinetApp.CommandHandlers;
 
 /// <summary>
 /// Abstract class that represents command handler.
 /// </summary>
-public abstract class CommandHandlerBase : ICommandHandler
+public abstract class CommandHandlerBase(string commandName) : ICommandHandler
 {
-    protected readonly string commandName;
-
-    protected CommandHandlerBase(string commandName)
-    {
-        this.commandName = commandName ?? throw new ArgumentNullException(nameof(commandName));
-    }
+    protected readonly string commandName = commandName ?? throw new ArgumentNullException(nameof(commandName));
 
     /// <summary>
-    /// Gets the next command handler.
+    /// Gets or sets the next command handler.
     /// </summary>
-    protected ICommandHandler NextHandler { get; private set; }
+    private ICommandHandler? NextHandler { get; set; }
 
     /// <inheritdoc/>
     public void SetNext(ICommandHandler commandHandler) =>
@@ -28,12 +23,16 @@ public abstract class CommandHandlerBase : ICommandHandler
 
         if (!commandRequest.Command.Equals(this.commandName, StringComparison.OrdinalIgnoreCase))
         {
-            this.NextHandler.Handle(commandRequest);
+            this.NextHandler?.Handle(commandRequest);
             return;
         }
 
         this.HandleCore(commandRequest.Parameters);
     }
 
-    protected abstract void HandleCore(string parameters);
+    /// <summary>
+    /// Abstract method representing handle logic.
+    /// </summary>
+    /// <param name="parameters">Command's parameters.</param>
+    protected abstract void HandleCore(string? parameters);
 }

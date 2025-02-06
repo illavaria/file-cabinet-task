@@ -1,14 +1,19 @@
-namespace FileCabinetApp;
+using FileCabinetApp.FileCabinetServices;
+
+namespace FileCabinetApp.CommandHandlers;
 
 /// <summary>
 /// Class represents command handler for create operation.
 /// </summary>
 /// <param name="fileCabinetService">File cabinet service command is operated in.</param>
-public class CreateCommandHandler(IFileCabinetService fileCabinetService)
+public class CreateCommandHandler(IFileCabinetService fileCabinetService, Func<FileCabinetRecordsParameters> inputParameters)
     : ServiceCommandHandleBase(fileCabinetService, "create")
 {
+    private new readonly IFileCabinetService fileCabinetService = fileCabinetService ?? throw new ArgumentNullException(nameof(fileCabinetService));
+    private Func<FileCabinetRecordsParameters> inputParameters = inputParameters ?? throw new ArgumentNullException(nameof(inputParameters));
+
     /// <inheritdoc/>
-    protected override void HandleCore(string parameters)
+    protected override void HandleCore(string? parameters)
     {
         if (!string.IsNullOrWhiteSpace(parameters))
         {
@@ -20,12 +25,8 @@ public class CreateCommandHandler(IFileCabinetService fileCabinetService)
         {
             try
             {
-                Program.InputParameters(out var firstName, out var lastName, out var dateOfBirth, out var numberOfChildren, out var yearIncome, out var gender);
-                var recordId = this.fileCabinetService.CreateRecord(new FileCabinetRecordsParameters
-                {
-                    FirstName = firstName, LastName = lastName, DateOfBirth = dateOfBirth,
-                    NumberOfChildren = numberOfChildren, YearIncome = yearIncome, Gender = gender,
-                });
+                var recordParameters = this.inputParameters();
+                var recordId = this.fileCabinetService.CreateRecord(recordParameters);
                 Console.WriteLine($"Record #{recordId} is created.");
                 return;
             }

@@ -1,17 +1,18 @@
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Reflection;
-using System.Runtime.CompilerServices;
+using FileCabinetApp.Validators;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable NullableWarningSuppressionIsUsed
-namespace FileCabinetApp;
+namespace FileCabinetApp.FileCabinetServices;
 
 /// <summary>
 /// Class represents memory file cabinet service.
 /// </summary>
 public class FileCabinetMemoryService(IRecordValidator validator) : IFileCabinetService
 {
+    private readonly IRecordValidator validator = validator ?? throw new ArgumentNullException();
     private readonly List<FileCabinetRecord> list = new ();
     private readonly Dictionary<string, List<FileCabinetRecord>> firstNameDictionary = new ();
     private readonly Dictionary<string, List<FileCabinetRecord>> lastNameDictionary = new ();
@@ -22,12 +23,12 @@ public class FileCabinetMemoryService(IRecordValidator validator) : IFileCabinet
     /// <inheritdoc/>
     public int CreateRecord(FileCabinetRecordsParameters? parameters)
     {
-        validator.ValidateParameters(parameters);
+        this.validator.ValidateParameters(parameters);
 
         var record = new FileCabinetRecord
         {
             Id = this.list.Count == 0 ? 1 : this.list.Max(x => x.Id) + 1,
-            FirstName = parameters.FirstName,
+            FirstName = parameters!.FirstName,
             LastName = parameters.LastName,
             DateOfBirth = parameters.DateOfBirth,
             NumberOfChildren = parameters.NumberOfChildren,
@@ -57,9 +58,9 @@ public class FileCabinetMemoryService(IRecordValidator validator) : IFileCabinet
     public void EditRecord(int id, FileCabinetRecordsParameters? parameters)
     {
         var record = this.FindById(id) ?? throw new ArgumentException($"#{id} record is not found.");
-        validator.ValidateParameters(parameters);
+        this.validator.ValidateParameters(parameters);
 
-        if (!string.Equals(record.FirstName, parameters.FirstName, StringComparison.OrdinalIgnoreCase))
+        if (!string.Equals(record.FirstName, parameters!.FirstName, StringComparison.OrdinalIgnoreCase))
         {
             RemoveFromDictionary(this.firstNameDictionary, record.FirstName!.ToUpper(CultureInfo.InvariantCulture), record);
             AddToDictionary(this.firstNameDictionary, parameters.FirstName!.ToUpper(CultureInfo.InvariantCulture), record);
@@ -136,13 +137,13 @@ public class FileCabinetMemoryService(IRecordValidator validator) : IFileCabinet
         }
     }
 
+    /// <inheritdoc/>
     public IEnumerable<FileCabinetRecord> Find(Dictionary<string, string> conditions)
     {
         _ = conditions ?? throw new ArgumentNullException(nameof(conditions));
         var hashKey = string.Join(',', conditions.Select(kv => $"{kv.Key}={kv.Value}"));
         if (this.cache.TryGetValue(hashKey, out var records))
         {
-            Console.WriteLine($"from cache: {cache}");
             return records;
         }
 
@@ -155,14 +156,14 @@ public class FileCabinetMemoryService(IRecordValidator validator) : IFileCabinet
     public FileCabinetServiceSnapshot MakeSnapshot() => new FileCabinetServiceSnapshot(this.list.ToArray());
 
     /// <inheritdoc/>
-    public void Restore(FileCabinetServiceSnapshot snapshot, ref List<string> errorsList)
+    public void Restore(FileCabinetServiceSnapshot snapshot, ref Collection<string> errorsList)
     {
         _ = snapshot ?? throw new ArgumentNullException(nameof(snapshot));
         foreach (var record in snapshot.Records)
         {
             try
             {
-                validator.ValidateParameters(new FileCabinetRecordsParameters
+                this.validator.ValidateParameters(new FileCabinetRecordsParameters
                 {
                     FirstName = record.FirstName, LastName = record.LastName, DateOfBirth = record.DateOfBirth,
                     NumberOfChildren = record.NumberOfChildren, YearIncome = record.YearIncome, Gender = record.Gender,
@@ -191,11 +192,12 @@ public class FileCabinetMemoryService(IRecordValidator validator) : IFileCabinet
     {
         throw new NotSupportedException("Purge method is not available in memory service");
     }
-    
+
+    /// <inheritdoc/>
     public void InsertRecord(int id, FileCabinetRecordsParameters parameters)
     {
         ArgumentNullException.ThrowIfNull(parameters);
-        validator.ValidateParameters(parameters);
+        this.validator.ValidateParameters(parameters);
         if (this.FindById(id) is not null)
         {
             throw new ArgumentException($"Record with {id} already exists.");
@@ -256,7 +258,7 @@ public class FileCabinetMemoryService(IRecordValidator validator) : IFileCabinet
             }
         }
     }
-    
+
     private static bool CheckRecordSatisfiesConditions(FileCabinetRecord record, Dictionary<string, string> conditions)
     {
         foreach (var (field, value) in conditions)
@@ -288,7 +290,7 @@ public class FileCabinetMemoryService(IRecordValidator validator) : IFileCabinet
 
                     break;
                 default:
-                    if (!object.Equals(recordValue, convertedValue))
+                    if (!Equals(recordValue, convertedValue))
                     {
                         return false;
                     }

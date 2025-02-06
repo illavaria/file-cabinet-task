@@ -1,13 +1,28 @@
 using System.Globalization;
 using System.Text.RegularExpressions;
+using FileCabinetApp.FileCabinetServices;
 
-namespace FileCabinetApp;
+namespace FileCabinetApp.CommandHandlers;
 
+/// <summary>
+/// Class represents command handler for delete operation.
+/// </summary>
+/// <param name="fileCabinetService">File cabinet service command is operated in.</param>
 public class DeleteCommandHandler(IFileCabinetService fileCabinetService)
     : ServiceCommandHandleBase(fileCabinetService, "delete")
 {
-    protected override void HandleCore(string parameters)
+    private new readonly IFileCabinetService fileCabinetService =
+        fileCabinetService ?? throw new ArgumentNullException(nameof(fileCabinetService));
+
+    /// <inheritdoc/>
+    protected override void HandleCore(string? parameters)
     {
+        if (string.IsNullOrWhiteSpace(parameters))
+        {
+            Console.WriteLine("This command takes parameters. Use: delete where <ColumnName> = '<Value>'");
+            return;
+        }
+
         var match = Regex.Match(parameters, @"where\s+(\w+)\s*=\s*'([^']+)'", RegexOptions.IgnoreCase);
         if (!match.Success)
         {
@@ -31,42 +46,32 @@ public class DeleteCommandHandler(IFileCabinetService fileCabinetService)
         }
         else
         {
-            List<FileCabinetRecord> recordsToDelete = [];
-            if (columnName.Equals("firstName", StringComparison.OrdinalIgnoreCase))
+            try
             {
-                recordsToDelete = this.fileCabinetService.FindByFirstName(value).ToList();
-            }
-            else if (columnName.Equals("lastName", StringComparison.OrdinalIgnoreCase))
-            {
-                recordsToDelete = this.fileCabinetService.FindByLastName(value).ToList();
-            }
-            else if (columnName.Equals("dateOfBirth", StringComparison.OrdinalIgnoreCase))
-            {
-                recordsToDelete = this.fileCabinetService.FindByDateOfBirth(value).ToList();
-            }
-            else
-            {
-                Console.WriteLine("Unknown column name. Allowed names are: firstName, lastName and dateOfBirth");
-                return;
-            }
-
-            if (recordsToDelete.Count == 0)
-            {
-                Console.WriteLine("No records that satisfy the condition.");
-                return;
-            }
-
-            foreach (var record in recordsToDelete)
-            {
-                try
+                Dictionary<string, string> conditions = new() { { columnName, value } };
+                var recordsToDelete = this.fileCabinetService.Find(conditions).ToList();
+                if (recordsToDelete.Count == 0)
                 {
-                    this.fileCabinetService.RemoveRecord(record.Id);
-                    Console.WriteLine($"Record {record.Id} is deleted.");
+                    Console.WriteLine("No records that satisfy the condition.");
+                    return;
                 }
-                catch (ArgumentException e)
+
+                foreach (var record in recordsToDelete)
                 {
-                    Console.WriteLine(e.Message);
+                    try
+                    {
+                        this.fileCabinetService.RemoveRecord(record.Id);
+                        Console.WriteLine($"Record {record.Id} is deleted.");
+                    }
+                    catch (ArgumentException e)
+                    {
+                        Console.WriteLine(e.Message);
+                    }
                 }
+            }
+            catch (ArgumentException e)
+            {
+                Console.WriteLine(e.Message);
             }
         }
     }

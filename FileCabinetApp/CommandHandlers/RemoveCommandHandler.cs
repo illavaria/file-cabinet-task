@@ -1,15 +1,19 @@
 using System.Globalization;
+using FileCabinetApp.FileCabinetServices;
 
-namespace FileCabinetApp;
+namespace FileCabinetApp.CommandHandlers;
 
 /// <summary>
 /// Class represents command handler for remove operation.
 /// </summary>
 /// <param name="fileCabinetService">File cabinet service command is operated in.</param>
-public class RemoveCommandHandler(IFileCabinetService fileCabinetService) : ServiceCommandHandleBase(fileCabinetService, "remove")
+public class RemoveCommandHandler(IFileCabinetService fileCabinetService)
+    : ServiceCommandHandleBase(fileCabinetService, "remove")
 {
+    private new readonly IFileCabinetService fileCabinetService = fileCabinetService ?? throw new ArgumentNullException(nameof(fileCabinetService));
+
     /// <inheritdoc/>
-    protected override void HandleCore(string parameters)
+    protected override void HandleCore(string? parameters)
     {
         if (!int.TryParse(parameters, CultureInfo.InvariantCulture, out var recordId))
         {

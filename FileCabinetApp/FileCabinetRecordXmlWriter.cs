@@ -1,4 +1,3 @@
-using System.Globalization;
 using System.Xml;
 using System.Xml.Serialization;
 
@@ -7,18 +6,9 @@ namespace FileCabinetApp;
 /// <summary>
 /// Class for writing records to xml file.
 /// </summary>
-public class FileCabinetRecordXmlWriter
+public class FileCabinetRecordXmlWriter(XmlWriter writer)
 {
-    private XmlWriter writer;
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="FileCabinetRecordXmlWriter"/> class.
-    /// </summary>
-    /// <param name="writer">XmlWriter used for writing.</param>
-    public FileCabinetRecordXmlWriter(XmlWriter writer)
-    {
-        this.writer = writer;
-    }
+    private XmlWriter writer = writer ?? throw new ArgumentNullException(nameof(writer));
 
     /// <summary>
     /// Writes a record in xml format.

@@ -1,26 +1,26 @@
-namespace FileCabinetApp;
+using FileCabinetApp.FileCabinetServices;
+
+namespace FileCabinetApp.CommandHandlers;
 
 /// <summary>
 /// Class represents command handler for export operation.
 /// </summary>
 /// <param name="fileCabinetService">File cabinet service command is operated in.</param>
-public class ExportCommandHandler(IFileCabinetService fileCabinetService) : ServiceCommandHandleBase(fileCabinetService, "export")
+public class ExportCommandHandler(IFileCabinetService fileCabinetService)
+    : ServiceCommandHandleBase(fileCabinetService, "export")
 {
+    private new readonly IFileCabinetService fileCabinetService = fileCabinetService ?? throw new ArgumentNullException(nameof(fileCabinetService));
+
     private static (string, Action<FileCabinetServiceSnapshot, StreamWriter>)[] exportParams =
     [
         new ("csv", SaveToCsv),
         new ("xml", SaveToXml)
     ];
 
-    private static void SaveToCsv(FileCabinetServiceSnapshot snapshot, StreamWriter writer) =>
-        snapshot.SaveToCsv(writer);
-
-    private static void SaveToXml(FileCabinetServiceSnapshot snapshot, StreamWriter writer) =>
-        snapshot.SaveToXml(writer);
-
     /// <inheritdoc/>
-    protected override void HandleCore(string parameters)
+    protected override void HandleCore(string? parameters)
     {
+        _ = string.IsNullOrWhiteSpace(parameters) ? throw new ArgumentException("This command takes parameters") : parameters;
         var args = parameters.Split(' ', 2, StringSplitOptions.RemoveEmptyEntries);
         if (args.Length < 2)
         {
@@ -67,4 +67,10 @@ public class ExportCommandHandler(IFileCabinetService fileCabinetService) : Serv
             Console.WriteLine($"Export failed: {ex.Message}");
         }
     }
+
+    private static void SaveToCsv(FileCabinetServiceSnapshot snapshot, StreamWriter writer) =>
+        snapshot.SaveToCsv(writer);
+
+    private static void SaveToXml(FileCabinetServiceSnapshot snapshot, StreamWriter writer) =>
+        snapshot.SaveToXml(writer);
 }

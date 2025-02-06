@@ -1,6 +1,6 @@
 using System.Collections.ObjectModel;
 
-namespace FileCabinetApp;
+namespace FileCabinetApp.FileCabinetServices;
 
 /// <summary>
 /// Interface of file cabinet service.
@@ -58,23 +58,28 @@ public interface IFileCabinetService
     /// Find records by first name.
     /// </summary>
     /// <param name="firstName">First name to search.</param>
-    /// <returns>List of records with the matched first name.</returns>
+    /// <returns>Iterator for list of records with the matched first name.</returns>
     public IEnumerable<FileCabinetRecord> FindByFirstName(string? firstName);
 
     /// <summary>
     /// Find records by last name.
     /// </summary>
     /// <param name="lastName">Last name to search.</param>
-    /// <returns>List of records with the matched last name.</returns>
+    /// <returns>Iterator for list of records with the matched last name.</returns>
     public IEnumerable<FileCabinetRecord> FindByLastName(string? lastName);
 
     /// <summary>
     /// Find records by date of birth.
     /// </summary>
     /// <param name="dateOfBirthString">String representing date of birth.</param>
-    /// <returns>List of records with the matched date of birth.</returns>
+    /// <returns>Iterator for list of records with the matched date of birth.</returns>
     public IEnumerable<FileCabinetRecord> FindByDateOfBirth(string dateOfBirthString);
 
+    /// <summary>
+    /// Find records that satisfy the conditions.
+    /// </summary>
+    /// <param name="conditions">Conditions to filter records.</param>
+    /// <returns>Iterator for list of records that satisfied the condition.</returns>
     public IEnumerable<FileCabinetRecord> Find(Dictionary<string, string> conditions);
 
     /// <summary>
@@ -88,12 +93,17 @@ public interface IFileCabinetService
     /// </summary>
     /// <param name="snapshot">Snapshot representing state for setting.</param>
     /// <param name="errorsList">List of errors that occured during restoring.</param>
-    public void Restore(FileCabinetServiceSnapshot snapshot, ref List<string> errorsList);
+    public void Restore(FileCabinetServiceSnapshot snapshot, ref Collection<string> errorsList);
 
     /// <summary>
     /// Removes deleted records from the list.
     /// </summary>
     public void Purge();
 
+    /// <summary>
+    /// Inserts a record.
+    /// </summary>
+    /// <param name="id">Record id.</param>
+    /// <param name="parameters">Record's parameters.</param>
     public void InsertRecord(int id, FileCabinetRecordsParameters parameters);
 }

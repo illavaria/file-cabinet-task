@@ -3,18 +3,9 @@ namespace FileCabinetApp;
 /// <summary>
 /// Class for writing records to csv file.
 /// </summary>
-public class FileCabinetRecordCsvWriter
+public class FileCabinetRecordCsvWriter(TextWriter writer)
 {
-    private TextWriter writer;
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="FileCabinetRecordCsvWriter"/> class.
-    /// </summary>
-    /// <param name="writer">TextWriter used for writing.</param>
-    public FileCabinetRecordCsvWriter(TextWriter writer)
-    {
-        this.writer = writer;
-    }
+    private TextWriter writer = writer ?? throw new ArgumentNullException(nameof(writer));
 
     /// <summary>
     /// Writes a record in csv format.

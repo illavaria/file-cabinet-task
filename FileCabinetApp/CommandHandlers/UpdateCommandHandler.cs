@@ -1,14 +1,22 @@
 using System.Globalization;
-using System.Reflection;
 using System.Text.RegularExpressions;
+using FileCabinetApp.FileCabinetServices;
 
-namespace FileCabinetApp;
+namespace FileCabinetApp.CommandHandlers;
 
+/// <summary>
+/// Class represents command handler for update operation.
+/// </summary>
+/// <param name="fileCabinetService">File cabinet service command is operated in.</param>
 public class UpdateCommandHandler(IFileCabinetService fileCabinetService)
     : ServiceCommandHandleBase(fileCabinetService, "update")
 {
-    protected override void HandleCore(string parameters)
+    private new readonly IFileCabinetService fileCabinetService = fileCabinetService ?? throw new ArgumentNullException(nameof(fileCabinetService));
+
+    /// <inheritdoc/>
+    protected override void HandleCore(string? parameters)
     {
+        _ = string.IsNullOrWhiteSpace(parameters) ? throw new ArgumentException("This command takes parameters") : parameters;
         var match = Regex.Match(parameters, @"set\s+(.*?)\s*(where\s+(.*))", RegexOptions.IgnoreCase);
         if (!match.Success)
         {
@@ -140,27 +148,5 @@ public class UpdateCommandHandler(IFileCabinetService fileCabinetService)
         }
 
         return recordParams;
-    }
-
-    private static bool CheckRecordSatisfiesConditions(FileCabinetRecord record, Dictionary<string, string> conditions)
-    {
-        foreach (var (field, value) in conditions)
-        {
-            var property = typeof(FileCabinetRecord).GetProperty(field, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
-            if (property == null)
-            {
-                throw new ArgumentException($"Records don't have {field} field");
-            }
-
-            var recordValue = property.GetValue(record);
-            var convertedValue = Convert.ChangeType(value, property.PropertyType, CultureInfo.InvariantCulture);
-
-            if (!object.Equals(recordValue, convertedValue))
-            {
-                return false;
-            }
-        }
-
-        return true;
     }
 }

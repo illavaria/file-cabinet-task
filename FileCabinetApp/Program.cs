@@ -1,5 +1,8 @@
-﻿using System.Collections.ObjectModel;
-using System.Globalization;
+﻿using System.Globalization;
+using FileCabinetApp.CommandHandlers;
+using FileCabinetApp.FileCabinetServices;
+using FileCabinetApp.InputValidators;
+using FileCabinetApp.Validators;
 using Newtonsoft.Json;
 
 namespace FileCabinetApp
@@ -12,17 +15,13 @@ namespace FileCabinetApp
         private const string DeveloperName = "Illaria Samal";
         private const string HintMessage = "Enter your command, or enter 'help' to see the available commands and their parameters.";
         private const string LogFilePath = "LogFile.txt";
+        private const string FileSystemFilePath = "cabinet-records.db";
+        private const string ValidationRuleFilePath = "validation-rules.json";
 
         private static bool isRunning = true;
 
         private static IFileCabinetService fileCabinetService;
         private static IRecordConsoleInputValidator inputValidator;
-
-        // private static (string, Func<IRecordValidator>, Func<IRecordConsoleInputValidator>)[] validationParams =
-        // [
-        //     new ("custom", () => new ValidatorBuilder().CreateCustom(), ()=> new CustomValidator()),
-        //     new ("default", () => new ValidatorBuilder().CreateDefault(), () => new DefaultValidator())
-        // ];
 
         /// <summary>
         /// Main program body.
@@ -30,10 +29,14 @@ namespace FileCabinetApp
         /// <param name="args">Arguments.</param>
         public static void Main(string[] args)
         {
+            Console.WriteLine($"File Cabinet Application, developed by {DeveloperName}");
+
             var validationRule = "default";
             var storageRule = "memory";
             var useStopWatch = false;
             var useLogger = false;
+            TextWriter? stopWatchWriter = null;
+
             if (args?.Length > 0)
             {
                 for (var i = 0; i < args.Length; i++)
@@ -59,6 +62,12 @@ namespace FileCabinetApp
                     else if (args[i].StartsWith("-use-stopwatch", StringComparison.OrdinalIgnoreCase))
                     {
                         useStopWatch = true;
+                        if (i + 1 < args.Length && args[i + 1].StartsWith("-console", StringComparison.OrdinalIgnoreCase))
+                        {
+                            stopWatchWriter = Console.Out;
+                        }
+
+                        i++;
                     }
                     else if (args[i].StartsWith("-use-logger", StringComparison.OrdinalIgnoreCase))
                     {
@@ -67,19 +76,33 @@ namespace FileCabinetApp
                 }
             }
 
-            var json = File.ReadAllText("validation-rules.json");
+            if (!File.Exists(ValidationRuleFilePath))
+            {
+                Console.WriteLine($"Validation file {ValidationRuleFilePath} not found.");
+                return;
+            }
+
+            var json = File.ReadAllText(ValidationRuleFilePath);
             var validationSettings = JsonConvert.DeserializeObject<ValidationSettings.ValidationSettings>(json);
+            if (validationSettings is null)
+            {
+                Console.WriteLine("Validation file must have correct parameters");
+                return;
+            }
+
             IRecordValidator validator;
 
             if (string.Equals(validationRule, "default", StringComparison.OrdinalIgnoreCase))
             {
                 Program.inputValidator = new InputValidator(validationSettings.Default);
                 validator = new ValidatorBuilder().CreateDefault(validationSettings.Default);
+                Console.WriteLine("Program is running with default validation setting.");
             }
             else if (string.Equals(validationRule, "custom", StringComparison.OrdinalIgnoreCase))
             {
                 Program.inputValidator = new InputValidator(validationSettings.Custom);
                 validator = new ValidatorBuilder().CreateCustom(validationSettings.Custom);
+                Console.WriteLine("Program is running with custom validation setting.");
             }
             else
             {
@@ -87,16 +110,16 @@ namespace FileCabinetApp
                 return;
             }
 
-
             switch (storageRule)
             {
                 case "memory":
                     fileCabinetService = new FileCabinetMemoryService(validator);
+                    Console.WriteLine("Program is running with as memory service.");
                     break;
                 case "file":
                     fileCabinetService =
-                        new FileCabinetFilesystemService(
-                            new FileStream("cabinet-records.db", FileMode.OpenOrCreate, FileAccess.ReadWrite), validator);
+                        new FileCabinetFileSystemService(new FileStream(FileSystemFilePath, FileMode.OpenOrCreate, FileAccess.ReadWrite), validator);
+                    Console.WriteLine("Program is running with as file system service.");
                     break;
                 default:
                 {
@@ -105,17 +128,22 @@ namespace FileCabinetApp
                 }
             }
 
+            using var streamWriter = new StreamWriter(LogFilePath, true);
+            stopWatchWriter ??= streamWriter;
+
             if (useStopWatch)
             {
-                fileCabinetService = new ServiceMeter(fileCabinetService);
+                fileCabinetService = new ServiceMeter(fileCabinetService, stopWatchWriter);
+                Console.WriteLine($"Execution time is written to {(stopWatchWriter == Console.Out ? "console" : $"logfile {LogFilePath}")}");
             }
 
             if (useLogger)
             {
-                fileCabinetService = new ServiceLogger(fileCabinetService, LogFilePath);
+                streamWriter.AutoFlush = true;
+                fileCabinetService = new ServiceLogger(fileCabinetService, streamWriter);
+                Console.WriteLine($"Log is written to {LogFilePath}");
             }
 
-            Console.WriteLine($"File Cabinet Application, developed by {DeveloperName}");
             Console.WriteLine(HintMessage);
             Console.WriteLine();
 
@@ -138,7 +166,8 @@ namespace FileCabinetApp
 
                 var commandHandler = CreateCommandHandlers(command);
                 commandHandler.Handle(new AppCommandRequest { Command = command, Parameters = parameters });
-            } while (isRunning);
+            }
+            while (isRunning);
         }
 
         private static ICommandHandler CreateCommandHandlers(string command)
@@ -146,9 +175,9 @@ namespace FileCabinetApp
             var helpHandler = new HelpCommandHandler();
             var exitHandler = new ExitCommandHandler(state => isRunning = state);
             var statHandler = new StatCommandHandler(fileCabinetService);
-            var createHandler = new CreateCommandHandler(fileCabinetService);
+            var createHandler = new CreateCommandHandler(fileCabinetService, InputParameters);
             var listHandler = new ListCommandHandler(fileCabinetService, DefaultRecordPrint);
-            var editHandler = new EditCommandHandler(fileCabinetService);
+            var editHandler = new EditCommandHandler(fileCabinetService, InputParameters);
             var findHandler = new FindCommandHandler(fileCabinetService, DefaultRecordPrint);
             var exportHandler = new ExportCommandHandler(fileCabinetService);
             var importHandler = new ImportCommandHandler(fileCabinetService);
@@ -187,54 +216,59 @@ namespace FileCabinetApp
             }
         }
 
-        public static void InputParameters(out string? firstName, out string? lastName, out DateTime dateOfBirth, out short numberOfChildren, out decimal yearIncome, out char gender)
+        private static FileCabinetRecordsParameters InputParameters()
         {
-            var valid = new LastNameValidator(2, 4);
             Console.Write("First name: ");
-            firstName = ReadInput(StringConverter, inputValidator.FirstNameValidator);
+            var firstName = ReadInput(StringConverter, inputValidator.FirstNameValidator);
             Console.Write("Last name: ");
-            lastName = ReadInput(StringConverter, inputValidator.LastNameValidator);
+            var lastName = ReadInput(StringConverter, inputValidator.LastNameValidator);
 
             Console.Write("Date of birth: ");
-            dateOfBirth = ReadInput(DateConverter, inputValidator.DateOfBirthValidator);
+            var dateOfBirth = ReadInput(DateConverter, inputValidator.DateOfBirthValidator);
 
             Console.Write("Number of children: ");
-            numberOfChildren = ReadInput(ShortConverter, inputValidator.NumberOfChildrenValidator);
+            var numberOfChildren = ReadInput(ShortConverter, inputValidator.NumberOfChildrenValidator);
 
             Console.Write("Year income: ");
-            yearIncome = ReadInput(DecimalConverter, inputValidator.YearIncomeValidator);
+            var yearIncome = ReadInput(DecimalConverter, inputValidator.YearIncomeValidator);
 
             Console.Write("Gender (M, F, N): ");
-            gender = ReadInput(CharConverter, inputValidator.GenderValidator);
+            var gender = ReadInput(CharConverter, inputValidator.GenderValidator);
+
+            return new FileCabinetRecordsParameters
+            {
+                FirstName = firstName, LastName = lastName, DateOfBirth = dateOfBirth,
+                NumberOfChildren = numberOfChildren, YearIncome = yearIncome, Gender = gender,
+            };
         }
 
-        private static Tuple<bool, string, string> StringConverter(string input) =>
-            new (true, "Correct parameter", input);
+        private static Tuple<bool, string, string> StringConverter(string? input) =>
+            string.IsNullOrWhiteSpace(input)
+                ? new Tuple<bool, string, string>(false, "Input string can't be empty", string.Empty)
+                : new (true, "Correct parameter", input);
 
-        private static Tuple<bool, string, DateTime> DateConverter(string input) =>
+        private static Tuple<bool, string, DateTime> DateConverter(string? input) =>
             DateTime.TryParse(input, CultureInfo.InvariantCulture, out var output)
                 ? new Tuple<bool, string, DateTime>(true, "Correct parameter", output)
                 : new Tuple<bool, string, DateTime>(false, "Not valid date format", output);
 
-        private static Tuple<bool, string, short> ShortConverter(string input) =>
+        private static Tuple<bool, string, short> ShortConverter(string? input) =>
             short.TryParse(input, CultureInfo.InvariantCulture, out var output)
                 ? new Tuple<bool, string, short>(true, "Correct parameter", output)
                 : new Tuple<bool, string, short>(false, "Not valid number format", output);
 
-        private static Tuple<bool, string, decimal> DecimalConverter(string input) =>
+        private static Tuple<bool, string, decimal> DecimalConverter(string? input) =>
             decimal.TryParse(input, CultureInfo.InvariantCulture, out var output)
                 ? new Tuple<bool, string, decimal>(true, "Correct parameter", output)
                 : new Tuple<bool, string, decimal>(false, "Not valid decimal format", output);
 
-        private static Tuple<bool, string, char> CharConverter(string input) =>
+        private static Tuple<bool, string, char> CharConverter(string? input) =>
             string.IsNullOrWhiteSpace(input) || input.Length > 1
                 ? new Tuple<bool, string, char>(false, "Gender can't have more than 1 symbol", ' ')
                 : new Tuple<bool, string, char>(true, "Correct parameter", input.ToUpperInvariant()[0]);
 
-
-        private static T ReadInput<T>(Func<string, Tuple<bool, string, T>> converter, Func<T, Tuple<bool, string>> validator)
+        private static T ReadInput<T>(Func<string?, Tuple<bool, string, T>> converter, Func<T, Tuple<bool, string>> validator)
         {
-            var parameters = new FileCabinetRecordsParameters();
             while (true)
             {
                 var input = Console.ReadLine();

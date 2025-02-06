@@ -1,12 +1,15 @@
-﻿
-using System.Globalization;
+﻿using System.Globalization;
 using System.Xml;
 using FileCabinetApp;
+using FileCabinetApp.ValidationSettings;
+using Newtonsoft.Json;
+
+namespace FileCabinetGenerator;
 
 public static class Program
 {
-
-    private static Tuple<string, Action<List<FileCabinetRecord>, StreamWriter>>[] exportParams =
+    private const string ValidationRuleFilePath = "validation-rules.json";
+    private static readonly Tuple<string, Action<List<FileCabinetRecord>, StreamWriter>>[] exportParams =
     [
         new Tuple<string, Action<List<FileCabinetRecord>, StreamWriter>>("csv", SaveToCsv),
         new Tuple<string, Action<List<FileCabinetRecord>, StreamWriter>>("xml", SaveToXml)
@@ -17,14 +20,12 @@ public static class Program
         if (args?.Length <= 0)
         {
             Console.WriteLine("Program must take arguments: output-type, output, records-amount, start-id");
+            Console.WriteLine($"Examples of command's arguments: FileCabinetGenerator.exe --output-type=csv --output=d:records.csv --records-amount=10000 --start-id=30. {Environment.NewLine}FileCabinetGenerator.exe -t xml -o records.xml -a 5000 -i 45");
             return;
         }
 
-        if (!ParseArgs(args, out var outputType, out var outputFilename, out var recordsAmount, out var startId)) 
+        if (!ParseArgs(args, out var outputType, out var outputFilename, out var recordsAmount, out var startId, out var validationRule)) 
             return;
-        
-        var records = GenerateRecords(recordsAmount, startId);
-        
         
         var index = Array.FindIndex(exportParams, i => i.Item1.Equals(outputType, StringComparison.OrdinalIgnoreCase));
         if (index < 0)
@@ -42,20 +43,54 @@ public static class Program
             return;
         }
 
+        if (!File.Exists(ValidationRuleFilePath))
+        {
+            Console.WriteLine($"Configuration file {ValidationRuleFilePath} not found.");
+            return;
+        }
+
+        var json = File.ReadAllText(ValidationRuleFilePath);
+        var configuration = JsonConvert.DeserializeObject<ValidationSettings>(json);
+        if (configuration is null)
+        {
+            Console.WriteLine("Configuration file must have correct parameters");
+            return;
+        }
+        FileCabinetRecordGenerator generator;
+
+        if (string.Equals(validationRule, "default", StringComparison.OrdinalIgnoreCase))
+        {
+            generator = new FileCabinetRecordGenerator(configuration.Default);
+            Console.WriteLine("Generating with default validation setting.");
+        }
+        else if (string.Equals(validationRule, "custom", StringComparison.OrdinalIgnoreCase))
+        {
+            generator = new FileCabinetRecordGenerator(configuration.Custom);
+            Console.WriteLine("Generating with custom validation setting.");
+        }
+        else
+        {
+            Console.WriteLine("Unknown validation rule");
+            return;
+        }
+
         if (File.Exists(outputFilename))
         {
             Console.Write($"File '{outputFilename}' already exists. Overwrite? [Y/n] ");
             var input = Console.ReadLine()?.Trim();
             if (!string.Equals(input, "Y", StringComparison.OrdinalIgnoreCase))
             {
-                Console.WriteLine("Export canceled.");
+                Console.WriteLine("Generation canceled.");
                 return;
             }
         }
-
+        
+        var records = generator.GenerateRecords(recordsAmount, startId);
+        
         using var streamWriter = new StreamWriter(outputFilename);
         saveCommand(records, streamWriter);
-
+        
+        Console.WriteLine($"{recordsAmount} records were written to {outputFilename}");
     }
 
     private static void SaveToCsv(List<FileCabinetRecord> records, StreamWriter streamWriter)
@@ -81,65 +116,16 @@ public static class Program
         
         xmlWriter.WriteEndElement();
     }
-    
-    private static List<FileCabinetRecord> GenerateRecords(int amount, int startId)
-    {
-        var records = new List<FileCabinetRecord>();
-        var random = new Random();
 
-        for (int i = 0; i < amount; i++)
-        {
-            records.Add(new FileCabinetRecord
-            {
-                Id = startId + i,
-                FirstName = GenerateRandomString(random, 2, 60), 
-                LastName = GenerateRandomString(random, 2, 60),
-                DateOfBirth = GenerateRandomDate(random, new DateTime(1950, 1, 1), DateTime.Today),
-                NumberOfChildren = (short)random.Next(0, 11),
-                YearIncome = GenerateRandomDecimal(random, 0, 250_000),
-                Gender = GenerateRandomGender(random) 
-            });
-        }
-
-        return records;
-    }
-    
-    private static string GenerateRandomString(Random random, int minLength, int maxLength)
-    {
-        const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-        int length = random.Next(minLength, maxLength + 1);
-        var result = new char[length];
-
-        for (int i = 0; i < length; i++)
-        {
-            result[i] = chars[random.Next(chars.Length)];
-        }
-
-        return new string(result);
-    }
-
-    private static DateTime GenerateRandomDate(Random random, DateTime minDate, DateTime maxDate) =>
-        minDate.AddDays(random.Next((maxDate - minDate).Days));
-
-    private static decimal GenerateRandomDecimal(Random random, decimal min, decimal max)
-    {
-        var range = (double)(max - min);
-        return Math.Round((decimal)(random.NextDouble() * range) + min, 3);
-    }
-
-    private static char GenerateRandomGender(Random random)
-    {
-        char[] genders = { 'M', 'F', 'N' };
-        return genders[random.Next(genders.Length)];
-    }
-    private static bool ParseArgs(string[]? args, out string outputType, out string outputFilename, out int recordsAmount, out int startId)
+    private static bool ParseArgs(string[]? args, out string outputType, out string outputFilename, out int recordsAmount, out int startId, out string validationRule)
     {
         outputType = string.Empty;
         outputFilename = string.Empty;
         recordsAmount = -1;
         startId = -1;
+        validationRule = "default";
         
-        for (int i = 0; i < args?.Length; i++)
+        for (var i = 0; i < args?.Length; i++)
         {
             if (args[i].StartsWith("--output-type=", StringComparison.OrdinalIgnoreCase))
             {
@@ -192,6 +178,15 @@ public static class Program
                     return false;
                 }
 
+                i++;
+            }
+            else if (args[i].StartsWith("--validation-rules=", StringComparison.OrdinalIgnoreCase))
+            {
+                validationRule = args[i]["--validation-rules=".Length..];
+            }
+            else if (string.Equals(args[i], "-v", StringComparison.OrdinalIgnoreCase))
+            {
+                validationRule = args[i + 1];
                 i++;
             }
         }

@@ -1,16 +1,25 @@
 using System.Globalization;
 using System.Text.RegularExpressions;
+using FileCabinetApp.FileCabinetServices;
 
-namespace FileCabinetApp;
+namespace FileCabinetApp.CommandHandlers;
 
+/// <summary>
+/// Class represents command handler for insert operation.
+/// </summary>
+/// <param name="fileCabinetService">File cabinet service command is operated in.</param>
 public class InsertCommandHandler(IFileCabinetService fileCabinetService)
     : ServiceCommandHandleBase(fileCabinetService, "insert")
 {
-    protected override void HandleCore(string parameters)
+    private new readonly IFileCabinetService fileCabinetService = fileCabinetService ?? throw new ArgumentNullException(nameof(fileCabinetService));
+
+    /// <inheritdoc/>
+    protected override void HandleCore(string? parameters)
     {
+        _ = string.IsNullOrWhiteSpace(parameters) ? throw new ArgumentException("This command takes parameters") : parameters;
         var match = Regex.Match(parameters, @"\((.*?)\)\s+values\s+\((.*?)\)", RegexOptions.IgnoreCase);
-        string[] fieldNames = match.Groups[1].Value.Split(',', StringSplitOptions.TrimEntries);
-        string[] values = match.Groups[2].Value.Split(',', StringSplitOptions.TrimEntries);
+        var fieldNames = match.Groups[1].Value.Split(',', StringSplitOptions.TrimEntries);
+        var values = match.Groups[2].Value.Split(',', StringSplitOptions.TrimEntries);
 
         if (fieldNames.Length != values.Length)
         {

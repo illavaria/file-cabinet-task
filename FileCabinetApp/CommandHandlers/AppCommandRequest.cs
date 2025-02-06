@@ -1,4 +1,4 @@
-namespace FileCabinetApp;
+namespace FileCabinetApp.CommandHandlers;
 
 /// <summary>
 /// Class represents app command request.
@@ -13,5 +13,5 @@ public class AppCommandRequest
     /// <summary>
     /// Gets or sets command parameters.
     /// </summary>
-    public string Parameters { get; set; }
+    public string? Parameters { get; set; }
 }

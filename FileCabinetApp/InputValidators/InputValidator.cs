@@ -1,18 +1,12 @@
 using FileCabinetApp.ValidationSettings;
 
-namespace FileCabinetApp;
+namespace FileCabinetApp.InputValidators;
 
 /// <inheritdoc />
-public class InputValidator : IRecordConsoleInputValidator
+public class InputValidator(IBaseSettings validationSettings) : IRecordConsoleInputValidator
 {
-    private IBaseSettings validationSettings;
     private const string CorrectParameterText = "Correct parameter";
-
-    public InputValidator(IBaseSettings validationSettings)
-    {
-        ArgumentNullException.ThrowIfNull(validationSettings);
-        this.validationSettings = validationSettings;
-    }
+    private IBaseSettings validationSettings = validationSettings ?? throw new ArgumentNullException(nameof(validationSettings));
 
     /// <inheritdoc />
     public Tuple<bool, string> FirstNameValidator(string? firstName)
@@ -24,8 +18,7 @@ public class InputValidator : IRecordConsoleInputValidator
 
         return firstName.Length < this.validationSettings.FirstName.Min ||
                firstName.Length > this.validationSettings.FirstName.Max
-            ? new Tuple<bool, string>(false,
-                $"First name must be in range of {this.validationSettings.FirstName.Min} to {this.validationSettings.FirstName.Max} symbols")
+            ? new Tuple<bool, string>(false, $"First name must be in range of {this.validationSettings.FirstName.Min} to {this.validationSettings.FirstName.Max} symbols")
             : new Tuple<bool, string>(true, CorrectParameterText);
     }
 

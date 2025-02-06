@@ -1,15 +1,20 @@
 using System.Globalization;
+using FileCabinetApp.FileCabinetServices;
 
-namespace FileCabinetApp;
+namespace FileCabinetApp.CommandHandlers;
 
 /// <summary>
 /// Class represents command handler for edit operation.
 /// </summary>
 /// <param name="fileCabinetService">File cabinet service command is operated in.</param>
-public class EditCommandHandler(IFileCabinetService fileCabinetService) : ServiceCommandHandleBase(fileCabinetService, "edit")
+public class EditCommandHandler(IFileCabinetService fileCabinetService, Func<FileCabinetRecordsParameters> inputParameters)
+    : ServiceCommandHandleBase(fileCabinetService, "edit")
 {
+    private new readonly IFileCabinetService fileCabinetService = fileCabinetService ?? throw new ArgumentNullException(nameof(fileCabinetService));
+    private Func<FileCabinetRecordsParameters> inputParameters = inputParameters ?? throw new ArgumentNullException(nameof(inputParameters));
+
     /// <inheritdoc/>
-    protected override void HandleCore(string parameters)
+    protected override void HandleCore(string? parameters)
     {
         if (!int.TryParse(parameters, CultureInfo.InvariantCulture, out var recordId))
         {
@@ -27,12 +32,8 @@ public class EditCommandHandler(IFileCabinetService fileCabinetService) : Servic
         {
             try
             {
-                Program.InputParameters(out var firstName, out var lastName, out var dateOfBirth, out var numberOfChildren, out var yearIncome, out var gender);
-                this.fileCabinetService.EditRecord(recordId, new FileCabinetRecordsParameters
-                {
-                    FirstName = firstName, LastName = lastName, DateOfBirth = dateOfBirth,
-                    NumberOfChildren = numberOfChildren, YearIncome = yearIncome, Gender = gender,
-                });
+                var recordParameters = inputParameters();
+                this.fileCabinetService.EditRecord(recordId, recordParameters);
                 Console.WriteLine($"Record #{recordId} is updated.");
                 return;
             }

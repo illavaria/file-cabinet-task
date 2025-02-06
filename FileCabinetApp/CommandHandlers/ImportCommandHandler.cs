@@ -1,26 +1,27 @@
-namespace FileCabinetApp;
+using System.Collections.ObjectModel;
+using FileCabinetApp.FileCabinetServices;
+
+namespace FileCabinetApp.CommandHandlers;
 
 /// <summary>
 /// Class represents command handler for import operation.
 /// </summary>
 /// <param name="fileCabinetService">File cabinet service command is operated in.</param>
-public class ImportCommandHandler(IFileCabinetService fileCabinetService) : ServiceCommandHandleBase(fileCabinetService, "import")
+public class ImportCommandHandler(IFileCabinetService fileCabinetService)
+    : ServiceCommandHandleBase(fileCabinetService, "import")
 {
-    private static (string, Action<FileCabinetServiceSnapshot, StreamReader>)[] importParams =
+    private new readonly IFileCabinetService fileCabinetService = fileCabinetService ?? throw new ArgumentNullException(nameof(fileCabinetService));
+
+    private static readonly (string, Action<FileCabinetServiceSnapshot, StreamReader>)[] importParams =
     [
         new ("csv", LoadFromCsv),
         new ("xml", LoadFromXml)
     ];
 
-    private static void LoadFromCsv(FileCabinetServiceSnapshot snapshot, StreamReader reader) =>
-        snapshot.LoadFromCsv(reader);
-
-    private static void LoadFromXml(FileCabinetServiceSnapshot snapshot, StreamReader reader) =>
-        snapshot.LoadFromXml(reader);
-
     /// <inheritdoc/>
-    protected override void HandleCore(string parameters)
+    protected override void HandleCore(string? parameters)
     {
+        _ = string.IsNullOrWhiteSpace(parameters) ? throw new ArgumentException("This command takes parameters") : parameters;
         var args = parameters.Split(' ', 2, StringSplitOptions.RemoveEmptyEntries);
         if (args.Length < 2)
         {
@@ -55,7 +56,7 @@ public class ImportCommandHandler(IFileCabinetService fileCabinetService) : Serv
             using var streamReader = new StreamReader(filePath);
             var snapshot = new FileCabinetServiceSnapshot();
             loadCommand(snapshot, streamReader);
-            var validationErrors = new List<string>();
+            var validationErrors = new Collection<string>();
             this.fileCabinetService.Restore(snapshot, ref validationErrors);
             foreach (var error in validationErrors)
             {
@@ -70,4 +71,10 @@ public class ImportCommandHandler(IFileCabinetService fileCabinetService) : Serv
             Console.WriteLine($"Import failed: {ex.Message}");
         }
     }
+
+    private static void LoadFromCsv(FileCabinetServiceSnapshot snapshot, StreamReader reader) =>
+        snapshot.LoadFromCsv(reader);
+
+    private static void LoadFromXml(FileCabinetServiceSnapshot snapshot, StreamReader reader) =>
+        snapshot.LoadFromXml(reader);
 }

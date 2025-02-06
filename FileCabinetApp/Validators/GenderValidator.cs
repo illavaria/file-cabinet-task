@@ -1,21 +1,20 @@
 using System.Collections.ObjectModel;
 
-namespace FileCabinetApp;
+namespace FileCabinetApp.Validators;
 
-public class GenderValidator:IRecordValidator
+/// <summary>
+/// Class represents gender validator.
+/// </summary>
+/// <param name="allowedGenders">List of allowed genders.</param>
+public class GenderValidator(List<char> allowedGenders) : IRecordValidator
 {
-    private readonly ReadOnlyCollection<char> allowedGenders;
+    private readonly ReadOnlyCollection<char> allowedGenders = allowedGenders.AsReadOnly() ?? throw new ArgumentNullException(nameof(allowedGenders));
 
-    public GenderValidator(List<char> allowedGenders)
-    {
-        ArgumentNullException.ThrowIfNull(allowedGenders);
-        this.allowedGenders = allowedGenders.AsReadOnly();
-    }
-
+    /// <inheritdoc/>
     public void ValidateParameters(FileCabinetRecordsParameters? parameters)
     {
         ArgumentNullException.ThrowIfNull(parameters);
-        _ = allowedGenders.Contains(char.ToUpperInvariant(parameters.Gender))
+        _ = this.allowedGenders.Contains(char.ToUpperInvariant(parameters.Gender))
             ? parameters.Gender
             : throw new ArgumentException(
                 $"Gender must be one of the following: {string.Join(", ", this.allowedGenders)}");

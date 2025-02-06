@@ -1,7 +1,6 @@
-using System.Collections;
-using System.Collections.ObjectModel;
+using FileCabinetApp.FileCabinetServices;
 
-namespace FileCabinetApp;
+namespace FileCabinetApp.CommandHandlers;
 
 /// <summary>
 /// Class represents command handler for find operation.
@@ -10,7 +9,10 @@ namespace FileCabinetApp;
 public class FindCommandHandler(IFileCabinetService fileCabinetService, Action<IEnumerable<FileCabinetRecord>> printer)
     : ServiceCommandHandleBase(fileCabinetService, "find")
 {
-    private (string, Func<string, IEnumerable<FileCabinetRecord>>)[] findParams =
+    private new readonly IFileCabinetService fileCabinetService = fileCabinetService ?? throw new ArgumentNullException(nameof(fileCabinetService));
+    private readonly Action<IEnumerable<FileCabinetRecord>> printer = printer ?? throw new ArgumentNullException(nameof(printer));
+
+    private readonly (string, Func<string, IEnumerable<FileCabinetRecord>>)[] findParams =
     [
         new ("firstName", fileCabinetService.FindByFirstName),
         new ("lastName", fileCabinetService.FindByLastName),
@@ -18,7 +20,7 @@ public class FindCommandHandler(IFileCabinetService fileCabinetService, Action<I
     ];
 
     /// <inheritdoc/>
-    protected override void HandleCore(string parameters)
+    protected override void HandleCore(string? parameters)
     {
         if (string.IsNullOrWhiteSpace(parameters))
         {
@@ -26,34 +28,21 @@ public class FindCommandHandler(IFileCabinetService fileCabinetService, Action<I
             return;
         }
 
-        var par = parameters.Split(" = ", 2);
+        var par = parameters.Split(' ', 2);
         if (par.Length < 2)
         {
             Console.WriteLine("Command takes 2 parameters: field's name and value");
             return;
         }
 
-        var conditions = new Dictionary<string, string> { { par[0], par[1].Trim('\'') } };
-        IEnumerable<FileCabinetRecord> results;
-
         var index = Array.FindIndex(this.findParams, tuple => string.Equals(par[0], tuple.Item1, StringComparison.OrdinalIgnoreCase));
         if (index == -1)
         {
-            try
-            {
-                results = this.fileCabinetService.Find(conditions);
-            }
-            catch (ArgumentException e)
-            {
-                Console.WriteLine(e.Message);
-                return;
-            }
-        }
-        else
-        {
-            results = this.findParams[index].Item2(par[1].Trim('"'));
+            Console.WriteLine("Wrong field name");
+            return;
         }
 
-        printer(results);
+        var results = this.findParams[index].Item2(par[1].Trim('\''));
+        this.printer(results);
     }
 }

@@ -1,28 +1,36 @@
-using System.Collections;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Reflection;
+using FileCabinetApp.Validators;
 
-namespace FileCabinetApp;
+namespace FileCabinetApp.FileCabinetServices;
 
 /// <summary>
 /// Class represents filesystem file cabinet service.
 /// </summary>
-public class FileCabinetFilesystemService : IFileCabinetService
+public class FileCabinetFileSystemService : IFileCabinetService
 {
+    private const int RecordSize = 278;
     private readonly FileStream fileStream;
     private readonly IRecordValidator recordValidator;
-    private readonly Dictionary<string, List<long>> firstNameDictionary = new ();
-    private readonly Dictionary<string, List<long>> lastNameDictionary = new ();
-    private readonly Dictionary<DateTime, List<long>> dateOfBirthDictionary = new ();
-    private const int RecordSize = 278;
+    private readonly Dictionary<string, List<long>> firstNameDictionary;
+    private readonly Dictionary<string, List<long>> lastNameDictionary;
+    private readonly Dictionary<DateTime, List<long>> dateOfBirthDictionary;
 
-    public FileCabinetFilesystemService(FileStream fileStream, IRecordValidator recordValidator)
+    /// <summary>
+    /// Initializes a new instance of the <see cref="FileCabinetFileSystemService"/> class.
+    /// </summary>
+    /// <param name="fileStream">File stream used to store records.</param>
+    /// <param name="recordValidator">Record's validator.</param>
+    public FileCabinetFileSystemService(FileStream fileStream, IRecordValidator recordValidator)
     {
         ArgumentNullException.ThrowIfNull(fileStream);
         ArgumentNullException.ThrowIfNull(recordValidator);
         this.fileStream = fileStream;
         this.recordValidator = recordValidator;
+        this.firstNameDictionary = new Dictionary<string, List<long>>();
+        this.lastNameDictionary = new Dictionary<string, List<long>>();
+        this.dateOfBirthDictionary = new Dictionary<DateTime, List<long>>();
 
         this.fileStream.Seek(0, SeekOrigin.Begin);
         using var reader = new BinaryReader(this.fileStream, System.Text.Encoding.Unicode, leaveOpen: true);
@@ -118,7 +126,7 @@ public class FileCabinetFilesystemService : IFileCabinetService
             if ((status & 0b0100) == 0 && record.Id == id)
             {
                 var recordOffset = this.fileStream.Position;
-                if (!string.Equals(record.FirstName, parameters.FirstName, StringComparison.OrdinalIgnoreCase))
+                if (!string.Equals(record.FirstName, parameters!.FirstName, StringComparison.OrdinalIgnoreCase))
                 {
                     RemoveFromDictionary(this.firstNameDictionary, record.FirstName!.ToUpper(CultureInfo.InvariantCulture), recordOffset);
                     AddToDictionary(this.firstNameDictionary, parameters.FirstName!.ToUpper(CultureInfo.InvariantCulture), recordOffset);
@@ -148,7 +156,7 @@ public class FileCabinetFilesystemService : IFileCabinetService
         }
 
         using var writer = new BinaryWriter(this.fileStream, System.Text.Encoding.Unicode, leaveOpen: true);
-        WriteRecord(id, parameters!, writer);
+        WriteRecord(id, parameters, writer);
         writer.Flush();
     }
 
@@ -185,18 +193,6 @@ public class FileCabinetFilesystemService : IFileCabinetService
     /// <inheritdoc/>
     public FileCabinetRecord? FindById(int id) =>
         this.ReadAllRecords((record, i) => record.Id == i, id).SingleOrDefault();
-    // {
-    //     var recordOffset = RecordSize * (id - 1);
-    //     if (recordOffset > fileStream.Length)
-    //     {
-    //         return null;
-    //     }
-    //
-    //     fileStream.Seek(recordOffset + 2, SeekOrigin.Begin);
-    //     using var reader = new BinaryReader(fileStream, System.Text.Encoding.Unicode, leaveOpen: true);
-    //
-    //     return ReadRecord(reader);
-    // }
 
     /// <inheritdoc/>
     public IEnumerable<FileCabinetRecord> FindByFirstName(string? firstName)
@@ -243,6 +239,7 @@ public class FileCabinetFilesystemService : IFileCabinetService
         }
     }
 
+    /// <inheritdoc/>
     public IEnumerable<FileCabinetRecord> Find(Dictionary<string, string> conditions) =>
         this.GetRecords().Where(record => CheckRecordSatisfiesConditions(record, conditions)).ToList();
 
@@ -250,7 +247,7 @@ public class FileCabinetFilesystemService : IFileCabinetService
     public FileCabinetServiceSnapshot MakeSnapshot() => new FileCabinetServiceSnapshot(this.GetRecords().ToArray());
 
     /// <inheritdoc/>
-    public void Restore(FileCabinetServiceSnapshot snapshot, ref List<string> errorsList)
+    public void Restore(FileCabinetServiceSnapshot snapshot, ref Collection<string> errorsList)
     {
         _ = snapshot ?? throw new ArgumentNullException(nameof(snapshot));
         foreach (var record in snapshot.Records)
@@ -327,17 +324,18 @@ public class FileCabinetFilesystemService : IFileCabinetService
         this.fileStream.SetLength(writePosition);
     }
 
-    public void InsertRecord(int id, FileCabinetRecordsParameters parameters)
+    /// <inheritdoc/>
+    public void InsertRecord(int id, FileCabinetRecordsParameters? parameters)
     {
         this.recordValidator.ValidateParameters(parameters);
         var recordOffset = this.fileStream.Length;
 
         this.fileStream.Seek(0, SeekOrigin.End);
         using var writer = new BinaryWriter(this.fileStream, System.Text.Encoding.Unicode, leaveOpen: true);
-        WriteRecord(id, parameters!, writer);
+        WriteRecord(id, parameters, writer);
         writer.Flush();
 
-        AddToDictionary(this.firstNameDictionary, parameters.FirstName!.ToUpper(CultureInfo.InvariantCulture), recordOffset);
+        AddToDictionary(this.firstNameDictionary, parameters!.FirstName!.ToUpper(CultureInfo.InvariantCulture), recordOffset);
         AddToDictionary(this.lastNameDictionary, parameters.LastName!.ToUpper(CultureInfo.InvariantCulture), recordOffset);
         AddToDictionary(this.dateOfBirthDictionary, parameters.DateOfBirth, recordOffset);
     }
@@ -444,7 +442,7 @@ public class FileCabinetFilesystemService : IFileCabinetService
             }
         }
     }
-    
+
     private static bool CheckRecordSatisfiesConditions(FileCabinetRecord record, Dictionary<string, string> conditions)
     {
         foreach (var (field, value) in conditions)
@@ -458,9 +456,30 @@ public class FileCabinetFilesystemService : IFileCabinetService
             var recordValue = property.GetValue(record);
             var convertedValue = Convert.ChangeType(value, property.PropertyType, CultureInfo.InvariantCulture);
 
-            if (!object.Equals(recordValue, convertedValue))
+            switch (recordValue)
             {
-                return false;
+                case string recordStr:
+                    if (!string.Equals(value, recordStr, StringComparison.OrdinalIgnoreCase))
+                    {
+                        return false;
+                    }
+
+                    break;
+
+                case char recordChar when convertedValue is char convertedChar:
+                    if (char.ToUpperInvariant(recordChar) != char.ToUpperInvariant(convertedChar))
+                    {
+                        return false;
+                    }
+
+                    break;
+                default:
+                    if (!Equals(recordValue, convertedValue))
+                    {
+                        return false;
+                    }
+
+                    break;
             }
         }
 

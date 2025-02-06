@@ -9,7 +9,7 @@ namespace FileCabinetApp;
 /// <param name="reader">Xml reader used to read.</param>
 public class FileCabinetRecordXmlReader(XmlReader reader)
 {
-    private XmlReader reader = reader;
+    private XmlReader reader = reader ?? throw new ArgumentNullException(nameof(reader));
 
     /// <summary>
     /// Reads all records from reader.

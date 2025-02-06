@@ -2,13 +2,21 @@ using System.Globalization;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
+using FileCabinetApp.FileCabinetServices;
 
-namespace FileCabinetApp;
+namespace FileCabinetApp.CommandHandlers;
 
+/// <summary>
+/// Class represents command handler for select operation.
+/// </summary>
+/// <param name="fileCabinetService">File cabinet service command is operated in.</param>
 public class SelectCommandHandler(IFileCabinetService fileCabinetService)
     : ServiceCommandHandleBase(fileCabinetService, "select")
 {
-    protected override void HandleCore(string parameters)
+    private new readonly IFileCabinetService fileCabinetService = fileCabinetService ?? throw new ArgumentNullException(nameof(fileCabinetService));
+
+    /// <inheritdoc/>
+    protected override void HandleCore(string? parameters)
     {
         if (string.IsNullOrWhiteSpace(parameters))
         {
@@ -25,15 +33,19 @@ public class SelectCommandHandler(IFileCabinetService fileCabinetService)
         try
         {
             var filteredRecords = this.fileCabinetService.Find(conditions).ToList();
+            if (filteredRecords.Count == 0)
+            {
+                Console.WriteLine("No records that satisfy the condition.");
+                return;
+            }
+
             WriteTable(filteredRecords, selectedFields, Console.Out);
         }
         catch (ArgumentException e)
         {
             Console.WriteLine(e.Message);
-            return;
         }
     }
-
 
     /// <summary>
     /// Write in table form to the text stream a set of elements of type T (<see cref="ICollection{T}"/>),
@@ -42,6 +54,7 @@ public class SelectCommandHandler(IFileCabinetService fileCabinetService)
     /// </summary>
     /// <typeparam name="T">Type selector.</typeparam>
     /// <param name="collection">Collection of elements of type T.</param>
+    /// <param name="fields">Fields that have to be written.</param>
     /// <param name="writer">Text stream.</param>
     /// <exception cref="ArgumentNullException">Throw if <paramref name="collection"/> is null.</exception>
     /// <exception cref="ArgumentNullException">Throw if <paramref name="writer"/> is null.</exception>

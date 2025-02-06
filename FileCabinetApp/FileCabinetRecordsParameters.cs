@@ -5,7 +5,10 @@ namespace FileCabinetApp;
 /// </summary>
 public class FileCabinetRecordsParameters
 {
-    
+    /// <summary>
+    /// Initializes a new instance of the <see cref="FileCabinetRecordsParameters"/> class.
+    /// </summary>
+    /// <param name="record">File cabinet record used to get parameters.</param>
     public FileCabinetRecordsParameters(FileCabinetRecord record)
     {
         _ = record ?? throw new ArgumentNullException(nameof(record));
@@ -17,6 +20,9 @@ public class FileCabinetRecordsParameters
         this.Gender = record.Gender;
     }
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="FileCabinetRecordsParameters"/> class.
+    /// </summary>
     public FileCabinetRecordsParameters()
     {
     }

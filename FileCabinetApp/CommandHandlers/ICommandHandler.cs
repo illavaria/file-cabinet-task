@@ -1,4 +1,4 @@
-namespace FileCabinetApp;
+namespace FileCabinetApp.CommandHandlers;
 
 /// <summary>
 /// Interface representing command handler.

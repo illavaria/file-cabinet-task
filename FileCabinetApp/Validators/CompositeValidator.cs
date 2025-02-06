@@ -1,15 +1,15 @@
-namespace FileCabinetApp;
+namespace FileCabinetApp.Validators;
 
-public class CompositeValidator : IRecordValidator
+/// <summary>
+/// Class represents composite validator.
+/// </summary>
+/// <param name="validators">Validators used for validation.</param>
+public class CompositeValidator(IEnumerable<IRecordValidator> validators) : IRecordValidator
 {
-    private List<IRecordValidator> validators;
+    private List<IRecordValidator> validators = validators.ToList() ?? throw new ArgumentNullException(nameof(validators));
 
-    public CompositeValidator(IEnumerable<IRecordValidator> validators)
-    {
-        this.validators = validators.ToList();
-    }
-
-    public void ValidateParameters(FileCabinetRecordsParameters parameters)
+    /// <inheritdoc/>
+    public void ValidateParameters(FileCabinetRecordsParameters? parameters)
     {
         foreach (var validator in this.validators)
         {

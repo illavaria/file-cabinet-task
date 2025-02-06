@@ -1,16 +1,16 @@
-namespace FileCabinetApp;
+namespace FileCabinetApp.CommandHandlers;
 
 /// <summary>
 /// Class represents command handler for help operation.
 /// </summary>
-public class HelpCommandHandler : CommandHandlerBase
+public class HelpCommandHandler() : CommandHandlerBase("help")
 {
     private const int CommandHelpIndex = 0;
     private const int DescriptionHelpIndex = 1;
     private const int ExplanationHelpIndex = 2;
 
     private static string[][] helpMessages =
-    {
+    [
         ["create", "The 'create' command creates a new record.", "Syntax: create"],
         ["delete", "The 'delete' command deletes a record that satisfies the condition.", "Syntax: delete where <condition>"],
         ["edit", "The 'edit' command edits record's data.", "Syntax: edit <id>"],
@@ -25,15 +25,11 @@ public class HelpCommandHandler : CommandHandlerBase
         ["remove", "The 'remove' command removes the record by its id.", "Syntax: remove <id>"],
         ["select", "The 'select' command prints selected fields for records that satisfy the condition", "Syntax: select <field1>, <field2> where <field3> = '<value1>' and <field4> = '<value2>'"],
         ["stat", "The 'stat' command prints the statistics of records.", "Syntax: stat"],
-        ["update", "The 'update' command updates some fields of records that satisfy the condition.", "Syntax: update set <field1> = <value1>, <field2> = <value2> where <field3> = '<value3>' and <field4> = '<values4>'"],
-    };
+        ["update", "The 'update' command updates some fields of records that satisfy the condition.", "Syntax: update set <field1> = <value1>, <field2> = <value2> where <field3> = '<value3>' and <field4> = '<values4>'"]
+    ];
 
-    public HelpCommandHandler()
-        : base("help")
-    {
-    }
-
-    protected override void HandleCore(string parameters)
+    /// <inheritdoc/>
+    protected override void HandleCore(string? parameters)
     {
         if (!string.IsNullOrEmpty(parameters))
         {

@@ -8,7 +8,7 @@ namespace FileCabinetApp;
 /// <param name="reader">Stream reader used to read.</param>
 public class FileCabinetRecordCsvReader(StreamReader reader)
 {
-    private StreamReader reader = reader;
+    private StreamReader reader = reader ?? throw new ArgumentNullException(nameof(reader));
 
     /// <summary>
     /// Reads all records from reader.

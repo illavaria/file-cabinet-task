@@ -1,8 +1,10 @@
-namespace FileCabinetApp;
+namespace FileCabinetApp.InputValidators;
 
+/// <summary>
+/// Interface representing console input validator.
+/// </summary>
 public interface IRecordConsoleInputValidator
 {
-
     /// <summary>
     /// Validates first name.
     /// </summary>

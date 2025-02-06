@@ -1,25 +1,22 @@
-namespace FileCabinetApp;
+namespace FileCabinetApp.CommandHandlers;
 
 /// <summary>
 /// Class represents command handler for unknown operation.
 /// </summary>
-public class UnknownCommandHandler : CommandHandlerBase
+public class UnknownCommandHandler(string commandName)
+    : CommandHandlerBase(commandName)
 {
-    private readonly List<string> commands =
+    private static readonly List<string> Commands =
     [
         "create", "delete", "edit", "exit", "export", "find", "help", "import", "insert", "list", "purge", "remove", "select", "stat", "update"
     ];
 
-    public UnknownCommandHandler(string commandName)
-        : base(commandName)
-    {
-    }
-
-    protected override void HandleCore(string parameters)
+    /// <inheritdoc/>
+    protected override void HandleCore(string? parameters)
     {
         Console.WriteLine($"There is no '{this.commandName}' command. Use 'help' command to see available commands.");
 
-        var suggestions = this.GetClosestCommands(this.commandName);
+        var suggestions = GetClosestCommands(this.commandName);
         if (suggestions.Count > 0)
         {
             Console.WriteLine("The most similar commands are:");
@@ -30,9 +27,9 @@ public class UnknownCommandHandler : CommandHandlerBase
         }
     }
 
-    private List<string> GetClosestCommands(string input)
+    private static List<string> GetClosestCommands(string input)
     {
-        return this.commands.Select(cmd => new { Command = cmd, Distance = GetLevenshteinDistance(input, cmd) })
+        return Commands.Select(cmd => new { Command = cmd, Distance = GetLevenshteinDistance(input, cmd) })
             .OrderBy(x => x.Distance)
             .Where(x => x.Distance <= 2)
             .Select(x => x.Command)
