@@ -1,0 +1,53 @@
+{
+  "default": {
+    "firstName": {
+      "min": 2,
+      "max": 60
+    },
+    "lastName": {
+      "min": 2,
+      "max": 60
+    },
+    "dateOfBirth": {
+      "dateFrom": "1-1-1950",
+      "dateTo": "1-2-2025"
+    },
+    "numberOfChildren": {
+      "min": 0,
+      "max": 10
+    },
+    "yearIncome": {
+      "min": 0,
+      "max": 250000
+    },
+    "gender": {
+      "allowed": ["M", "F", "N"]
+    }
+  },
+  "custom": {
+    "firstName": {
+      "min": 3,
+      "max": 40
+    },
+    "lastName": {
+      "min": 3,
+      "max": 40
+    },
+    "dateOfBirth": {
+      "dateFrom": "1-1-1940",
+      "dateTo": "1-2-2025"
+    },
+    "numberOfChildren": {
+      "min": 0,
+      "max": 5
+    },
+    "minAgeToHaveChildren": 16,
+    "yearIncome": {
+      "min": 0,
+      "max": 2000000
+    },
+    "gender": {
+      "allowed": ["M", "F", "N"]
+    }
+  }
+}
